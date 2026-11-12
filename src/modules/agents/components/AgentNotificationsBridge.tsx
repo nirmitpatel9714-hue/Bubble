@@ -68,6 +68,9 @@ function handleSignal(sig: AgentSignal, ctx: Ctx): void {
     case "started": {
       const info = tabInfo(ctx.tabs, leafId);
       if (!info) return;
+      // The signal path knows more than a process scan could; drop any
+      // hookless sighting for this pane so only one row tracks it.
+      store.removeDetected(leafId);
       store.start(leafId, info.tabId, sig.agent ?? "agent");
       return;
     }
@@ -89,6 +92,7 @@ function handleSignal(sig: AgentSignal, ctx: Ctx): void {
     }
     case "exited":
       store.finish(leafId);
+      store.removeDetected(leafId);
       useManagedAgentsStore.getState().remove(leafId);
       return;
   }

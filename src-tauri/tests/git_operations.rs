@@ -1,12 +1,12 @@
 mod common;
 
 use common::{git_available, GitRepoFixture};
-use tempfile::TempDir;
 use losos_lib::modules::fs::to_canon;
 use losos_lib::modules::git::errors::GitError;
 use losos_lib::modules::git::operations;
 use losos_lib::modules::git::types::DiscardEntry;
 use losos_lib::modules::workspace::{WorkspaceEnv, WorkspaceRegistry};
+use tempfile::TempDir;
 
 fn skip_if_no_git() -> bool {
     if !git_available() {

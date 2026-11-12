@@ -7,6 +7,7 @@ import {
   ghosttyLeafHasForegroundProcess,
   ghosttyLeafIdForPty,
   ghosttyCwdForLeaf,
+  ghosttyTextForLeaf,
   ghosttyPtyIdForLeaf,
   ghosttySelectionForLeaf,
   hasGhosttySession,
@@ -58,6 +59,10 @@ export function pasteIntoSession(leafId: number, text: string): boolean {
 
 export function leafCwd(leafId: number): string | null {
   return ghosttyCwdForLeaf(leafId);
+}
+
+export function leafBufferText(leafId: number, maxLines = 200): string | null {
+  return ghosttyTextForLeaf(leafId, maxLines);
 }
 
 export function navigateFocusedBlocks(direction: -1 | 1): boolean {

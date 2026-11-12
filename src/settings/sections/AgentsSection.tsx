@@ -9,6 +9,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { AgentIcon } from "@/modules/agents/lib/agentIcon";
+import {
+  AGENT_LAUNCHERS,
+  AGENT_NAME_MAX_LENGTH,
+  type AgentLauncher,
+  type AgentLauncherId,
+  type CustomCodingAgent,
+  customAgentLauncher,
+  newCustomCodingAgentId,
+  validateAgentLaunchCommand,
+} from "@/modules/agents/lib/launcher";
 import { AGENT_ICONS } from "@/modules/ai/components/AgentSwitcher";
 import {
   type Agent,
@@ -26,7 +37,11 @@ import {
   useSnippetsStore,
 } from "@/modules/ai/store/snippetsStore";
 import { usePreferencesStore } from "@/modules/settings/preferences";
-import { setCustomInstructions } from "@/modules/settings/store";
+import {
+  setAddedAgents,
+  setCustomCodingAgents,
+  setCustomInstructions,
+} from "@/modules/settings/store";
 import {
   Add01Icon,
   CheckmarkCircle02Icon,
@@ -49,6 +64,8 @@ const ICON_OPTIONS: AgentIconId[] = [
 
 export function AgentsSection() {
   const customInstructions = usePreferencesStore((s) => s.customInstructions);
+  const addedAgents = usePreferencesStore((s) => s.addedAgents);
+  const customCodingAgents = usePreferencesStore((s) => s.customCodingAgents);
   const customAgents = useAgentsStore((s) => s.customAgents);
   const activeAgentId = useAgentsStore((s) => s.activeId);
   const setActiveAgentId = useAgentsStore((s) => s.setActiveId);
@@ -68,15 +85,91 @@ export function AgentsSection() {
 
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
+  const [editingCustomAgent, setEditingCustomAgent] =
+    useState<CustomCodingAgent | null>(null);
+
+  const toggleAddedAgent = (id: AgentLauncherId) => {
+    const next = addedAgents.includes(id)
+      ? addedAgents.filter((agent) => agent !== id)
+      : [...addedAgents, id];
+    void setAddedAgents(next).catch((error) => {
+      console.error("[losos] failed to save added agents:", error);
+    });
+  };
+
+  const saveCustomAgent = (agent: CustomCodingAgent) => {
+    const exists = customCodingAgents.some((a) => a.id === agent.id);
+    const next = exists
+      ? customCodingAgents.map((a) => (a.id === agent.id ? agent : a))
+      : [...customCodingAgents, agent];
+    void setCustomCodingAgents(next).catch((error) => {
+      console.error("[losos] failed to save custom coding agents:", error);
+    });
+    setEditingCustomAgent(null);
+  };
+
+  const removeCustomAgent = (id: string) => {
+    void setCustomCodingAgents(
+      customCodingAgents.filter((agent) => agent.id !== id),
+    ).catch((error) => {
+      console.error("[losos] failed to remove custom coding agent:", error);
+    });
+  };
 
   return (
     <div className="flex flex-col gap-7">
       <SectionHeader
         title="Agents"
-        description="Personas and snippets the AI uses. Switch agents from the input bar."
+        description="Personas, snippets, and coding agents. Switch agents from the input bar."
       />
 
       <CustomInstructionsBlock value={customInstructions} />
+
+      <section className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col">
+            <Label>Coding agents</Label>
+            <span className="text-[10.5px] text-muted-foreground">
+              Terminal agents you can launch from the new-tab "+" menu.
+            </span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 gap-1.5 px-2 text-[11px]"
+            onClick={() =>
+              setEditingCustomAgent({
+                id: newCustomCodingAgentId(),
+                name: "",
+                command: "",
+              })
+            }
+          >
+            <HugeiconsIcon icon={Add01Icon} size={12} strokeWidth={1.75} />
+            Add agent
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {AGENT_LAUNCHERS.map((agent) => (
+            <CodingAgentCard
+              key={agent.id}
+              agent={agent}
+              added={addedAgents.includes(agent.id)}
+              onToggle={() => toggleAddedAgent(agent.id)}
+            />
+          ))}
+          {customCodingAgents.map((agent) => (
+            <CodingAgentCard
+              key={agent.id}
+              agent={customAgentLauncher(agent)}
+              added
+              onToggle={() => {}}
+              onEdit={() => setEditingCustomAgent(agent)}
+              onDelete={() => removeCustomAgent(agent.id)}
+            />
+          ))}
+        </div>
+      </section>
 
       <section className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
@@ -202,6 +295,12 @@ export function AgentsSection() {
         )}
       </section>
 
+      <CustomAgentDialog
+        agent={editingCustomAgent}
+        existing={customCodingAgents}
+        onClose={() => setEditingCustomAgent(null)}
+        onSave={saveCustomAgent}
+      />
       <AgentEditorDialog
         agent={editingAgent}
         existing={customAgents}
@@ -311,6 +410,196 @@ function AgentCard({
         </div>
       </div>
     </div>
+  );
+}
+
+function CodingAgentCard({
+  agent,
+  added,
+  onToggle,
+  onEdit = null,
+  onDelete = null,
+}: {
+  agent: AgentLauncher;
+  added: boolean;
+  onToggle: () => void;
+  onEdit?: (() => void) | null;
+  onDelete?: (() => void) | null;
+}) {
+  return (
+    <div
+      className={cn(
+        "group relative flex flex-col gap-1.5 rounded-lg border bg-card/60 px-3 py-2.5 transition-colors",
+        added
+          ? "border-foreground/30 ring-1 ring-foreground/10"
+          : "border-border/60 hover:border-border",
+      )}
+    >
+      <div className="flex items-start gap-2">
+        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted/40">
+          <AgentIcon agent={agent.id} size={14} />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="flex items-center gap-1.5 text-[12.5px] font-medium">
+            {agent.label}
+            {agent.custom ? (
+              <span className="rounded bg-muted/50 px-1 py-0.5 text-[9px] tracking-wide text-muted-foreground uppercase">
+                Custom
+              </span>
+            ) : null}
+          </span>
+          <code className="truncate font-mono text-[10.5px] text-muted-foreground">
+            {agent.defaultCommand}
+          </code>
+        </div>
+      </div>
+      <div className="mt-0.5 flex items-center justify-between gap-1">
+        {onEdit || onDelete ? (
+          <div className="ml-auto flex gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            {onEdit ? (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-6"
+                onClick={onEdit}
+                title="Edit"
+              >
+                <HugeiconsIcon icon={Edit02Icon} size={11} strokeWidth={1.75} />
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-6 text-muted-foreground hover:text-destructive"
+                onClick={onDelete}
+                title="Delete"
+              >
+                <HugeiconsIcon
+                  icon={Delete02Icon}
+                  size={11}
+                  strokeWidth={1.75}
+                />
+              </Button>
+            ) : null}
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant={added ? "default" : "outline"}
+            onClick={onToggle}
+            className="h-6 gap-1 px-2 text-[10.5px]"
+          >
+            {added ? (
+              <>
+                <HugeiconsIcon
+                  icon={CheckmarkCircle02Icon}
+                  size={10}
+                  strokeWidth={2}
+                />
+                Added
+              </>
+            ) : (
+              "Add"
+            )}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CustomAgentDialog({
+  agent,
+  existing,
+  onClose,
+  onSave,
+}: {
+  agent: CustomCodingAgent | null;
+  existing: CustomCodingAgent[];
+  onClose: () => void;
+  onSave: (agent: CustomCodingAgent) => void;
+}) {
+  const [draft, setDraft] = useState<CustomCodingAgent | null>(agent);
+  useEffect(() => setDraft(agent), [agent]);
+  if (!draft) return null;
+
+  const name = draft.name.trim();
+  const command = validateAgentLaunchCommand(draft.command);
+  const nameError = !name
+    ? "Required."
+    : name.length > AGENT_NAME_MAX_LENGTH
+      ? `Keep the name under ${AGENT_NAME_MAX_LENGTH} characters.`
+      : existing.some((a) => a.id !== draft.id && a.name.trim() === name)
+        ? "Already in use."
+        : null;
+  const canSave = !nameError && command.ok;
+
+  return (
+    <Dialog open={!!agent} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-[14px]">
+            {existing.some((a) => a.id === draft.id)
+              ? "Edit coding agent"
+              : "New coding agent"}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <Label>Name</Label>
+            <Input
+              value={draft.name}
+              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              placeholder="e.g. Aider"
+              className="h-8 text-[12px]"
+            />
+            {nameError ? (
+              <span className="text-[10px] text-destructive">{nameError}</span>
+            ) : null}
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label>Start command</Label>
+            <Input
+              value={draft.command}
+              onChange={(e) => setDraft({ ...draft, command: e.target.value })}
+              spellCheck={false}
+              autoCapitalize="off"
+              autoCorrect="off"
+              aria-invalid={!command.ok}
+              placeholder="aider --model sonnet"
+              className="h-8 font-mono text-[12px]"
+            />
+            <span
+              className={
+                command.ok
+                  ? "text-[10px] text-muted-foreground"
+                  : "text-[10px] text-destructive"
+              }
+            >
+              {command.ok
+                ? "Typed into each agent pane when launched."
+                : command.error}
+            </span>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            disabled={!canSave}
+            onClick={() => {
+              if (!command.ok) return;
+              onSave({ ...draft, name, command: command.command });
+            }}
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

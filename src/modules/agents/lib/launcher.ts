@@ -44,10 +44,51 @@ export type AgentInstanceCount = 1 | 2 | 3 | 4;
 export type AgentLaunchCommands = Record<AgentLauncherId, string>;
 
 export type AgentLaunchRequest = {
-  agent: AgentLauncherId;
+  /** Built-in launcher id, or the id of a user-defined coding agent. */
+  agent: string;
   command: string;
   instances: AgentInstanceCount;
 };
+
+/** A user-defined coding agent, added in Settings → Agents. */
+export type CustomCodingAgent = {
+  id: string;
+  name: string;
+  command: string;
+};
+
+/** Anything the new-tab launcher can offer: built-in or user-defined. */
+export type AgentLauncher = {
+  id: string;
+  label: string;
+  defaultCommand: string;
+  supportsHooks: boolean;
+  /** True for user-defined agents; notification hooks are not installed for these. */
+  custom?: boolean;
+};
+
+export function customAgentLauncher(agent: CustomCodingAgent): AgentLauncher {
+  return {
+    id: agent.id,
+    label: agent.name,
+    defaultCommand: agent.command,
+    supportsHooks: false,
+    custom: true,
+  };
+}
+
+export const AGENT_NAME_MAX_LENGTH = 60;
+const MAX_CUSTOM_CODING_AGENTS = 12;
+
+export function newCustomCodingAgentId(): string {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
+    return `custom-${crypto.randomUUID()}`;
+  }
+  return `custom-${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+}
 
 export const DEFAULT_AGENT_LAUNCH_COMMANDS: AgentLaunchCommands =
   Object.fromEntries(
@@ -99,8 +140,35 @@ export function normalizeAgentLaunchCommands(
   ) as AgentLaunchCommands;
 }
 
-export function findAgentLauncher(id: AgentLauncherId) {
-  return AGENT_LAUNCHERS.find((agent) => agent.id === id) ?? AGENT_LAUNCHERS[0];
+export function normalizeCustomCodingAgents(
+  value: unknown,
+): CustomCodingAgent[] {
+  const items = Array.isArray(value) ? value : [];
+  const agents: CustomCodingAgent[] = [];
+  for (const item of items) {
+    if (typeof item !== "object" || item === null) continue;
+    const raw = item as Record<string, unknown>;
+    if (typeof raw.id !== "string" || !raw.id) continue;
+    if (AGENT_LAUNCHERS.some((launcher) => launcher.id === raw.id)) continue;
+    if (typeof raw.name !== "string") continue;
+    const name = raw.name.trim();
+    if (!name || name.length > AGENT_NAME_MAX_LENGTH) continue;
+    const command = validateAgentLaunchCommand(raw.command);
+    if (!command.ok) continue;
+    if (agents.some((agent) => agent.id === raw.id)) continue;
+    agents.push({ id: raw.id, name, command: command.command });
+  }
+  return agents.slice(0, MAX_CUSTOM_CODING_AGENTS);
+}
+
+export function findAgentLauncher(
+  id: string,
+  customAgents: CustomCodingAgent[] = [],
+): AgentLauncher | null {
+  const builtIn = AGENT_LAUNCHERS.find((agent) => agent.id === id);
+  if (builtIn) return builtIn;
+  const custom = customAgents.find((agent) => agent.id === id);
+  return custom ? customAgentLauncher(custom) : null;
 }
 
 export type AgentPanePlan = {

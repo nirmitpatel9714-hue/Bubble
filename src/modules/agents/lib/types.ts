@@ -42,3 +42,15 @@ export type LocalAgentState = {
   agent: string;
   status: AgentStatus;
 } | null;
+
+/**
+ * A hookless agent found by scanning a pane's process tree. Its status is
+ * always "working" — waiting state is only knowable through hooks or the
+ * OSC detector.
+ */
+export type DetectedAgent = {
+  leafId: number;
+  tabId: number;
+  agent: string;
+  since: number;
+};

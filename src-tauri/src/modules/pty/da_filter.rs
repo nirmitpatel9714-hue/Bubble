@@ -13,6 +13,7 @@ const FINAL_C: u8 = 0x63;
 const FINAL_N: u8 = 0x6e;
 const PREFIX_GT: u8 = 0x3e;
 const PREFIX_EQ: u8 = 0x3d;
+const PREFIX_LT: u8 = 0x3c;
 
 // Same answers as the webview model, so a program sees one terminal whichever
 // side replies.
@@ -112,12 +113,7 @@ impl DaFilter {
         false
     }
 
-    pub fn process<F: FnMut(&[u8])>(
-        &mut self,
-        input: &[u8],
-        out: &mut Vec<u8>,
-        mut respond: F,
-    ) {
+    pub fn process<F: FnMut(&[u8])>(&mut self, input: &[u8], out: &mut Vec<u8>, mut respond: F) {
         let mut i = 0;
         while i < input.len() {
             match self.state {
@@ -379,6 +375,20 @@ impl DaFilter {
                 }
                 out.extend_from_slice(&self.hold);
             }
+            b'u' => {
+                // Kitty keyboard protocol negotiation: `CSI ? u` asks what is
+                // supported, `CSI = flags;mode u` pushes flags and `CSI < n u`
+                // pops them. When the protocol is on, ghostty encodes
+                // Shift+letter as CSI-u, and agent TUIs decode that wrong —
+                // opencode drops capitals (opentui#1042). Drop the
+                // negotiation without replying: the program times out and
+                // stays on legacy encoding, where Shift+letter is a plain
+                // capital byte every terminal agrees on.
+                let prefix = self.hold[2];
+                if !matches!(prefix, b'?' | PREFIX_EQ | PREFIX_LT) {
+                    out.extend_from_slice(&self.hold);
+                }
+            }
             _ => out.extend_from_slice(&self.hold),
         }
     }
@@ -611,6 +621,30 @@ mod tests {
         let mut f = DaFilter::new();
         let (out, replies) = run(&mut f, b"\x1b[=c");
         assert!(out.is_empty());
+        assert!(replies.is_empty());
+    }
+
+    #[test]
+    fn kitty_keyboard_negotiation_is_dropped_without_a_reply() {
+        let mut f = DaFilter::new();
+        let (out, replies) = run(&mut f, b"\x1b[?u\x1b[=1;1u\x1b[<u\x1b[<1u\x1b[=5u");
+        assert!(out.is_empty());
+        assert!(replies.is_empty());
+    }
+
+    #[test]
+    fn kitty_negotiation_split_across_reads_is_dropped() {
+        let mut f = DaFilter::new();
+        let (out, replies) = run_chunked(&mut f, b"hi\x1b[?u\x1b[=1;1utext", 2);
+        assert_eq!(out, b"hitext");
+        assert!(replies.is_empty());
+    }
+
+    #[test]
+    fn bare_csi_u_is_not_a_kitty_negotiation() {
+        let mut f = DaFilter::new();
+        let (out, replies) = run(&mut f, b"\x1b[u");
+        assert_eq!(out, b"\x1b[u");
         assert!(replies.is_empty());
     }
 
@@ -911,7 +945,8 @@ mod tests {
 
     #[test]
     fn ordinary_streams_are_forwarded_byte_for_byte_at_every_chunk_size() {
-        let input: &[u8] = b"\x1b]0;title with 11;? inside\x07\x1b]8;;https://x.test\x1b\\link\x1b]8;;\x1b\\\
+        let input: &[u8] =
+            b"\x1b]0;title with 11;? inside\x07\x1b]8;;https://x.test\x1b\\link\x1b]8;;\x1b\\\
             \x1b]133;A\x1b\\\x1b]7;file:///tmp\x07\x1b]1337;File=inline=1:AAAA\x07\
             \x1b_Gf=100,a=T;AAAA\x1b\\\x1bP1$r0m\x1b\\\x1bPtmux;\x1b\x1b]11;?\x07\x1b\\\
             \x1b[?2026h\x1b[38;5;196mtext\x1b[0m\x1b[?2026l\x1b(B\x1b=\x1bM";
@@ -1132,7 +1167,10 @@ mod tests {
     #[test]
     fn only_a_prompt_start_ends_scheme_reports_not_other_marks() {
         let (mut f, state) = themed();
-        run(&mut f, b"\x1b[?2031h\x1b]133;B\x07\x1b]133;C;cmd\x07\x1b]133;D;0\x07\x1b]7;file:///a\x07");
+        run(
+            &mut f,
+            b"\x1b[?2031h\x1b]133;B\x07\x1b]133;C;cmd\x07\x1b]133;D;0\x07\x1b]7;file:///a\x07",
+        );
         assert_eq!(state.update(theme([255; 3])), Some(ColorScheme::Light));
     }
 

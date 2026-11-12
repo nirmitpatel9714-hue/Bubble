@@ -15,9 +15,13 @@ import {
   WHISPERCPP_DEFAULT_BASE_URL,
 } from "@/modules/ai/config";
 import {
+  AGENT_LAUNCHERS,
   type AgentLaunchCommands,
+  type AgentLauncherId,
+  type CustomCodingAgent,
   DEFAULT_AGENT_LAUNCH_COMMANDS,
   normalizeAgentLaunchCommands,
+  normalizeCustomCodingAgents,
 } from "@/modules/agents/lib/launcher";
 import type { KeyBinding, ShortcutId } from "@/modules/shortcuts/shortcuts";
 import {
@@ -184,6 +188,10 @@ export type Preferences = {
   agentNotifications: boolean;
   agentNotificationSound: boolean;
   agentLaunchCommands: AgentLaunchCommands;
+  /** Coding agents added in Settings; the new-tab launcher only offers these. */
+  addedAgents: AgentLauncherId[];
+  /** User-defined coding agents, editable in Settings → Agents. */
+  customCodingAgents: CustomCodingAgent[];
   defaultWorkspaceEnv: string;
   shortcuts: Record<ShortcutId, KeyBinding[]>;
   editorAutoSave: boolean;
@@ -282,6 +290,8 @@ const KEY_ZOOM_LEVEL = "zoomLevel";
 const KEY_AGENT_NOTIFICATIONS = "agentNotifications";
 const KEY_AGENT_NOTIFICATION_SOUND = "agentNotificationSound";
 const KEY_AGENT_LAUNCH_COMMANDS = "agentLaunchCommands";
+const KEY_ADDED_AGENTS = "addedAgents";
+const KEY_CUSTOM_CODING_AGENTS = "customCodingAgents";
 const KEY_DEFAULT_WORKSPACE_ENV = "defaultWorkspaceEnv";
 const KEY_SHORTCUTS = "shortcuts";
 const KEY_EDITOR_AUTO_SAVE = "editorAutoSave";
@@ -379,6 +389,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   agentNotifications: true,
   agentNotificationSound: true,
   agentLaunchCommands: DEFAULT_AGENT_LAUNCH_COMMANDS,
+  addedAgents: [],
+  customCodingAgents: [],
   defaultWorkspaceEnv: "local",
   shortcuts: {} as Record<ShortcutId, KeyBinding[]>,
   editorAutoSave: false,
@@ -520,7 +532,9 @@ export async function loadPreferences(): Promise<Preferences> {
     explorerGitDecorations:
       get<boolean>(KEY_EXPLORER_GIT_DECORATIONS) ??
       DEFAULT_PREFERENCES.explorerGitDecorations,
-    terminalRenderer: coerceTerminalRenderer(get<string>(KEY_TERMINAL_RENDERER)),
+    terminalRenderer: coerceTerminalRenderer(
+      get<string>(KEY_TERMINAL_RENDERER),
+    ),
     terminalScreenReader: get<boolean>(KEY_TERMINAL_SCREEN_READER) === true,
     terminalCursorBlink:
       get<boolean>(KEY_TERMINAL_CURSOR_BLINK) ??
@@ -568,6 +582,10 @@ export async function loadPreferences(): Promise<Preferences> {
       DEFAULT_PREFERENCES.agentNotificationSound,
     agentLaunchCommands: normalizeAgentLaunchCommands(
       get<unknown>(KEY_AGENT_LAUNCH_COMMANDS),
+    ),
+    addedAgents: normalizeAddedAgents(get<unknown>(KEY_ADDED_AGENTS)),
+    customCodingAgents: normalizeCustomCodingAgents(
+      get<unknown>(KEY_CUSTOM_CODING_AGENTS),
     ),
     defaultWorkspaceEnv:
       get<string>(KEY_DEFAULT_WORKSPACE_ENV) ??
@@ -852,7 +870,9 @@ const TERMINAL_FONT_WEIGHT_VALUES = new Set(["normal", "500", "600", "bold"]);
 /** Renderer for new terminals: WebGPU with WebGL fallback, WebGPU, or WebGL. */
 export type TerminalRendererSetting = "auto" | "webgpu" | "webgl";
 
-export function coerceTerminalRenderer(value: unknown): TerminalRendererSetting {
+export function coerceTerminalRenderer(
+  value: unknown,
+): TerminalRendererSetting {
   return value === "webgl" || value === "webgpu" ? value : "auto";
 }
 
@@ -980,6 +1000,28 @@ export async function setAgentLaunchCommands(
   );
 }
 
+function normalizeAddedAgents(value: unknown): AgentLauncherId[] {
+  const ids = Array.isArray(value) ? value : [];
+  const added: AgentLauncherId[] = [];
+  for (const id of ids) {
+    if (typeof id !== "string") continue;
+    if (!AGENT_LAUNCHERS.some((agent) => agent.id === id)) continue;
+    if (added.includes(id as AgentLauncherId)) continue;
+    added.push(id as AgentLauncherId);
+  }
+  return added;
+}
+
+export async function setAddedAgents(value: AgentLauncherId[]): Promise<void> {
+  await writePref(KEY_ADDED_AGENTS, normalizeAddedAgents(value));
+}
+
+export async function setCustomCodingAgents(
+  value: CustomCodingAgent[],
+): Promise<void> {
+  await writePref(KEY_CUSTOM_CODING_AGENTS, normalizeCustomCodingAgents(value));
+}
+
 export async function setDefaultWorkspaceEnv(value: string): Promise<void> {
   await writePref(KEY_DEFAULT_WORKSPACE_ENV, value);
 }
@@ -1053,6 +1095,8 @@ export async function onPreferencesChange(
     [KEY_AGENT_NOTIFICATIONS]: "agentNotifications",
     [KEY_AGENT_NOTIFICATION_SOUND]: "agentNotificationSound",
     [KEY_AGENT_LAUNCH_COMMANDS]: "agentLaunchCommands",
+    [KEY_ADDED_AGENTS]: "addedAgents",
+    [KEY_CUSTOM_CODING_AGENTS]: "customCodingAgents",
     [KEY_DEFAULT_WORKSPACE_ENV]: "defaultWorkspaceEnv",
     [KEY_SHORTCUTS]: "shortcuts",
     [KEY_EDITOR_AUTO_SAVE]: "editorAutoSave",

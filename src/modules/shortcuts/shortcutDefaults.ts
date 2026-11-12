@@ -63,6 +63,7 @@ export const MAC_DEFAULTS: Readonly<Record<ShortcutId, readonly KeyBinding[]>> =
     "ai.toggleMini": [{ shift: true, meta: true, key: "i" }],
     "ai.askSelection": [{ meta: true, key: "j" }],
     "agent.focusAttention": [{ shift: true, meta: true, key: "a" }],
+    "agent.dashboard": [],
     "sidebar.toggle": [
       { meta: true, key: "b" },
       { shift: true, meta: true, key: "b" },
@@ -129,6 +130,10 @@ export const WIN_LINUX_DEFAULTS: Readonly<
   "ai.toggleMini": [{ ...CS, key: "," }],
   "ai.askSelection": [{ ...CS, key: "j" }],
   "agent.focusAttention": [{ ...CS, key: "a" }],
+  // Every Ctrl/Cmd+Shift+letter chord is claimed — the editor's CodeMirror
+  // keymaps take L, M, K and \, and G is the editor's own jump. The dashboard
+  // opens from the herdr button and the command palette instead.
+  "agent.dashboard": [],
   "sidebar.toggle": [{ ...CS, key: "b" }],
   "explorer.focus": [{ ...CS, key: "x" }],
   "explorer.toggleHidden": [{ ...CS, key: "." }],

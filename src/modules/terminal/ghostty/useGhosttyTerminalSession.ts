@@ -402,6 +402,14 @@ export function ghosttyCwdForLeaf(leafId: number): string | null {
   return sessions.get(leafId)?.lastCwd ?? null;
 }
 
+/** Last `maxLines` lines of a pane's buffer, for peeking without focusing it. */
+export function ghosttyTextForLeaf(
+  leafId: number,
+  maxLines = 200,
+): string | null {
+  return sessions.get(leafId)?.model?.readText(maxLines) ?? null;
+}
+
 export function ghosttyFocusedLeaf(): number | null {
   for (const [leafId, session] of sessions) {
     if (session.visible && session.focused) return leafId;

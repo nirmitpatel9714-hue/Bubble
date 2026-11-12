@@ -102,7 +102,8 @@ export class ResizePromptHold {
     }
     if (!this.holding) return;
     this.holding = false;
-    if (__LOSOS_BENCH__) smoothHooks()?.hold(this.benchId, false, performance.now());
+    if (__LOSOS_BENCH__)
+      smoothHooks()?.hold(this.benchId, false, performance.now());
     this.release();
   }
 

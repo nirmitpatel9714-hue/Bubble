@@ -56,7 +56,9 @@ describe("literal drop arguments", () => {
   it("quotes literal POSIX backslashes, including a Windows-hosted WSL path", () => {
     const path = "/mnt/c/Downloads/literal\\name.txt";
     expect(unescapeForShell(quoteShellPath(path, false), false)).toBe(path);
-    expect(formatDroppedPaths([path], false)).toBe("'/mnt/c/Downloads/literal'\\\\'name.txt' ");
+    expect(formatDroppedPaths([path], false)).toBe(
+      "'/mnt/c/Downloads/literal'\\\\'name.txt' ",
+    );
   });
 });
 
@@ -89,10 +91,27 @@ it("round trips literal paths through the platform shell", () => {
   expect(output).toBe(`${paths.join("\0")}\0`);
 });
 
-const fishProgram = process.platform === "win32" ? "" : spawnSync("/bin/sh", ["-c", "command -v fish"], { encoding: "utf8" }).stdout.trim();
-it.runIf(Boolean(fishProgram))("round trips backslashes and apostrophes through fish", () => {
-  for (const path of ["/tmp/a\\'b.txt", "/tmp/a\\\\b.txt", "/tmp/a\\", "/tmp/$(echo expanded)"]) {
-    const output = execFileSync(fishProgram, ["--no-config", "-c", `printf '%s' ${quoteShellPath(path, false)}`], { encoding: "utf8" });
-    expect(output).toBe(path);
-  }
-});
+const fishProgram =
+  process.platform === "win32"
+    ? ""
+    : spawnSync("/bin/sh", ["-c", "command -v fish"], {
+        encoding: "utf8",
+      }).stdout.trim();
+it.runIf(Boolean(fishProgram))(
+  "round trips backslashes and apostrophes through fish",
+  () => {
+    for (const path of [
+      "/tmp/a\\'b.txt",
+      "/tmp/a\\\\b.txt",
+      "/tmp/a\\",
+      "/tmp/$(echo expanded)",
+    ]) {
+      const output = execFileSync(
+        fishProgram,
+        ["--no-config", "-c", `printf '%s' ${quoteShellPath(path, false)}`],
+        { encoding: "utf8" },
+      );
+      expect(output).toBe(path);
+    }
+  },
+);

@@ -407,6 +407,49 @@ pub fn pty_has_foreground_job(state: tauri::State<PtyState>, id: u32) -> Result<
     }
 }
 
+/// A process running under a terminal's shell, for hookless agent detection.
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ForegroundProcess {
+    pub pid: u32,
+    pub name: String,
+}
+
+/// Every descendant of one terminal's shell.
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SessionForeground {
+    /// Pty id the frontend maps back to a terminal leaf.
+    pub id: u32,
+    /// Frontend pane (leaf) that reported this terminal, when known.
+    pub pane: Option<u32>,
+    pub processes: Vec<ForegroundProcess>,
+}
+
+/// Enumerates descendant processes per terminal in one call, so the frontend
+/// scanner can match agent commands without a round trip per pane.
+#[tauri::command]
+pub fn pty_foreground_processes(
+    state: tauri::State<PtyState>,
+) -> Result<Vec<SessionForeground>, String> {
+    let sessions = state.sessions.read().unwrap();
+    Ok(sessions
+        .iter()
+        .filter(|(_, session)| session.shell_pid != 0)
+        .map(|(id, session)| SessionForeground {
+            id: *id,
+            pane: session.pane_id,
+            processes: foreground::shell_descendants(session.shell_pid)
+                .into_iter()
+                .map(|child| ForegroundProcess {
+                    pid: child.pid,
+                    name: child.name,
+                })
+                .collect(),
+        })
+        .collect())
+}
+
 // A fresh webview load orphans the previous frontend's sessions in this still
 // running process; reap them on boot before any new tab spawns.
 #[tauri::command]
