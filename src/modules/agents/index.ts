@@ -1,5 +1,8 @@
 export { AgentNotificationsBridge } from "./components/AgentNotificationsBridge";
-export { NotificationBell } from "./components/NotificationBell";
+export {
+  AgentScanBridge,
+  requestAgentScan,
+} from "./components/AgentScanBridge";
 export {
   type AgentLaunchRequest,
   findAgentLauncher,

@@ -4,7 +4,9 @@ import {
   AGENT_LAUNCHERS,
   createAgentPanePlan,
   DEFAULT_AGENT_LAUNCH_COMMANDS,
+  findAgentLauncher,
   normalizeAgentLaunchCommands,
+  normalizeCustomCodingAgents,
   validateAgentLaunchCommand,
   type AgentInstanceCount,
 } from "./launcher";
@@ -57,6 +59,35 @@ describe("agent launch commands", () => {
       opencode: "opencode",
       grok: "grok",
     });
+  });
+});
+
+describe("custom coding agents", () => {
+  it("normalizes persisted agents and drops invalid or duplicate entries", () => {
+    expect(
+      normalizeCustomCodingAgents([
+        { id: "custom-a", name: "  Aider  ", command: "  aider  " },
+        { id: "claude", name: "Fake Claude", command: "claude" },
+        { id: "", name: "No id", command: "x" },
+        { id: "custom-b", name: "   ", command: "x" },
+        { id: "custom-c", name: "Bad command", command: "a\nb" },
+        { id: "custom-a", name: "Duplicate", command: "aider" },
+        "junk",
+      ]),
+    ).toEqual([{ id: "custom-a", name: "Aider", command: "aider" }]);
+  });
+
+  it("resolves built-ins first, then custom agents", () => {
+    const custom = { id: "custom-x", name: "My Agent", command: "myagent" };
+    expect(findAgentLauncher("claude")?.label).toBe("Claude");
+    expect(findAgentLauncher("custom-x", [custom])).toEqual({
+      id: "custom-x",
+      label: "My Agent",
+      defaultCommand: "myagent",
+      supportsHooks: false,
+      custom: true,
+    });
+    expect(findAgentLauncher("missing", [custom])).toBeNull();
   });
 });
 

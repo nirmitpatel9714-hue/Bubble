@@ -7,7 +7,6 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-use serde_json::Value;
 use losos_control_protocol::hook::{
     decision_output, is_decision_event, trim_payload, AgentName, HookParams, HookResult,
     DEFAULT_DECISION_SECS, MAX_DECISION_SECS, MAX_PAYLOAD_BYTES, MAX_STDIN_BYTES,
@@ -17,6 +16,7 @@ use losos_control_protocol::{
     CallerContext, ControlDescriptor, ControlRequest, ControlResponse, METHOD_HOOK,
     PROTOCOL_VERSION,
 };
+use serde_json::Value;
 
 use crate::{
     io_error, parse_loopback_address, read_response, request_id, validate_endpoint, write_request,

@@ -8,13 +8,13 @@ use std::sync::{Arc, Condvar, Mutex, OnceLock};
 use std::thread;
 use std::time::{Duration, SystemTime};
 
-use serde_json::{json, Value};
-use tauri::{Emitter, Manager};
 use losos_control_protocol::{
     ControlDescriptor, ControlRequest, ControlResponse, FrontendRequest, FrontendResponse,
     OpenParams, MAX_MESSAGE_BYTES, METHODS, METHOD_CAPABILITIES, METHOD_HOOK, METHOD_IDENTIFY,
     METHOD_OPEN, METHOD_PING, PROTOCOL_VERSION, SERVER_RESPONSE_ID,
 };
+use serde_json::{json, Value};
+use tauri::{Emitter, Manager};
 
 use crate::modules::agent_events::{self, AgentHost, HookState, TauriAgentHost};
 use crate::modules::{fs, workspace};
@@ -1144,11 +1144,11 @@ mod tests {
     mod hook_end_to_end {
         use super::*;
         use crate::modules::agent_events::test_host::FakeHost;
+        use losos_cli::hook::{run, HookEnvironment};
+        use losos_control_protocol::hook::{HookDecision, HookKind};
         use serde_json::json;
         use std::ffi::OsString;
         use std::sync::Arc;
-        use losos_cli::hook::{run, HookEnvironment};
-        use losos_control_protocol::hook::{HookDecision, HookKind};
 
         const TOKEN: &str = "a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90";
 

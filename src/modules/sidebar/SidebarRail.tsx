@@ -1,5 +1,9 @@
 import { cn } from "@/lib/utils";
-import { FolderGitTwoIcon, FolderTreeIcon } from "@hugeicons/core-free-icons";
+import {
+  AiBrowserIcon,
+  FolderGitTwoIcon,
+  FolderTreeIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type { SidebarViewId } from "./types";
 
@@ -16,9 +20,16 @@ type Props = {
   activeView: SidebarViewId;
   onSelectView: (view: SidebarViewId) => void;
   changedCount: number;
+  /** Agents waiting for input; drives the herdr badge. */
+  agentWaitingCount: number;
 };
 
-export function SidebarRail({ activeView, onSelectView, changedCount }: Props) {
+export function SidebarRail({
+  activeView,
+  onSelectView,
+  changedCount,
+  agentWaitingCount,
+}: Props) {
   const items: RailItem[] = [
     { id: "explorer", label: "Files", icon: FolderTreeIcon },
     {
@@ -26,6 +37,12 @@ export function SidebarRail({ activeView, onSelectView, changedCount }: Props) {
       label: "Git",
       icon: FolderGitTwoIcon,
       badge: changedCount,
+    },
+    {
+      id: "herdr",
+      label: "Herdr",
+      icon: AiBrowserIcon,
+      badge: agentWaitingCount,
     },
   ];
 

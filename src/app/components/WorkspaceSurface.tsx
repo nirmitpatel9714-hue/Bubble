@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 import { AiDiffStack, EditorStack, GitDiffStack } from "@/modules/editor";
 import { GitHistoryStack } from "@/modules/git-history";
+import { AgentDashboardStack } from "@/modules/herdr";
 import { MarkdownStack } from "@/modules/markdown";
 import { PreviewStack } from "@/modules/preview";
 import type { Tab } from "@/modules/tabs";
@@ -32,6 +33,8 @@ type Props = {
   onOpenCommitFile: GitHistoryStackProps["onOpenCommitFile"];
   onGitHistorySearchHandle: GitHistoryStackProps["onSearchHandle"];
   onSetMarkdownView: EditorStackProps["onSetMarkdownView"];
+  onActivateAgent: (tabId: number, leafId: number) => void;
+  onActivateLocalAgent: () => void;
 };
 
 const LAYER = "absolute inset-0";
@@ -63,6 +66,8 @@ export function WorkspaceSurface({
   onOpenCommitFile,
   onGitHistorySearchHandle,
   onSetMarkdownView,
+  onActivateAgent,
+  onActivateLocalAgent,
 }: Props) {
   const kind = activeTab?.kind;
   const isTerminalTab = kind === "terminal";
@@ -72,6 +77,7 @@ export function WorkspaceSurface({
   const isAiDiffTab = kind === "ai-diff";
   const isGitDiffTab = kind === "git-diff" || kind === "git-commit-file";
   const isGitHistoryTab = kind === "git-history";
+  const isAgentsTab = kind === "agents";
 
   return (
     <div className="relative h-full min-h-0">
@@ -156,6 +162,17 @@ export function WorkspaceSurface({
           activeId={activeId}
           onOpenCommitFile={onOpenCommitFile}
           onSearchHandle={onGitHistorySearchHandle}
+        />
+      </div>
+      <div
+        className={cn(LAYER, !isAgentsTab && "invisible pointer-events-none")}
+        aria-hidden={!isAgentsTab}
+      >
+        <AgentDashboardStack
+          tabs={tabs}
+          activeId={activeId}
+          onActivate={onActivateAgent}
+          onActivateLocal={onActivateLocalAgent}
         />
       </div>
     </div>

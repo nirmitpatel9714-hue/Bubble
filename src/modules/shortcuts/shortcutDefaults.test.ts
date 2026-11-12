@@ -54,6 +54,7 @@ ai.toggle: Cmd+i
 ai.toggleMini: Shift+Cmd+i
 ai.askSelection: Cmd+j
 agent.focusAttention: Shift+Cmd+a
+agent.dashboard: 
 sidebar.toggle: Cmd+b, Shift+Cmd+b
 explorer.focus: Shift+Cmd+e
 explorer.toggleHidden: Shift+Cmd+.
@@ -202,8 +203,12 @@ describe("Windows and Linux defaults", () => {
     "view.zoomIn",
     "editor.redo",
   ]);
-  /** Deliberately unbound: Ctrl+K is readline's kill-line. */
-  const UNBOUND: ReadonlySet<ShortcutId> = new Set(["terminal.clear"]);
+  /** Deliberately unbound: Ctrl+K is readline's kill-line, and the editor's
+   * CodeMirror keymaps claim every remaining Ctrl+Shift+letter chord. */
+  const UNBOUND: ReadonlySet<ShortcutId> = new Set([
+    "terminal.clear",
+    "agent.dashboard",
+  ]);
 
   it("covers every shortcut", () => {
     expect(Object.keys(table).sort()).toEqual([...ids].sort());

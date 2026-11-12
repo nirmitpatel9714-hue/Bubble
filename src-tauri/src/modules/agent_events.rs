@@ -9,13 +9,13 @@ use std::sync::mpsc::{self, Receiver, RecvTimeoutError, SyncSender};
 use std::sync::Mutex;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use serde_json::json;
-use tauri::{Emitter, Manager};
 use losos_control_protocol::hook::{
     normalize, AgentEvent, AgentName, HookDecision, HookFacts, HookKind, HookParams, HookResult,
     NormalizeError, MAX_DECISION_SECS,
 };
 use losos_control_protocol::{ControlRequest, ControlResponse};
+use serde_json::json;
+use tauri::{Emitter, Manager};
 
 use crate::modules::pty::agent_detect::{AgentSignal, HookIntent};
 use crate::modules::pty::PaneTarget;
@@ -620,12 +620,12 @@ pub(crate) mod test_host {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use losos_control_protocol::{CallerContext, PROTOCOL_VERSION};
     use serde_json::Value;
     use std::io::{BufRead, BufReader, Read, Write};
     use std::net::TcpListener;
     use std::sync::Arc;
     use std::thread;
-    use losos_control_protocol::{CallerContext, PROTOCOL_VERSION};
 
     use super::test_host::FakeHost;
 

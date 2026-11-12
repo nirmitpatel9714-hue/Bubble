@@ -6,6 +6,7 @@ describe("agent session store", () => {
   beforeEach(() => {
     useAgentStore.setState({
       sessions: {},
+      detected: {},
       localAgent: null,
       notifications: [],
     });
@@ -19,7 +20,12 @@ describe("agent session store", () => {
     useAgentStore.getState().start(7, 3, "claude");
     const s = useAgentStore.getState().sessions[7];
 
-    expect(s).toMatchObject({ leafId: 7, tabId: 3, agent: "claude", status: "working" });
+    expect(s).toMatchObject({
+      leafId: 7,
+      tabId: 3,
+      agent: "claude",
+      status: "working",
+    });
     expect(s.attentionSince).toBeNull();
   });
 
@@ -50,13 +56,54 @@ describe("agent session store", () => {
     expect(useAgentStore.getState().sessions[7]).toBeUndefined();
   });
 
+  it("upserts detected agents, keeping the first sighting's since", () => {
+    const store = useAgentStore.getState();
+    store.upsertDetected({ leafId: 7, tabId: 3, agent: "myagent", since: 100 });
+
+    let entry = useAgentStore.getState().detected[7];
+    expect(entry).toMatchObject({
+      leafId: 7,
+      tabId: 3,
+      agent: "myagent",
+      since: 100,
+    });
+
+    // Same sighting: no write, since preserved.
+    const before = useAgentStore.getState().detected;
+    useAgentStore
+      .getState()
+      .upsertDetected({ leafId: 7, tabId: 3, agent: "myagent", since: 500 });
+    expect(useAgentStore.getState().detected).toBe(before);
+
+    // Same leaf, different agent: updated, since still the original.
+    useAgentStore
+      .getState()
+      .upsertDetected({ leafId: 7, tabId: 3, agent: "codex", since: 500 });
+    entry = useAgentStore.getState().detected[7];
+    expect(entry.agent).toBe("codex");
+    expect(entry.since).toBe(100);
+  });
+
+  it("removes detected agents and no-ops on unknown leaves", () => {
+    const store = useAgentStore.getState();
+    store.upsertDetected({ leafId: 7, tabId: 3, agent: "myagent", since: 100 });
+    store.removeDetected(8);
+    expect(useAgentStore.getState().detected[7]).toBeDefined();
+
+    store.removeDetected(7);
+    expect(useAgentStore.getState().detected[7]).toBeUndefined();
+
+    // Removing an absent leaf must not churn the store.
+    const before = useAgentStore.getState().detected;
+    useAgentStore.getState().removeDetected(7);
+    expect(useAgentStore.getState().detected).toBe(before);
+  });
+
   it("dedupes local agent state when neither status nor agent changed", () => {
     useAgentStore.getState().setLocalAgent({ agent: "pi", status: "working" });
     const before = useAgentStore.getState().localAgent;
 
-    useAgentStore
-      .getState()
-      .setLocalAgent({ agent: "pi", status: "working" });
+    useAgentStore.getState().setLocalAgent({ agent: "pi", status: "working" });
 
     expect(useAgentStore.getState().localAgent).toBe(before);
 
@@ -88,7 +135,9 @@ describe("agent session store", () => {
     useAgentStore.getState().markAllRead();
 
     expect(useAgentStore.getState().notifications).toBe(afterFirst);
-    expect(useAgentStore.getState().notifications.every((n) => n.read)).toBe(true);
+    expect(useAgentStore.getState().notifications.every((n) => n.read)).toBe(
+      true,
+    );
   });
 
   it("nextAttentionTarget returns the most recently waiting agent", () => {
@@ -108,7 +157,6 @@ describe("agent session store", () => {
 
     expect(nextAttentionTarget()).toEqual({ tabId: 10, leafId: 1 });
   });
-
 });
 
 function push(partial: { leafId: number; tabId: number }): void {

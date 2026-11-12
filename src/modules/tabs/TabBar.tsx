@@ -729,6 +729,9 @@ export function TabIcon({ tab }: { tab: Tab }) {
       />
     );
   }
+  if (tab.kind === "agents") {
+    return <AgentIcon agent="herdr" size={14} className="shrink-0" />;
+  }
   return <TerminalTabIcon tab={tab} />;
 }
 

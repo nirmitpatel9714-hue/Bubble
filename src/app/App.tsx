@@ -15,10 +15,12 @@ import { isMarkdownPath } from "@/lib/utils";
 import {
   type AgentLaunchRequest,
   AgentNotificationsBridge,
+  AgentScanBridge,
   findAgentLauncher,
   nextAttentionTarget,
   validateAgentLaunchCommand,
 } from "@/modules/agents";
+import { useAgentStore } from "@/modules/agents/store/agentStore";
 import {
   AgentRunBridge,
   AiMiniWindow,
@@ -46,6 +48,7 @@ import {
 } from "@/modules/editor";
 import { FileExplorer, type FileExplorerHandle } from "@/modules/explorer";
 import type { GitHistorySearchHandle } from "@/modules/git-history";
+import { HerdrPanel } from "@/modules/herdr";
 import {
   Header,
   type SearchInlineHandle,
@@ -187,6 +190,7 @@ export default function App() {
     closeAiDiffTab,
     openGitDiffTab,
     openCommitHistoryTab,
+    openAgentsDashboard,
     openCommitFileDiffTab,
     closeTab,
     closeTabs,
@@ -619,11 +623,14 @@ export default function App() {
     newBlockTab(inheritedCwdForNewTab());
   }, [newBlockTab, inheritedCwdForNewTab]);
 
+  const customCodingAgents = usePreferencesStore((s) => s.customCodingAgents);
+
   const launchAgentGroup = useCallback(
     (request: AgentLaunchRequest) => {
       const command = validateAgentLaunchCommand(request.command);
       if (!command.ok) return;
-      const launcher = findAgentLauncher(request.agent);
+      const launcher = findAgentLauncher(request.agent, customCodingAgents);
+      if (!launcher) return;
       const title =
         request.instances === 1
           ? launcher.label
@@ -655,7 +662,7 @@ export default function App() {
         })();
       }
     },
-    [inheritedCwdForNewTab, newAgentGroupTab],
+    [inheritedCwdForNewTab, newAgentGroupTab, customCodingAgents],
   );
 
   const sendCd = useCallback(
@@ -669,7 +676,8 @@ export default function App() {
           return;
         }
         toast("Terminal is busy", {
-          description: "Open a new tab to go there, or exit the running program.",
+          description:
+            "Open a new tab to go there, or exit the running program.",
         });
       });
     },
@@ -960,6 +968,7 @@ export default function App() {
         const t = nextAttentionTarget();
         if (t) activateAgentTarget(t.tabId, t.leafId);
       },
+      "agent.dashboard": openAgentsDashboard,
       "settings.open": () => void openSettingsWindow(),
       "sidebar.toggle": toggleSidebar,
       "explorer.focus": toggleExplorerFocus,
@@ -1005,6 +1014,7 @@ export default function App() {
       zoomOut,
       zoomReset,
       activateAgentTarget,
+      openAgentsDashboard,
     ],
   );
 
@@ -1122,6 +1132,14 @@ export default function App() {
     (tabId: number, leafId: number) => focusPane(tabId, leafId),
     [focusPane],
   );
+
+  const agentWaitingCount = useAgentStore((s) => {
+    let waiting = s.localAgent?.status === "waiting" ? 1 : 0;
+    for (const session of Object.values(s.sessions)) {
+      if (session.status === "waiting") waiting += 1;
+    }
+    return waiting;
+  });
 
   const onActivateAgent = activateAgentTarget;
 
@@ -1285,6 +1303,7 @@ export default function App() {
             openNewEditor: () => setNewEditorOpen(true),
             openNewPreview: () => openPreviewTab(""),
             openGitGraph: openGitGraphFromContext,
+            openAgentsDashboard: openAgentsDashboard,
             toggleSourceControl,
             closeActiveTabOrPane: handleCloseTabOrPane,
             splitPaneRight: () => splitActivePaneInActiveTab("row"),
@@ -1316,6 +1335,7 @@ export default function App() {
       openNewPrivateTab,
       openPreviewTab,
       openGitGraphFromContext,
+      openAgentsDashboard,
       toggleSourceControl,
       handleCloseTabOrPane,
       splitActivePaneInActiveTab,
@@ -1461,8 +1481,6 @@ export default function App() {
               onReorder={reorderTabByGap}
               onToggleSidebar={toggleSidebar}
               onOpenCommandPalette={() => openCommandPalette("commands")}
-              onActivateAgent={onActivateAgent}
-              onActivateLocalAgent={onActivateLocalAgent}
               onOpenSettings={() => void openSettingsWindow()}
               spaceSwitcher={spaceSwitcher}
               searchTarget={searchTarget}
@@ -1523,6 +1541,13 @@ export default function App() {
                           pathDropTarget={terminalPathDropTarget}
                           visible={!sidebarCollapsed}
                         />
+                      ) : sidebarView === "herdr" ? (
+                        <HerdrPanel
+                          onActivate={onActivateAgent}
+                          onActivateLocal={onActivateLocalAgent}
+                          visible={!sidebarCollapsed}
+                          onOpenDashboard={openAgentsDashboard}
+                        />
                       ) : (
                         <SourceControlPanel
                           open
@@ -1542,6 +1567,7 @@ export default function App() {
                       activeView={sidebarView}
                       onSelectView={persistSidebarView}
                       changedCount={sourceControl.changedCount}
+                      agentWaitingCount={agentWaitingCount}
                     />
                   </div>
                 </div>
@@ -1570,6 +1596,8 @@ export default function App() {
                         onOpenCommitFile={openCommitFileDiffTab}
                         onGitHistorySearchHandle={setGitHistoryHandle}
                         onSetMarkdownView={setMarkdownView}
+                        onActivateAgent={onActivateAgent}
+                        onActivateLocalAgent={onActivateLocalAgent}
                       />
                     </div>
 
@@ -1618,6 +1646,7 @@ export default function App() {
             activeId={activeId}
             onActivate={onActivateAgent}
           />
+          <AgentScanBridge tabs={tabs} />
           <Toaster position="bottom-right" />
 
           {hasComposer ? (
