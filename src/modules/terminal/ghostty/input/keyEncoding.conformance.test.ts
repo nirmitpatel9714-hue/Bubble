@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import type { GhosttyTerminalModelApi } from "@/modules/terminal/ghostty/GhosttyTerminalModel";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import type { KeyEvent } from "@losos/ghostty-core/protocol";
 import { describe, expect, it, vi } from "vitest";
 import { FakeElement, FakeTextArea } from "./fakeTextArea";
@@ -705,7 +705,7 @@ const ARTIFACTS = ["ghostty-vt.wasm", "ghostty-vt-scalar.wasm"] as const;
 
 const cores = new Map<
   string,
-  Awaited<ReturnType<typeof LosOSGhostty.loadBytes>>
+  Awaited<ReturnType<typeof BubbleGhostty.loadBytes>>
 >();
 
 async function loadCore(artifact: string) {
@@ -717,7 +717,7 @@ async function loadCore(artifact: string) {
       import.meta.url,
     ),
   );
-  const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+  const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
   cores.set(artifact, core);
   return core;
 }
@@ -804,7 +804,7 @@ function keyEvent(row: Row, type: "keydown" | "keyup"): KeyboardEvent {
 
 function terminalModel(
   terminal: ReturnType<
-    Awaited<ReturnType<typeof LosOSGhostty.loadBytes>>["createTerminal"]
+    Awaited<ReturnType<typeof BubbleGhostty.loadBytes>>["createTerminal"]
   >,
 ): GhosttyTerminalModelApi {
   return {

@@ -9,6 +9,8 @@ import type { TerminalPaneHandle } from "./TerminalPane";
 type Props = {
   tabs: Tab[];
   activeId: number;
+  /** This stack belongs to the app's active window (tiled columns can be inactive). */
+  active?: boolean;
   /** Register/unregister handle by leaf id (not tab id). */
   registerHandle: (leafId: number, handle: TerminalPaneHandle | null) => void;
   onSearchReady: (leafId: number, addon: TerminalSearchController) => void;
@@ -27,6 +29,7 @@ type Bundle = {
 export function TerminalStack({
   tabs,
   activeId,
+  active = true,
   registerHandle,
   onSearchReady,
   onCwd,
@@ -104,6 +107,7 @@ export function TerminalStack({
             <PaneTreeView
               node={t.paneTree}
               tabVisible={tabVisible}
+              tabFocused={active && tabVisible}
               activeLeafId={t.activeLeafId}
               blocks={t.blocks ?? false}
               onFocusLeaf={(leafId) => onFocusLeaf(t.id, leafId)}

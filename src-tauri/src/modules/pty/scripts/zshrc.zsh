@@ -9,7 +9,7 @@
 # ...) cannot break it; the user's files are sourced outside of it.
 
 {
-  # LosOS's directory is still ZDOTDIR here (see zshenv.zsh). /etc/zshrc on
+  # Bubble's directory is still ZDOTDIR here (see zshenv.zsh). /etc/zshrc on
   # macOS derives HISTFILE from it, so move that to the user's directory.
   _losos_zdotdir="${ZDOTDIR-}"
   _losos_user_zdotdir="${LOSOS_USER_ZDOTDIR:-${HOME-}}"
@@ -40,7 +40,7 @@ _losos_zshrc_setup() {
   __LOSOS_HOOKS_LOADED=1
   autoload -Uz add-zsh-hook 2>/dev/null
 
-  # ZDOTDIR has two faces. While a command runs it is exported as LosOS's
+  # ZDOTDIR has two faces. While a command runs it is exported as Bubble's
   # directory, so a shell that command starts (exec zsh, a nested zsh, zsh -l)
   # reads the integration scripts again; at the prompt, in hooks and in widgets
   # it is the user's own value (or unset), so code that reads $ZDOTDIR lazily
@@ -133,7 +133,7 @@ _losos_zshrc_setup() {
 
   # While a command runs ZDOTDIR stays the user's, so a typed `vim $ZDOTDIR/.zshrc`
   # expands to their file. Only a command line that starts a zsh exports
-  # LosOS's directory, so that shell reads the integration; the next precmd
+  # Bubble's directory, so that shell reads the integration; the next precmd
   # puts the user's value back.
   _losos_zdotdir_command() {
     emulate -L zsh

@@ -14,7 +14,7 @@ export type GhosttySemanticEventCallbacks = {
 };
 
 /**
- * Routes parser-owned semantic events into LosOS product callbacks.
+ * Routes parser-owned semantic events into Bubble product callbacks.
  *
  * OSC 7 is accepted only between commands. Output produced by a command is
  * untrusted and must not be allowed to change the workspace directory.

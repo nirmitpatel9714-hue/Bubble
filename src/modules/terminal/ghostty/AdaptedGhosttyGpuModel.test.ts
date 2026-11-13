@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import {
   GPU_CELL_BYTES,
-  LosOSGhostty,
+  BubbleGhostty,
   decodeGpuCell,
 } from "@losos/ghostty-core/adapted";
 import { beforeAll, describe, expect, it, vi } from "vitest";
@@ -14,7 +14,7 @@ const encoder = new TextEncoder();
 describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
   "GPU frames from the adapted Ghostty model (%s)",
   (artifact) => {
-    let core: LosOSGhostty;
+    let core: BubbleGhostty;
 
     beforeAll(async () => {
       const file = await readFile(
@@ -23,7 +23,7 @@ describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
           import.meta.url,
         ),
       );
-      core = await LosOSGhostty.loadBytes(Uint8Array.from(file).buffer);
+      core = await BubbleGhostty.loadBytes(Uint8Array.from(file).buffer);
     });
 
     function create(cols = 40, rows = 8) {

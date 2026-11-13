@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { describe, expect, it } from "vitest";
 import {
   adversarialInputs,
@@ -27,7 +27,7 @@ describe.each([
     const bytes = Uint8Array.from(file);
     return {
       layout: readWasmLayout(bytes),
-      core: await LosOSGhostty.loadBytes(bytes.buffer),
+      core: await BubbleGhostty.loadBytes(bytes.buffer),
     };
   }
 

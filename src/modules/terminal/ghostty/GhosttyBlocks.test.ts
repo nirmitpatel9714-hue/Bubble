@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { AdaptedGhosttyTerminalModel } from "@/modules/terminal/ghostty/AdaptedGhosttyTerminalModel";
 import {
   GhosttyBlocks,
@@ -10,7 +10,7 @@ import {
 describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
   "Ghostty command blocks (%s)",
   (artifact) => {
-    let core: LosOSGhostty;
+    let core: BubbleGhostty;
     beforeAll(async () => {
       const bytes = await readFile(
         new URL(
@@ -18,7 +18,7 @@ describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
           import.meta.url,
         ),
       );
-      core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+      core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     });
 
     function create() {

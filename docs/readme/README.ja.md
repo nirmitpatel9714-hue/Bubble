@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
   <p><strong>軽量でターミナル中心の AI ネイティブ開発ワークスペース。</strong></p>
   <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-LosOS は、Tauri 2 + Rust と React 19 で構築された、軽量かつオープンソースのターミナル中心 AI ネイティブ開発環境（ADE）です。WebGL レンダラーを備えたネイティブ PTY バックエンド、自分のキーまたは完全なローカルモデルで動作するエージェント型 AI サイドパネル、コードエディター、ファイルエクスプローラー、Git グラフ付きソース管理、ウェブプレビューパネルを内蔵しています。ディスク使用量は約 7-8 MB。テレメトリなし。アカウント不要。
+Bubble は、Tauri 2 + Rust と React 19 で構築された、軽量かつオープンソースのターミナル中心 AI ネイティブ開発環境（ADE）です。WebGL レンダラーを備えたネイティブ PTY バックエンド、自分のキーまたは完全なローカルモデルで動作するエージェント型 AI サイドパネル、コードエディター、ファイルエクスプローラー、Git グラフ付きソース管理、ウェブプレビューパネルを内蔵しています。ディスク使用量は約 7-8 MB。テレメトリなし。アカウント不要。
 
 ## スクリーンショット
 
@@ -80,7 +80,7 @@ LosOS は、Tauri 2 + Rust と React 19 で構築された、軽量かつオー�
 
 - **BYOK プロバイダー:** OpenAI、Anthropic、Google（Gemini）、Groq、xAI（Grok）、Cerebras、OpenRouter、DeepSeek、Mistral、任意の OpenAI 互換エンドポイント
 - **ローカル / オフライン:** LM Studio、MLX、Ollama
-- **エージェント型ワークフロー:** 計画、サブエージェント、`LOSOS.md` によるプロジェクトメモリ、ファイルの読み取り / 書き込み / 編集 / 複数編集 / grep / glob、承認付き bash、バックグラウンドプロセス
+- **エージェント型ワークフロー:** 計画、サブエージェント、`BUBBLE.md` によるプロジェクトメモリ、ファイルの読み取り / 書き込み / 編集 / 複数編集 / grep / glob、承認付き bash、バックグラウンドプロセス
 - **コーディングエージェントの連携:** ターミナルで Claude Code を起動し、出力を確認して、承認付きツールから追加作業を送信
 - **コンポーザー:** `#handle` のプロンプトスニペット、`@path` のファイル、音声入力、エクスプローラーや選択範囲からの添付
 - 独自のシステムプロンプトとツールセットを持つ**カスタムエージェント**
@@ -88,7 +88,7 @@ LosOS は、Tauri 2 + Rust と React 19 で構築された、軽量かつオー�
 
 ## インストール
 
-最新のインストーラーは [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) ページにあります。LosOS はそこから自動更新されます。
+最新のインストーラーは [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) ページにあります。Bubble はそこから自動更新されます。
 
 ### Windows の注意事項
 
@@ -99,7 +99,7 @@ LosOS は、Tauri 2 + Rust と React 19 で構築された、軽量かつオー�
 
 - **Arch / AUR:** `yay -S losos-bin`（または `paru` など）。最新版を追跡します。
 - **NixOS / Nix:** 公式 flake を使用します。NixOS 以外では `nix profile install github:nirmitpatel9714-hue/LosOS`、NixOS では flake をインポートし、`inputs.losos.packages.${pkgs.system}.losos` を `environment.systemPackages` に追加します。より簡単な設定には `nixosModules.losos` も利用できます。
-- **AppImage:** FUSE が必要です。ない場合は `./LosOS_*.AppImage --appimage-extract-and-run` を実行してください。Wayland で描画に問題がある場合は `WEBKIT_DISABLE_DMABUF_RENDERER=1` を試してください。`.deb` / `.rpm` はシステムの GTK スタックを使用するため、通常はより滑らかです。
+- **AppImage:** FUSE が必要です。ない場合は `./Bubble_*.AppImage --appimage-extract-and-run` を実行してください。Wayland で描画に問題がある場合は `WEBKIT_DISABLE_DMABUF_RENDERER=1` を試してください。`.deb` / `.rpm` はシステムの GTK スタックを使用するため、通常はより滑らかです。
 
 ## AI の設定
 
@@ -151,4 +151,4 @@ Windows ビルドは [SignPath.io](https://signpath.io) 提供、[SignPath Found
 
 ## ライセンス
 
-LosOS は Apache-2.0 ライセンスです。依存関係については [Apache License 2.0](../../LICENSE) を参照してください。
+Bubble は Apache-2.0 ライセンスです。依存関係については [Apache License 2.0](../../LICENSE) を参照してください。

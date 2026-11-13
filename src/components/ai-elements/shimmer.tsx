@@ -28,7 +28,7 @@ const ShimmerComponent = ({
     Component,
     {
       className: cn(
-        "losos-shimmer relative inline-block bg-clip-text text-transparent",
+        "bubble-shimmer relative inline-block bg-clip-text text-transparent",
         className
       ),
       style: {

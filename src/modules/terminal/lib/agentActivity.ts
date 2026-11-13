@@ -97,7 +97,7 @@ const signalHandlers = new Set<AgentSignalHandler>();
 
 /**
  * Subscribes to every raw detector signal through the single shared native
- * `losos:agent-signal` listener (the activity store has already applied the
+ * `bubble:agent-signal` listener (the activity store has already applied the
  * signal when handlers run). One listener serves the tab icons and the
  * notification bridge instead of one IPC subscription each.
  */
@@ -138,7 +138,7 @@ function applySignal(payload: AgentSignal): void {
 // reports per-pty lifecycle: started, working, attention, finished, exited.
 export function ensureAgentActivityListener(): Promise<void> {
   if (listenerReady) return listenerReady;
-  listenerReady = listen<AgentSignal>("losos:agent-signal", (e) => {
+  listenerReady = listen<AgentSignal>("bubble:agent-signal", (e) => {
     applySignal(e.payload);
     for (const handler of signalHandlers) {
       try {

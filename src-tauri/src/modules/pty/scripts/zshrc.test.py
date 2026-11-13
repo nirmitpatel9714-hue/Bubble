@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Shell integration tests for the zsh scripts. Run: python3 zshrc.test.py
 
-Drives a real zsh in a pty the way LosOS spawns it (ZDOTDIR pointing at a copy
+Drives a real zsh in a pty the way Bubble spawns it (ZDOTDIR pointing at a copy
 of these scripts) and checks the OSC 7 / OSC 133 stream and the ZDOTDIR
 hand-off.
 """
@@ -83,7 +83,7 @@ class Session:
         # stops at an "insecure directories" question on a machine whose fpath
         # has a group-writable directory (a CI runner, a container). That
         # question swallows the first typed character of every shell, with or
-        # without LosOS, so the tests keep it out of the way.
+        # without Bubble, so the tests keep it out of the way.
         user_dirs = [self.home]
         if env and "LOSOS_USER_ZDOTDIR" in env:
             user_dirs.append(env["LOSOS_USER_ZDOTDIR"].replace("@HOME@", self.home))
@@ -229,8 +229,8 @@ check("exactly one prompt end per prompt", s.marks().count("133:A") == s.marks()
 s.close()
 
 # Another plugin that hooks line-init through add-zle-hook-widget installs the
-# shared dispatcher before LosOS does. That dispatcher being there says nothing
-# about LosOS's own hook, so the prompt end of a late-rebuilt prompt must still
+# shared dispatcher before Bubble does. That dispatcher being there says nothing
+# about Bubble's own hook, so the prompt end of a late-rebuilt prompt must still
 # come, and the plugin's hook must keep running.
 shared_dispatcher = late + """
 autoload -Uz add-zle-hook-widget
@@ -241,7 +241,7 @@ s = Session({".zshrc": shared_dispatcher})
 s.run("true")
 s.run("true")
 texts = prompt_text_between_a_and_b(s)
-check("a shared line-init dispatcher does not keep LosOS's hook out", len(texts) >= 3 and all("late> " in text for text in texts), texts)
+check("a shared line-init dispatcher does not keep Bubble's hook out", len(texts) >= 3 and all("late> " in text for text in texts), texts)
 check("the plugin's own line-init hook still runs", s.out.count(b"PLUGIN_LINE_INIT_RAN") >= 3, s.out.count(b"PLUGIN_LINE_INIT_RAN"))
 s.close()
 
@@ -272,7 +272,7 @@ s.close()
 # --- ZDOTDIR ----------------------------------------------------------------
 # ZDOTDIR has two faces: at the prompt and in hooks it is the user's own (the
 # user's rc registers a precmd hook that records it), while a running command
-# sees LosOS's directory exported so a shell it starts is integrated again.
+# sees Bubble's directory exported so a shell it starts is integrated again.
 hook = "_probe() { PROBE_ZD=${ZDOTDIR-unset} }\nprecmd_functions+=(_probe)\n"
 probe = (
     'print -r -- "RESULT:ZD=${PROBE_ZD-none}:"; print -r -- "RESULT:LOADED=${A_LOADED-no}:"; '
@@ -377,7 +377,7 @@ for label, user_zdotdir in (("with a user ZDOTDIR", True), ("without a user ZDOT
     check(f"{label}: the user's .zshenv ran once per shell", envs == 5, envs)
     s.close()
 
-# Only a command line that starts a zsh gets LosOS's directory exported; a zsh
+# Only a command line that starts a zsh gets Bubble's directory exported; a zsh
 # started that way reports the ZDOTDIR it was given, the other lines report what
 # an ordinary command sees.
 READ = "$(command env | sed -n 's/^ZDOTDIR=//p')"
@@ -389,7 +389,7 @@ for label, user_zdotdir in (("with a user ZDOTDIR", True), ("without a user ZDOT
     else:
         s = Session({".zshrc": rc})
         ordinary = ""
-    # An interactive child that is given LosOS's directory loads the integration,
+    # An interactive child that is given Bubble's directory loads the integration,
     # which defines _losos_precmd; one that is not reads the user's files.
     def child(n):
         return "-ic 'print -r -- \"RESULT:S%d=${+functions[_losos_precmd]}:\"'" % n
@@ -427,7 +427,7 @@ for label, user_zdotdir in (("with a user ZDOTDIR", True), ("without a user ZDOT
         check(f"{label}: `{name}` leaves the user's ZDOTDIR alone", got == ordinary, got)
 
     # A script or `zsh -c` reads nothing but .zshenv, so it must not keep
-    # LosOS's directory for its whole run.
+    # Bubble's directory for its whole run.
     with open(os.path.join(s.home, "probe.zsh"), "w") as handle:
         handle.write('print -r -- "RESULT:SCRIPT=${ZDOTDIR-unset}:"\n')
     s.run("zsh $HOME/probe.zsh")

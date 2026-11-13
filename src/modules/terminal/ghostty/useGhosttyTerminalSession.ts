@@ -990,9 +990,9 @@ function applyBlockInputMode(
   if (!input || !blocks) return;
   const prompt = blocks.getMode() === "prompt";
   const changed =
-    input.getAttribute("data-losos-block-prompt") !== String(prompt);
+    input.getAttribute("data-bubble-block-prompt") !== String(prompt);
   if (!changed) return;
-  input.setAttribute("data-losos-block-prompt", String(prompt));
+  input.setAttribute("data-bubble-block-prompt", String(prompt));
   surface?.setCursorEnabled(!prompt);
   if (session.visible && session.focused) focusSessionSurface(session, surface);
 }

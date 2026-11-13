@@ -34,6 +34,8 @@ type TabBase = {
   spaceId: string;
   /** Restored from disk, not yet activated: rendered as a placeholder, not mounted. */
   cold?: boolean;
+  /** Participates in the niri-style tiled column strip for its workspace. */
+  tiled?: boolean;
 };
 
 export type TerminalTab = TabBase & {
@@ -125,13 +127,6 @@ export type GitCommitFileDiffTab = TabBase & {
   originalPath: string | null;
 };
 
-/** The agent dashboard: every running coding agent with a live preview. */
-export type AgentsTab = TabBase & {
-  id: number;
-  kind: "agents";
-  title: string;
-};
-
 export type Tab =
   | TerminalTab
   | EditorTab
@@ -140,8 +135,7 @@ export type Tab =
   | AiDiffTab
   | GitDiffTab
   | GitHistoryTab
-  | GitCommitFileDiffTab
-  | AgentsTab;
+  | GitCommitFileDiffTab;
 
 export type TabPatch = Partial<{
   title: string;
@@ -536,26 +530,6 @@ export function planCommitHistoryOpen(
         title,
         repoRoot: input.repoRoot,
       } satisfies GitHistoryTab,
-    ],
-    targetId: id,
-  };
-}
-
-/** One dashboard per space; opening again focuses the existing tab. */
-export function planAgentsTabOpen(
-  tabs: Tab[],
-  spaceId: string,
-  allocId: () => number,
-): { tabs: Tab[]; targetId: number } {
-  const existing = tabs.find(
-    (tab) => tab.kind === "agents" && tab.spaceId === spaceId,
-  );
-  if (existing) return { tabs, targetId: existing.id };
-  const id = allocId();
-  return {
-    tabs: [
-      ...tabs,
-      { id, kind: "agents", spaceId, title: "Agents" } satisfies AgentsTab,
     ],
     targetId: id,
   };
@@ -1152,21 +1126,6 @@ export function useTabs(initial?: Partial<TerminalTab>) {
     [setTabs, setActiveId],
   );
 
-  const openAgentsDashboard = useCallback(() => {
-    const curr = tabsRef.current;
-    const plan = planAgentsTabOpen(
-      curr,
-      activeSpaceIdRef.current,
-      () => nextIdRef.current++,
-    );
-    if (plan.tabs !== curr) {
-      tabsRef.current = plan.tabs;
-      setTabs(plan.tabs);
-    }
-    setActiveId(plan.targetId);
-    return plan.targetId;
-  }, [setTabs, setActiveId]);
-
   const openCommitFileDiffTab = useCallback(
     (input: {
       repoRoot: string;
@@ -1305,6 +1264,15 @@ export function useTabs(initial?: Partial<TerminalTab>) {
             }),
           };
         }),
+      );
+    },
+    [setTabs],
+  );
+
+  const setTabTiled = useCallback(
+    (id: number, tiled: boolean) => {
+      setTabs((curr) =>
+        curr.map((tab) => (tab.id === id ? { ...tab, tiled } : tab)),
       );
     },
     [setTabs],
@@ -1556,13 +1524,13 @@ export function useTabs(initial?: Partial<TerminalTab>) {
     openAiDiffTab,
     openGitDiffTab,
     openCommitHistoryTab,
-    openAgentsDashboard,
     openCommitFileDiffTab,
     setAiDiffStatus,
     closeAiDiffTab,
     closeTab,
     closeTabs,
     updateTab,
+    setTabTiled,
     selectByIndex,
     setLeafCwd,
     focusPane,

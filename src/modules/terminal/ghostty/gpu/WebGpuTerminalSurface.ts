@@ -238,8 +238,8 @@ export class WebGpuTerminalSurface
     this.root.className = "absolute inset-0 overflow-hidden";
     this.root.style.userSelect = "none";
     this.updateRootBackground();
-    this.root.setAttribute("data-losos-ghostty-surface", "webgpu");
-    this.root.setAttribute("data-losos-terminal-surface", "");
+    this.root.setAttribute("data-bubble-ghostty-surface", "webgpu");
+    this.root.setAttribute("data-bubble-terminal-surface", "");
     this.input.setAttribute("aria-label", "Terminal input");
     this.input.setAttribute("autocapitalize", "off");
     this.input.setAttribute("autocomplete", "off");
@@ -870,7 +870,7 @@ export class WebGpuTerminalSurface
       this.forceFullRedraw = true;
       this.screen.invalidate();
       this.uniformBuffer = resources.device.createBuffer({
-        label: "LosOS terminal surface uniform",
+        label: "Bubble terminal surface uniform",
         size: SCREEN_UNIFORM_BYTES,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
       });
@@ -1148,7 +1148,7 @@ export class WebGpuTerminalSurface
     this.cellsBuffer?.destroy();
     this.cellCapacity = capacity;
     this.cellsBuffer = device.createBuffer({
-      label: "LosOS terminal cell records",
+      label: "Bubble terminal cell records",
       size: capacity * CELL_RECORD_BYTES,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
@@ -1157,7 +1157,7 @@ export class WebGpuTerminalSurface
 
   private createGlyphMapBuffer(device: GPUDevice, entries: number): GPUBuffer {
     return device.createBuffer({
-      label: "LosOS terminal glyph map",
+      label: "Bubble terminal glyph map",
       size: entries * 4,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
@@ -1269,7 +1269,7 @@ export class WebGpuTerminalSurface
     if (!this.searchBuffer || this.searchBuffer.size !== packed.byteLength) {
       this.searchBuffer?.destroy();
       this.searchBuffer = device.createBuffer({
-        label: "LosOS terminal search mask",
+        label: "Bubble terminal search mask",
         size: packed.byteLength,
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
       });
@@ -1298,7 +1298,7 @@ export class WebGpuTerminalSurface
     )
       return false;
     this.bindGroup = resources.device.createBindGroup({
-      label: "LosOS terminal surface bindings",
+      label: "Bubble terminal surface bindings",
       layout: resources.bindGroupLayout,
       entries: [
         { binding: 0, resource: { buffer: this.uniformBuffer } },

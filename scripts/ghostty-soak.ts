@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { afterAll, expect, it } from "vitest";
 import {
   fillStackCanary,
@@ -28,7 +28,7 @@ const artifacts = process.env.LOSOS_SOAK_ARTIFACT
 for (const artifact of artifacts) {
   it(`${artifact}: five models plateau under streaming, reflow, and presentation recycling`, async () => {
     const bytes = await readFile(resolve(process.env.LOSOS_SOAK_CORE_DIR ?? "packages/ghostty-core/adapted", artifact));
-    const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+    const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const models = Array.from({ length: 5 }, () => core.createTerminal(120, 40, {
       maxScrollbackBytes: 8 * 1024 * 1024,
       maxScrollbackLines: 10_000,
@@ -86,7 +86,7 @@ for (const artifact of artifacts) {
   it(`${artifact}: adversarial input and deep nesting stay within half of the WebAssembly stack`, async () => {
     const bytes = await readFile(resolve(process.env.LOSOS_SOAK_CORE_DIR ?? "packages/ghostty-core/adapted", artifact));
     const layout = readWasmLayout(bytes);
-    const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+    const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const instance = core.instantiate();
     fillStackCanary(instance.exports.memory, layout.stackTop);
     const terminal = instance.createTerminal(120, 40, {

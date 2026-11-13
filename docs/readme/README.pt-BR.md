@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
   <p><strong>Workspace de desenvolvimento leve, focado no terminal e nativo de IA.</strong></p>
   <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-LosOS é um ambiente de desenvolvimento (ADE) leve, de código aberto, focado no terminal e nativo de IA, criado com Tauri 2 + Rust e React 19. Inclui backend PTY nativo com renderizador WebGL, painel lateral de IA com agentes que usa suas próprias chaves ou modelos totalmente locais, além de editor de código, explorador de arquivos, controle de versão com gráfico Git e painel de visualização web. Cerca de 7-8 MB em disco. Sem telemetria. Sem conta.
+Bubble é um ambiente de desenvolvimento (ADE) leve, de código aberto, focado no terminal e nativo de IA, criado com Tauri 2 + Rust e React 19. Inclui backend PTY nativo com renderizador WebGL, painel lateral de IA com agentes que usa suas próprias chaves ou modelos totalmente locais, além de editor de código, explorador de arquivos, controle de versão com gráfico Git e painel de visualização web. Cerca de 7-8 MB em disco. Sem telemetria. Sem conta.
 
 ## Capturas de tela
 
@@ -80,7 +80,7 @@ LosOS é um ambiente de desenvolvimento (ADE) leve, de código aberto, focado no
 
 - **Provedores com sua própria chave:** OpenAI, Anthropic, Google (Gemini), Groq, xAI (Grok), Cerebras, OpenRouter, DeepSeek, Mistral e qualquer endpoint compatível com OpenAI
 - **Local / offline:** LM Studio, MLX, Ollama
-- **Fluxo com agentes:** planos, subagentes, memória do projeto via `LOSOS.md`, leitura / escrita / edição / multiedição / grep / glob, bash com aprovação e processos em segundo plano
+- **Fluxo com agentes:** planos, subagentes, memória do projeto via `BUBBLE.md`, leitura / escrita / edição / multiedição / grep / glob, bash com aprovação e processos em segundo plano
 - **Orquestração de agentes de programação:** inicie Claude Code no terminal, inspecione a saída e envie tarefas adicionais por ferramentas sujeitas a aprovação
 - **Compositor:** trechos de prompt com `#handle`, arquivos com `@path`, entrada de voz e anexos do explorador ou da seleção
 - **Agentes personalizados** com prompt de sistema e subconjunto de ferramentas próprios
@@ -88,7 +88,7 @@ LosOS é um ambiente de desenvolvimento (ADE) leve, de código aberto, focado no
 
 ## Instalação
 
-Os instaladores mais recentes estão na página de [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). O LosOS se atualiza automaticamente por ela.
+Os instaladores mais recentes estão na página de [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). O Bubble se atualiza automaticamente por ela.
 
 ### Notas para Windows
 
@@ -99,7 +99,7 @@ Os instaladores mais recentes estão na página de [Releases](https://github.com
 
 - **Arch / AUR:** `yay -S losos-bin` ou `paru`. Acompanha a versão mais recente.
 - **NixOS / Nix:** use o flake oficial com `nix profile install github:nirmitpatel9714-hue/LosOS` fora do NixOS. No NixOS, importe o flake e adicione `inputs.losos.packages.${pkgs.system}.losos` a `environment.systemPackages`. `nixosModules.losos` também oferece uma configuração simplificada.
-- **AppImage:** requer FUSE. Sem ele: `./LosOS_*.AppImage --appimage-extract-and-run`. Em caso de falhas no Wayland, tente `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Os pacotes `.deb` / `.rpm` usam a pilha GTK do sistema e costumam ser mais suaves.
+- **AppImage:** requer FUSE. Sem ele: `./Bubble_*.AppImage --appimage-extract-and-run`. Em caso de falhas no Wayland, tente `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Os pacotes `.deb` / `.rpm` usam a pilha GTK do sistema e costumam ser mais suaves.
 
 ## Configurar a IA
 
@@ -151,4 +151,4 @@ As builds para Windows são assinadas com um certificado gratuito fornecido pela
 
 ## Licença
 
-LosOS é licenciado sob a Apache-2.0. Para informações sobre dependências, consulte a [Apache License 2.0](../../LICENSE).
+Bubble é licenciado sob a Apache-2.0. Para informações sobre dependências, consulte a [Apache License 2.0](../../LICENSE).

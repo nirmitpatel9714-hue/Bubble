@@ -61,7 +61,7 @@ export type SubagentInfo = {
   state: "running" | "done";
 };
 
-/** Payload of the native `losos:agent-event` event. */
+/** Payload of the native `bubble:agent-event` event. */
 export type AgentHookEvent = {
   paneId: number;
   ptyId: number;
@@ -86,7 +86,7 @@ export type AgentSignalKind =
   | "finished"
   | "exited";
 
-/** Payload of the native `losos:agent-signal` event (process and OSC state). */
+/** Payload of the native `bubble:agent-signal` event (process and OSC state). */
 export type AgentSignalEvent = {
   id: number;
   kind: AgentSignalKind;
@@ -116,7 +116,7 @@ export type CurrentTool = {
 };
 
 export type PendingPermission = {
-  /** Present when LosOS can answer; absent when only the agent's own prompt can. */
+  /** Present when Bubble can answer; absent when only the agent's own prompt can. */
   requestId: string | null;
   tool: string;
   inputPreview: string;

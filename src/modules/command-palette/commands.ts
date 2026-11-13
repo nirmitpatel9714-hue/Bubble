@@ -24,8 +24,8 @@ import type { PaletteItem } from "./types";
 
 export const COMMAND_GROUPS = [
   "General",
-  "Spaces",
-  "Tabs",
+  "Workspaces",
+  "Windows",
   "Panes",
   "Git",
   "Search",
@@ -45,7 +45,6 @@ export type CommandPaletteActionContext = {
   openNewEditor: () => void;
   openNewPreview: () => void;
   openGitGraph: () => void;
-  openAgentsDashboard: () => void;
   toggleSourceControl: () => void;
   closeActiveTabOrPane: () => void;
   splitPaneRight: () => void;
@@ -113,9 +112,10 @@ export function createCommandItems(
     },
     {
       id: "spaces.overview",
-      title: "Spaces: Overview",
-      group: "Spaces",
+      title: "Workspaces: Overview",
+      group: "Workspaces",
       keywords: [
+        "workspaces",
         "spaces",
         "sessions",
         "overview",
@@ -128,26 +128,27 @@ export function createCommandItems(
     },
     {
       id: "spaces.new",
-      title: "New Space",
-      group: "Spaces",
-      keywords: ["space", "session", "workspace", "group", "create"],
+      title: "New Workspace",
+      group: "Workspaces",
+      keywords: ["workspace", "space", "session", "group", "create"],
       icon: DashboardSquare01Icon,
       run: ctx.newSpace,
     },
     ...ctx.spaces.map((sp) => ({
       id: `spaces.switch.${sp.id}`,
       title: `Switch to ${sp.name}`,
-      group: "Spaces" as const,
-      keywords: ["space", "switch", "session", sp.name],
+      group: "Workspaces" as const,
+      keywords: ["workspace", "space", "switch", "session", sp.name],
       icon: DashboardSquare01Icon,
-      disabledReason: sp.id === ctx.activeSpaceId ? "Current space" : undefined,
+      disabledReason:
+        sp.id === ctx.activeSpaceId ? "Current workspace" : undefined,
       run: () => ctx.switchSpace(sp.id),
     })),
     {
       id: "tab.new",
       title: "New terminal",
-      group: "Tabs",
-      keywords: ["shell", "terminal", "new tab"],
+      group: "Windows",
+      keywords: ["shell", "terminal", "new window"],
       icon: TerminalIcon,
       shortcutId: "tab.new",
       run: ctx.openNewTab,
@@ -155,7 +156,7 @@ export function createCommandItems(
     {
       id: "tab.newBlock",
       title: "New block terminal",
-      group: "Tabs",
+      group: "Windows",
       keywords: ["blocks", "warp", "command blocks", "terminal"],
       icon: DashboardSquare01Icon,
       run: ctx.openNewBlock,
@@ -163,7 +164,7 @@ export function createCommandItems(
     {
       id: "tab.newPrivate",
       title: "New private terminal",
-      group: "Tabs",
+      group: "Windows",
       keywords: ["privacy", "private", "incognito", "hidden from ai"],
       icon: IncognitoIcon,
       shortcutId: "tab.newPrivate",
@@ -171,8 +172,8 @@ export function createCommandItems(
     },
     {
       id: "tab.newEditor",
-      title: "New editor tab",
-      group: "Tabs",
+      title: "New editor window",
+      group: "Windows",
       keywords: ["file", "editor", "create"],
       icon: FileEditIcon,
       shortcutId: "tab.newEditor",
@@ -182,7 +183,7 @@ export function createCommandItems(
     {
       id: "tab.newPreview",
       title: "New web preview",
-      group: "Tabs",
+      group: "Windows",
       keywords: ["browser", "web", "localhost", "preview"],
       icon: Globe02Icon,
       shortcutId: "tab.newPreview",
@@ -190,8 +191,8 @@ export function createCommandItems(
     },
     {
       id: "tab.close",
-      title: "Close tab or pane",
-      group: "Tabs",
+      title: "Close window or pane",
+      group: "Windows",
       keywords: ["close", "remove", "pane"],
       icon: Cancel01Icon,
       shortcutId: "tab.close",
@@ -308,15 +309,6 @@ export function createCommandItems(
       icon: SparklesIcon,
       shortcutId: "ai.askSelection",
       run: ctx.askAiSelection,
-    },
-    {
-      id: "agent.dashboard",
-      title: "Open agent dashboard",
-      group: "AI",
-      keywords: ["agents", "dashboard", "herdr", "running", "waiting"],
-      icon: DashboardSquare01Icon,
-      shortcutId: "agent.dashboard",
-      run: ctx.openAgentsDashboard,
     },
   ];
 }

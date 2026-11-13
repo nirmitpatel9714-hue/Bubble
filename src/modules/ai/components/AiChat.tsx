@@ -86,8 +86,7 @@ type ContextChip =
 
 const SELECTION_RE =
   /<selection\s+source="(terminal|editor)">\n?([\s\S]*?)\n?<\/selection>/g;
-const FILE_RE =
-  /<file\s+name="([^"]+)"[^>]*>\n?([\s\S]*?)\n?<\/file>/g;
+const FILE_RE = /<file\s+name="([^"]+)"[^>]*>\n?([\s\S]*?)\n?<\/file>/g;
 const SNIPPET_RE = /<snippet\s+name="([^"]+)">\n?[\s\S]*?\n?<\/snippet>/g;
 
 function countLines(s: string): number {
@@ -207,7 +206,8 @@ export function AiChatView({
     !isBusy && hitStepCap && lastMessage?.role === "assistant";
 
   const onApproval = useCallback(
-    (id: string, approved: boolean) => addToolApprovalResponse({ id, approved }),
+    (id: string, approved: boolean) =>
+      addToolApprovalResponse({ id, approved }),
     [addToolApprovalResponse],
   );
 
@@ -216,7 +216,7 @@ export function AiChatView({
       <Conversation>
         <ConversationContent>
           <ConversationEmptyState
-            title="Ask LosOS anything"
+            title="Ask Bubble anything"
             description="Explain command output, fix errors, generate snippets, or run a task."
           />
         </ConversationContent>
@@ -346,7 +346,7 @@ const RenderedMessage = memo(function RenderedMessage({
 }) {
   const deferProps = deferOffscreen
     ? {
-        className: "losos-chat-item",
+        className: "bubble-chat-item",
         style: {
           containIntrinsicSize: `auto ${estimateMessageHeight(message)}px`,
         },
@@ -363,9 +363,10 @@ const RenderedMessage = memo(function RenderedMessage({
   }
   // Hooks must run unconditionally (Rules of Hooks) even though user messages
   // render without groups; grouping is cheap so this stays out of the way.
-  const groups = useMemo(() => buildPartGroups(message.parts as AnyPart[]), [
-    message.parts,
-  ]);
+  const groups = useMemo(
+    () => buildPartGroups(message.parts as AnyPart[]),
+    [message.parts],
+  );
 
   if (message.role === "user") {
     const rawText = message.parts
@@ -549,7 +550,7 @@ const ReadGroup = memo(function ReadGroup({ parts }: { parts: AnyPart[] }) {
           </span>
         ) : null}
       </CollapsibleTrigger>
-      <CollapsibleContent className="losos-collapsible-content border-t border-border/30">
+      <CollapsibleContent className="bubble-collapsible-content border-t border-border/30">
         <ul className="flex flex-col gap-0.5 px-2 py-1.5">
           {paths.map((path) => (
             <li
@@ -562,9 +563,7 @@ const ReadGroup = memo(function ReadGroup({ parts }: { parts: AnyPart[] }) {
                 strokeWidth={1.75}
                 className="shrink-0 opacity-60"
               />
-              <span className="truncate text-foreground">
-                {basename(path)}
-              </span>
+              <span className="truncate text-foreground">{basename(path)}</span>
               <span className="truncate opacity-60">{path}</span>
             </li>
           ))}
@@ -622,12 +621,7 @@ const aiStreamdownComponents = {
 };
 
 function AiMessageResponse(props: Omit<MessageResponseProps, "components">) {
-  return (
-    <MessageResponse
-      {...props}
-      components={aiStreamdownComponents}
-    />
-  );
+  return <MessageResponse {...props} components={aiStreamdownComponents} />;
 }
 
 const RenderedPart = memo(function RenderedPart({

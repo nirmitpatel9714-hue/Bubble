@@ -9,8 +9,8 @@ import type {
 } from "@/modules/agents/model";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
-export const AGENT_EVENT = "losos:agent-event";
-export const TERMINAL_NOTIFICATION_EVENT = "losos:terminal-notification";
+export const AGENT_EVENT = "bubble:agent-event";
+export const TERMINAL_NOTIFICATION_EVENT = "bubble:terminal-notification";
 
 const KINDS: ReadonlySet<string> = new Set<HookEventKind>([
   "session-start",
@@ -85,7 +85,7 @@ function parseSubagent(value: unknown): SubagentInfo | undefined {
   return { id: subagentId, type: text(subagent.type) ?? "agent", state };
 }
 
-/** Validates a native `losos:agent-event` payload; null when malformed. */
+/** Validates a native `bubble:agent-event` payload; null when malformed. */
 export function parseAgentHookEvent(payload: unknown): AgentHookEvent | null {
   const raw = dict(payload);
   if (!raw) return null;
@@ -225,7 +225,7 @@ export function hookEventToModelEvent(event: AgentHookEvent): AgentModelEvent {
   return { type: "hook", event };
 }
 
-/** Adapts a legacy `losos:agent-signal` (process and OSC state) for the model. */
+/** Adapts a legacy `bubble:agent-signal` (process and OSC state) for the model. */
 export function signalToModelEvent(
   signal: AgentSignalEvent,
   at: number = Date.now(),

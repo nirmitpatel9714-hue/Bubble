@@ -4,7 +4,7 @@ import type {
   TerminalModel,
   TerminalRowRange,
 } from "@/modules/terminal/backend/contracts";
-import type { LosOSGhosttyGpuGlyph } from "@losos/ghostty-core/adapted";
+import type { BubbleGhosttyGpuGlyph } from "@losos/ghostty-core/adapted";
 import type {
   GhosttyTerminalConfig,
   GhosttyTerminalEvent,
@@ -54,7 +54,7 @@ export type GhosttySearchViewportSpan = {
 /** Per-cell representation the model is currently producing. */
 export type GhosttyRenderFormat = "soa" | "gpu";
 
-export type GhosttyGpuGlyph = LosOSGhosttyGpuGlyph;
+export type GhosttyGpuGlyph = BubbleGhosttyGpuGlyph;
 
 export type GhosttyGpuFrameOptions = {
   /**

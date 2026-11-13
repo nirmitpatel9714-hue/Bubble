@@ -1,18 +1,18 @@
 import type {
-  LosOSGhosttyGpuRenderState,
-  LosOSGhosttyLine,
-  LosOSGhosttyLoadOptions,
-  LosOSGhosttyKeyEvent,
-  LosOSGhosttyMemoryStats,
-  LosOSGhosttyRenderBase,
-  LosOSGhosttyRenderFormat,
-  LosOSGhosttyRenderState,
-  LosOSGhosttySearchStatus,
-  LosOSGhosttySearchViewportSpan,
-  LosOSGhosttySelection,
-  LosOSGhosttyTerminalOptions,
-  LosOSGhosttyTerminalResourceStats,
-  LosOSGhosttyWasmExports,
+  BubbleGhosttyGpuRenderState,
+  BubbleGhosttyLine,
+  BubbleGhosttyLoadOptions,
+  BubbleGhosttyKeyEvent,
+  BubbleGhosttyMemoryStats,
+  BubbleGhosttyRenderBase,
+  BubbleGhosttyRenderFormat,
+  BubbleGhosttyRenderState,
+  BubbleGhosttySearchStatus,
+  BubbleGhosttySearchViewportSpan,
+  BubbleGhosttySelection,
+  BubbleGhosttyTerminalOptions,
+  BubbleGhosttyTerminalResourceStats,
+  BubbleGhosttyWasmExports,
   TypedArray,
   TypedArrayConstructor,
   ViewCacheEntry,
@@ -216,21 +216,21 @@ type RenderViewCache = {
  * returns its scrollback to the operating system. Instantiating the compiled
  * module is synchronous and takes about a millisecond or less.
  */
-export class LosOSGhostty {
-  private readonly live = new Set<LosOSGhosttyInstance>();
+export class BubbleGhostty {
+  private readonly live = new Set<BubbleGhosttyInstance>();
   private created = 0;
   private reclaimBytes = 0;
   private reclaimTimer: ReturnType<typeof setTimeout> | null = null;
 
   private constructor(
     private readonly module: WebAssembly.Module,
-    private readonly options: LosOSGhosttyLoadOptions,
+    private readonly options: BubbleGhosttyLoadOptions,
   ) {}
 
   static async load(
     wasmPath?: string,
-    options: LosOSGhosttyLoadOptions = {},
-  ): Promise<LosOSGhostty> {
+    options: BubbleGhosttyLoadOptions = {},
+  ): Promise<BubbleGhostty> {
     const path =
       wasmPath ?? (supportsWasmSimd()
         ? new URL("../../adapted/ghostty-vt.wasm", import.meta.url).href
@@ -249,20 +249,20 @@ export class LosOSGhostty {
     } catch {
       module = await compileBytes(await fallback.arrayBuffer());
     }
-    return LosOSGhostty.fromModule(module, options);
+    return BubbleGhostty.fromModule(module, options);
   }
 
   static async loadBytes(
     bytes: ArrayBuffer,
-    options: LosOSGhosttyLoadOptions = {},
-  ): Promise<LosOSGhostty> {
-    return LosOSGhostty.fromModule(await compileBytes(bytes), options);
+    options: BubbleGhosttyLoadOptions = {},
+  ): Promise<BubbleGhostty> {
+    return BubbleGhostty.fromModule(await compileBytes(bytes), options);
   }
 
   static fromModule(
     module: WebAssembly.Module,
-    options: LosOSGhosttyLoadOptions = {},
-  ): LosOSGhostty {
+    options: BubbleGhosttyLoadOptions = {},
+  ): BubbleGhostty {
     const available = new Set(
       WebAssembly.Module.exports(module).map((entry) => entry.name),
     );
@@ -271,7 +271,7 @@ export class LosOSGhostty {
         throw new Error(`Missing adapted Ghostty WASM export: ${name}`);
       }
     }
-    return new LosOSGhostty(module, options);
+    return new BubbleGhostty(module, options);
   }
 
   /** The shared compiled module that every instance is created from. */
@@ -283,16 +283,16 @@ export class LosOSGhostty {
    * A fresh instance with its own linear memory and no terminal. Dispose it to
    * drop the memory; terminals created on it share that memory.
    */
-  instantiate(): LosOSGhosttyInstance {
+  instantiate(): BubbleGhosttyInstance {
     const holder: MemoryHolder = { current: null };
     const instantiate = this.options.instantiate ?? defaultInstantiate;
     const raw = instantiate(this.module, createImports(holder, this.options));
-    const exports = raw.exports as LosOSGhosttyWasmExports;
+    const exports = raw.exports as BubbleGhosttyWasmExports;
     if (!(exports.memory instanceof WebAssembly.Memory)) {
       throw new Error("Adapted Ghostty WASM does not export its memory");
     }
     holder.current = exports.memory;
-    const instance = new LosOSGhosttyInstance(this, exports, holder);
+    const instance = new BubbleGhosttyInstance(this, exports, holder);
     this.live.add(instance);
     this.created += 1;
     return instance;
@@ -305,12 +305,12 @@ export class LosOSGhostty {
   createTerminal(
     cols: number,
     rows: number,
-    options: LosOSGhosttyTerminalOptions = {},
-  ): LosOSGhosttyTerminal {
+    options: BubbleGhosttyTerminalOptions = {},
+  ): BubbleGhosttyTerminal {
     validateDimensions(cols, rows);
     const instance = this.instantiate();
     try {
-      return new LosOSGhosttyTerminal(instance, cols, rows, options, true);
+      return new BubbleGhosttyTerminal(instance, cols, rows, options, true);
     } catch (error) {
       instance.dispose();
       throw error;
@@ -324,7 +324,7 @@ export class LosOSGhostty {
     return total;
   }
 
-  memoryStats(): LosOSGhosttyMemoryStats {
+  memoryStats(): BubbleGhosttyMemoryStats {
     const instanceBytes: number[] = [];
     let totalBytes = 0;
     for (const instance of this.live) {
@@ -340,8 +340,8 @@ export class LosOSGhostty {
     };
   }
 
-  /** @internal Called by `LosOSGhosttyInstance.dispose`. */
-  releaseInstance(instance: LosOSGhosttyInstance, bytes: number): void {
+  /** @internal Called by `BubbleGhosttyInstance.dispose`. */
+  releaseInstance(instance: BubbleGhosttyInstance, bytes: number): void {
     this.live.delete(instance);
     this.scheduleReclaim(bytes);
   }
@@ -370,15 +370,15 @@ type MemoryHolder = { current: WebAssembly.Memory | null };
  * One WebAssembly instance and its linear memory. Dropping every reference to
  * a disposed instance lets the engine free the memory.
  */
-export class LosOSGhosttyInstance {
-  private liveExports: LosOSGhosttyWasmExports | null;
-  private owner: LosOSGhostty | null;
+export class BubbleGhosttyInstance {
+  private liveExports: BubbleGhosttyWasmExports | null;
+  private owner: BubbleGhostty | null;
   private holder: MemoryHolder | null;
-  private readonly terminals = new Set<LosOSGhosttyTerminal>();
+  private readonly terminals = new Set<BubbleGhosttyTerminal>();
 
   constructor(
-    owner: LosOSGhostty,
-    exports: LosOSGhosttyWasmExports,
+    owner: BubbleGhostty,
+    exports: BubbleGhosttyWasmExports,
     holder: MemoryHolder,
   ) {
     this.owner = owner;
@@ -390,7 +390,7 @@ export class LosOSGhosttyInstance {
     return this.liveExports === null;
   }
 
-  get exports(): LosOSGhosttyWasmExports {
+  get exports(): BubbleGhosttyWasmExports {
     if (!this.liveExports) {
       throw new Error("Adapted Ghostty instance has been disposed");
     }
@@ -406,18 +406,18 @@ export class LosOSGhosttyInstance {
   createTerminal(
     cols: number,
     rows: number,
-    options: LosOSGhosttyTerminalOptions = {},
-  ): LosOSGhosttyTerminal {
-    return new LosOSGhosttyTerminal(this, cols, rows, options, false);
+    options: BubbleGhosttyTerminalOptions = {},
+  ): BubbleGhosttyTerminal {
+    return new BubbleGhosttyTerminal(this, cols, rows, options, false);
   }
 
   /** @internal */
-  register(terminal: LosOSGhosttyTerminal): void {
+  register(terminal: BubbleGhosttyTerminal): void {
     this.terminals.add(terminal);
   }
 
   /** @internal */
-  forget(terminal: LosOSGhosttyTerminal): void {
+  forget(terminal: BubbleGhosttyTerminal): void {
     this.terminals.delete(terminal);
   }
 
@@ -442,24 +442,24 @@ export class LosOSGhosttyInstance {
   }
 }
 
-export class LosOSGhosttyTerminal {
+export class BubbleGhosttyTerminal {
   private readonly cache: RenderViewCache = createRenderViewCache();
   private readonly handle: number;
-  private exports: LosOSGhosttyWasmExports;
+  private exports: BubbleGhosttyWasmExports;
   private memory: WebAssembly.Memory;
-  private instance: LosOSGhosttyInstance;
+  private instance: BubbleGhosttyInstance;
   private readonly ownsInstance: boolean;
   private inputPointer = 0;
   private inputCapacity = 0;
   private readonly textEncoder = new TextEncoder();
-  private format: LosOSGhosttyRenderFormat = "soa";
+  private format: BubbleGhosttyRenderFormat = "soa";
   private disposed = false;
 
   constructor(
-    instance: LosOSGhosttyInstance,
+    instance: BubbleGhosttyInstance,
     cols: number,
     rows: number,
-    options: LosOSGhosttyTerminalOptions,
+    options: BubbleGhosttyTerminalOptions,
     ownsInstance: boolean,
   ) {
     validateDimensions(cols, rows);
@@ -594,7 +594,7 @@ export class LosOSGhosttyTerminal {
   }
 
   /** The cell format written by the next update. New terminals use `"soa"`. */
-  get renderFormat(): LosOSGhosttyRenderFormat {
+  get renderFormat(): BubbleGhosttyRenderFormat {
     return this.format;
   }
 
@@ -603,7 +603,7 @@ export class LosOSGhosttyTerminal {
    * buffers, invalidates every borrowed view and forces full damage on the
    * next update (and a new glyph epoch when leaving the GPU format).
    */
-  setRenderFormat(format: LosOSGhosttyRenderFormat): void {
+  setRenderFormat(format: BubbleGhosttyRenderFormat): void {
     this.assertLive();
     if (format === this.format) return;
     checkResult(
@@ -616,7 +616,7 @@ export class LosOSGhosttyTerminal {
     this.format = format;
   }
 
-  updateRenderState(): LosOSGhosttyRenderState {
+  updateRenderState(): BubbleGhosttyRenderState {
     this.assertLive();
     this.assertFormat("soa", "updateRenderState");
     checkResult(
@@ -631,7 +631,7 @@ export class LosOSGhosttyTerminal {
    * (see `gpuCells.ts`), exact per-row dirtiness and interned glyph ids. The
    * terminal must be in the `"gpu"` format (`setRenderFormat`).
    */
-  updateGpuRenderState(): LosOSGhosttyGpuRenderState {
+  updateGpuRenderState(): BubbleGhosttyGpuRenderState {
     this.assertLive();
     this.assertFormat("gpu", "updateGpuRenderState");
     checkResult(
@@ -689,7 +689,7 @@ export class LosOSGhosttyTerminal {
    * straight from the screen: the viewport and the render state are left
    * untouched, in either render format. Lines past the end are omitted.
    */
-  readLines(firstLine: number, lastLine: number): LosOSGhosttyLine[] {
+  readLines(firstLine: number, lastLine: number): BubbleGhosttyLine[] {
     this.assertLive();
     if (
       !Number.isSafeInteger(firstLine) ||
@@ -700,7 +700,7 @@ export class LosOSGhosttyTerminal {
       return [];
     }
     const cols = this.cols;
-    const lines: LosOSGhosttyLine[] = [];
+    const lines: BubbleGhosttyLine[] = [];
     const total = this.scrollbar().total;
     const last = Math.min(lastLine, total - 1);
     for (let first = firstLine; first <= last; first += LINE_CHUNK_LINES) {
@@ -739,7 +739,7 @@ export class LosOSGhosttyTerminal {
     );
   }
 
-  resourceStats(): LosOSGhosttyTerminalResourceStats {
+  resourceStats(): BubbleGhosttyTerminalResourceStats {
     this.assertLive();
     return {
       cellCapacity: this.exports.restty_cell_capacity(this.handle),
@@ -930,7 +930,7 @@ export class LosOSGhosttyTerminal {
     );
   }
 
-  encodeKey(event: LosOSGhosttyKeyEvent): Uint8Array {
+  encodeKey(event: BubbleGhosttyKeyEvent): Uint8Array {
     this.assertLive();
     const utf8 = event.utf8 ? this.textEncoder.encode(event.utf8) : emptyBytes;
     if (utf8.byteLength > 0) {
@@ -962,7 +962,7 @@ export class LosOSGhosttyTerminal {
     return new Uint8Array(this.memory.buffer, pointer, length).slice();
   }
 
-  setSearchQuery(query: string): LosOSGhosttySearchStatus {
+  setSearchQuery(query: string): BubbleGhosttySearchStatus {
     this.assertLive();
     const bytes = this.textEncoder.encode(query);
     if (bytes.byteLength === 0) {
@@ -994,7 +994,7 @@ export class LosOSGhosttyTerminal {
     checkResult(this.exports.restty_search_clear(this.handle), "clear search");
   }
 
-  stepSearch(budget = 256): LosOSGhosttySearchStatus {
+  stepSearch(budget = 256): BubbleGhosttySearchStatus {
     this.assertLive();
     checkResult(
       this.exports.restty_search_step(
@@ -1006,7 +1006,7 @@ export class LosOSGhosttyTerminal {
     return this.searchStatus();
   }
 
-  selectSearchMatch(direction: "next" | "previous"): LosOSGhosttySearchStatus {
+  selectSearchMatch(direction: "next" | "previous"): BubbleGhosttySearchStatus {
     this.assertLive();
     const result =
       direction === "next"
@@ -1016,7 +1016,7 @@ export class LosOSGhosttyTerminal {
     return this.searchStatus();
   }
 
-  searchStatus(): LosOSGhosttySearchStatus {
+  searchStatus(): BubbleGhosttySearchStatus {
     this.assertLive();
     const pointer = this.exports.restty_search_status_ptr(this.handle);
     validateRange(this.memory.buffer, pointer, SEARCH_STATUS_BYTES);
@@ -1035,7 +1035,7 @@ export class LosOSGhosttyTerminal {
     };
   }
 
-  searchViewportMatches(): LosOSGhosttySearchViewportSpan[] {
+  searchViewportMatches(): BubbleGhosttySearchViewportSpan[] {
     this.assertLive();
     const count = this.exports.restty_search_viewport_match_count(this.handle);
     if (count === 0) return [];
@@ -1050,7 +1050,7 @@ export class LosOSGhosttyTerminal {
       pointer,
       count * SEARCH_VIEWPORT_SPAN_BYTES,
     );
-    const matches = new Array<LosOSGhosttySearchViewportSpan>(count);
+    const matches = new Array<BubbleGhosttySearchViewportSpan>(count);
     for (let index = 0; index < count; index += 1) {
       const offset = index * SEARCH_VIEWPORT_SPAN_BYTES;
       matches[index] = {
@@ -1076,7 +1076,7 @@ export class LosOSGhosttyTerminal {
     };
   }
 
-  setSelection(selection: LosOSGhosttySelection | null): void {
+  setSelection(selection: BubbleGhosttySelection | null): void {
     this.assertLive();
     if (!selection) {
       checkResult(
@@ -1098,7 +1098,7 @@ export class LosOSGhosttyTerminal {
     );
   }
 
-  selection(): LosOSGhosttySelection | null {
+  selection(): BubbleGhosttySelection | null {
     this.assertLive();
     if (this.exports.restty_selection_active(this.handle) === 0) return null;
     return {
@@ -1178,7 +1178,7 @@ export class LosOSGhosttyTerminal {
   }
 
   graphemeAt(
-    state: LosOSGhosttyRenderState,
+    state: BubbleGhosttyRenderState,
     cellIndex: number,
   ): string {
     const index = validateCellIndex(state, cellIndex);
@@ -1198,7 +1198,7 @@ export class LosOSGhosttyTerminal {
   }
 
   hyperlinkAt(
-    state: LosOSGhosttyRenderBase,
+    state: BubbleGhosttyRenderBase,
     cellIndex: number,
   ): string | null {
     const linkId = state.linkIds[validateCellIndex(state, cellIndex)];
@@ -1249,7 +1249,7 @@ export class LosOSGhosttyTerminal {
     this.instance = null as never;
   }
 
-  private readRenderState(): LosOSGhosttyRenderState {
+  private readRenderState(): BubbleGhosttyRenderState {
     const rows = this.exports.restty_rows(this.handle);
     const cols = this.exports.restty_cols(this.handle);
     validateDimensions(cols, rows);
@@ -1408,7 +1408,7 @@ export class LosOSGhosttyTerminal {
    * to refresh borrowed views after another terminal grew the shared WASM
    * memory (which detaches every earlier `ArrayBuffer`).
    */
-  readGpuRenderState(): LosOSGhosttyGpuRenderState {
+  readGpuRenderState(): BubbleGhosttyGpuRenderState {
     this.assertLive();
     this.assertFormat("gpu", "readGpuRenderState");
     const rows = this.exports.restty_rows(this.handle);
@@ -1499,7 +1499,7 @@ export class LosOSGhosttyTerminal {
   }
 
   private assertFormat(
-    expected: LosOSGhosttyRenderFormat,
+    expected: BubbleGhosttyRenderFormat,
     operation: string,
   ): void {
     if (this.format !== expected) {
@@ -1616,7 +1616,7 @@ function detachMemoryViews(memory: WebAssembly.Memory): void {
 
 function createImports(
   holder: MemoryHolder,
-  options: LosOSGhosttyLoadOptions,
+  options: BubbleGhosttyLoadOptions,
 ): WebAssembly.Imports {
   return {
     env: {
@@ -1741,7 +1741,7 @@ function decodeCursorStyle(value: number): "block" | "underline" | "bar" {
 }
 
 function validateCellIndex(
-  state: LosOSGhosttyRenderBase,
+  state: BubbleGhosttyRenderBase,
   cellIndex: number,
 ): number {
   if (
@@ -1757,7 +1757,7 @@ function validateCellIndex(
 function decodeLines(
   words: Uint32Array,
   cols: number,
-  into: LosOSGhosttyLine[],
+  into: BubbleGhosttyLine[],
 ): void {
   let index = 0;
   while (index < words.length) {

@@ -365,8 +365,8 @@ export function GeneralSection() {
             shells.find((s) => s.path === terminalShell)?.integrated === false
               ? "Command blocks and directory tracking are unavailable for this shell."
               : wslDistros.length > 0
-                ? "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing tabs keep their shell."
-                : "Shell for new terminal tabs. Existing tabs keep their shell."
+                ? "Shell for the integrated terminal. WSL spaces use the distro login shell. Existing windows keep their shell."
+                : "Shell for new terminal windows. Existing windows keep their shell."
           }
         >
           <Select
@@ -550,7 +550,7 @@ export function GeneralSection() {
         </SettingRow>
         <SettingRow
           title="Confirm before killing a running process"
-          description="Ask before closing a terminal tab or quitting while a command is still running. Unsaved editor changes are always confirmed."
+          description="Ask before closing a terminal window or quitting while a command is still running. Unsaved editor changes are always confirmed."
         >
           <Switch
             checked={confirmCloseRunningTerminal}
@@ -563,7 +563,7 @@ export function GeneralSection() {
         <Label>Agents</Label>
         <SettingRow
           title="Coding agent notifications"
-          description="Alert when a coding agent needs your input or finishes. Native notification when LosOS is unfocused, in-app otherwise."
+          description="Alert when a coding agent needs your input or finishes. Native notification when Bubble is unfocused, in-app otherwise."
         >
           <div className="flex items-center gap-2">
             <Button
@@ -603,7 +603,7 @@ export function GeneralSection() {
         <div className="flex flex-col gap-2">
           <SettingRow
             title="Launch at login"
-            description="Open LosOS automatically when you sign in."
+            description="Open Bubble automatically when you sign in."
           >
             <Switch
               checked={autostart}
@@ -659,7 +659,7 @@ function notificationTestTitle(status: NotificationTestState): string {
     case "denied":
       return "Notifications are disabled by the system";
     case "failed":
-      return "LosOS could not request a native notification";
+      return "Bubble could not request a native notification";
     default:
       return "Send a native test notification after two seconds";
   }

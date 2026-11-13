@@ -19,8 +19,8 @@ use super::shell_init;
 use super::terminal_colors::{ColorState, TerminalColors};
 use crate::modules::workspace::WorkspaceEnv;
 
-const AGENT_EVENT: &str = "losos:agent-signal";
-const NOTIFICATION_EVENT: &str = "losos:terminal-notification";
+const AGENT_EVENT: &str = "bubble:agent-signal";
+const NOTIFICATION_EVENT: &str = "bubble:terminal-notification";
 
 const READ_BUF: usize = 16 * 1024;
 const EXIT_ACK_TIMEOUT: Duration = Duration::from_secs(30);

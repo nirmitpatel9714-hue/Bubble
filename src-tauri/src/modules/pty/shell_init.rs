@@ -148,7 +148,7 @@ pub fn detect_shell_name() -> String {
 pub struct ShellInfo {
     pub name: String,
     pub path: String,
-    /// True when LosOS injects OSC 7/133 integration for this shell (cwd
+    /// True when Bubble injects OSC 7/133 integration for this shell (cwd
     /// tracking, command blocks, agent detection). Others spawn bare.
     pub integrated: bool,
 }
@@ -367,7 +367,7 @@ mod unix {
     enum UserZdotdir {
         /// The inherited `ZDOTDIR` is the user's own.
         Set(String),
-        /// This app was started from a zsh that LosOS integrated: `ZDOTDIR` is
+        /// This app was started from a zsh that Bubble integrated: `ZDOTDIR` is
         /// the integration directory and the inherited variable still names
         /// the user's.
         Keep,
@@ -388,7 +388,7 @@ mod unix {
             Shell::Zsh => {
                 match prepare_zdotdir() {
                     Ok(zdotdir) => {
-                        // Guard against LosOS-in-LosOS :)
+                        // Guard against Bubble-in-Bubble :)
                         match user_zdotdir_for(std::env::var("ZDOTDIR").ok().as_deref(), &zdotdir) {
                             UserZdotdir::Set(user) => {
                                 cmd.env("LOSOS_USER_ZDOTDIR", user);
@@ -539,7 +539,7 @@ mod unix {
                 user_zdotdir_for(Some("/home/me/.config/zsh"), integration),
                 UserZdotdir::Set("/home/me/.config/zsh".into())
             );
-            // Launched by a command in another LosOS terminal: keep the
+            // Launched by a command in another Bubble terminal: keep the
             // LOSOS_USER_ZDOTDIR it inherited.
             assert_eq!(
                 user_zdotdir_for(Some("/cache/losos/shell-integration/zsh"), integration),

@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
   <p><strong>Ruang kerja pengembangan ringan, berfokus pada terminal, dan berteknologi AI.</strong></p>
   <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-LosOS adalah lingkungan pengembangan (ADE) ringan, sumber terbuka, berfokus pada terminal, dan berteknologi AI yang dibangun dengan Tauri 2 + Rust dan React 19. LosOS memiliki backend PTY native dengan perender WebGL, panel samping AI berbasis agen yang berjalan dengan kunci Anda sendiri atau model yang sepenuhnya lokal, serta editor kode, penjelajah berkas, kontrol sumber dengan grafik Git, dan panel pratinjau web. Sekitar 7-8 MB di disk. Tanpa telemetri. Tanpa akun.
+Bubble adalah lingkungan pengembangan (ADE) ringan, sumber terbuka, berfokus pada terminal, dan berteknologi AI yang dibangun dengan Tauri 2 + Rust dan React 19. Bubble memiliki backend PTY native dengan perender WebGL, panel samping AI berbasis agen yang berjalan dengan kunci Anda sendiri atau model yang sepenuhnya lokal, serta editor kode, penjelajah berkas, kontrol sumber dengan grafik Git, dan panel pratinjau web. Sekitar 7-8 MB di disk. Tanpa telemetri. Tanpa akun.
 
 ## Tangkapan layar
 
@@ -80,7 +80,7 @@ LosOS adalah lingkungan pengembangan (ADE) ringan, sumber terbuka, berfokus pada
 
 - **Penyedia dengan kunci Anda sendiri:** OpenAI, Anthropic, Google (Gemini), Groq, xAI (Grok), Cerebras, OpenRouter, DeepSeek, Mistral, dan endpoint apa pun yang kompatibel dengan OpenAI
 - **Lokal / offline:** LM Studio, MLX, Ollama
-- **Alur kerja berbasis agen:** rencana, subagen, memori proyek melalui `LOSOS.md`, baca / tulis / sunting / multisunting / grep / glob, bash dengan persetujuan, dan proses latar belakang
+- **Alur kerja berbasis agen:** rencana, subagen, memori proyek melalui `BUBBLE.md`, baca / tulis / sunting / multisunting / grep / glob, bash dengan persetujuan, dan proses latar belakang
 - **Orkestrasi agen pemrograman:** jalankan Claude Code di terminal, periksa output, dan kirim pekerjaan lanjutan melalui alat yang memerlukan persetujuan
 - **Komposer:** cuplikan prompt melalui `#handle`, berkas melalui `@path`, masukan suara, serta lampiran dari penjelajah atau pilihan
 - **Agen kustom** dengan prompt sistem dan subset alat sendiri
@@ -88,7 +88,7 @@ LosOS adalah lingkungan pengembangan (ADE) ringan, sumber terbuka, berfokus pada
 
 ## Instalasi
 
-Penginstal terbaru tersedia di halaman [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). LosOS melakukan pembaruan otomatis dari sana.
+Penginstal terbaru tersedia di halaman [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble melakukan pembaruan otomatis dari sana.
 
 ### Catatan Windows
 
@@ -99,12 +99,12 @@ Penginstal terbaru tersedia di halaman [Releases](https://github.com/nirmitpatel
 
 - **Arch / AUR:** `yay -S losos-bin` atau `paru`. Paket mengikuti rilis terbaru.
 - **NixOS / Nix:** gunakan flake resmi. Di luar NixOS, jalankan `nix profile install github:nirmitpatel9714-hue/LosOS`. Di NixOS, impor flake dan tambahkan `inputs.losos.packages.${pkgs.system}.losos` ke `environment.systemPackages`. `nixosModules.losos` juga tersedia untuk pengaturan yang lebih sederhana.
-- **AppImage:** memerlukan FUSE. Tanpanya, jalankan `./LosOS_*.AppImage --appimage-extract-and-run`. Jika ada masalah perenderan di Wayland, coba `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Paket `.deb` / `.rpm` menggunakan stack GTK sistem dan biasanya lebih lancar.
+- **AppImage:** memerlukan FUSE. Tanpanya, jalankan `./Bubble_*.AppImage --appimage-extract-and-run`. Jika ada masalah perenderan di Wayland, coba `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Paket `.deb` / `.rpm` menggunakan stack GTK sistem dan biasanya lebih lancar.
 
 ## Konfigurasi AI
 
 1. Buka **Pengaturan -> AI**.
-2. Pilih penyedia dan tempel kunci API. Untuk inferensi lokal, arahkan LosOS ke endpoint LM Studio / MLX / Ollama.
+2. Pilih penyedia dan tempel kunci API. Untuk inferensi lokal, arahkan Bubble ke endpoint LM Studio / MLX / Ollama.
 3. Kunci disimpan di keychain sistem operasi melalui `keyring`. Kunci tidak pernah ditulis ke disk atau localStorage.
 
 ## Build dari sumber
@@ -151,4 +151,4 @@ Build Windows ditandatangani dengan sertifikat gratis dari [SignPath.io](https:/
 
 ## Lisensi
 
-LosOS dilisensikan di bawah Apache-2.0. Untuk informasi tentang dependensi, lihat [Apache License 2.0](../../LICENSE).
+Bubble dilisensikan di bawah Apache-2.0. Untuk informasi tentang dependensi, lihat [Apache License 2.0](../../LICENSE).

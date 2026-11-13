@@ -37,6 +37,7 @@ import {
   GitCompareIcon,
   Globe02Icon,
   IncognitoIcon,
+  Layout02Icon,
   Message02Icon,
   PencilEdit02Icon,
   Tick02Icon,
@@ -78,6 +79,8 @@ type Props = {
   onRename: (id: number, title: string) => void;
   /** Move a dragged tab to a new position (insertion gap index 0..tabs.length). */
   onReorder: (fromId: number, toGapIndex: number) => void;
+  /** Turn niri-style tiling on or off for one window. */
+  onToggleTiled: (id: number) => void;
   onOverrideLanguage?: (id: number, lang: string | null) => void;
   compact?: boolean;
 };
@@ -99,6 +102,7 @@ export function TabBar({
   onPin,
   onRename,
   onReorder,
+  onToggleTiled,
   onOverrideLanguage,
   compact,
 }: Props) {
@@ -224,7 +228,7 @@ export function TabBar({
           >
             <span
               aria-hidden
-              className="pointer-events-none absolute left-0 top-1/2 h-7 rounded-md bg-foreground/[0.07] shadow-sm ring-1 ring-inset ring-foreground/[0.05]"
+              className="pointer-events-none absolute left-0 top-1/2 h-7 rounded-lg bg-foreground/[0.08] shadow-sm ring-1 ring-inset ring-foreground/[0.06]"
               style={
                 pill
                   ? {
@@ -262,7 +266,7 @@ export function TabBar({
                     <div
                       data-tab-id={t.id}
                       className={cn(
-                        "flex h-7 shrink-0 items-center gap-1.5 rounded-md bg-accent text-xs text-foreground",
+                        "flex h-7 shrink-0 items-center gap-1.5 rounded-lg bg-accent text-xs text-foreground",
                         compact ? "px-1.5" : "px-2",
                       )}
                     >
@@ -345,8 +349,8 @@ export function TabBar({
                     }
                   }}
                   className={cn(
-                    "group relative z-[1] h-7 shrink-0 justify-between gap-1.5 rounded-md bg-transparent text-xs transition-colors data-active:bg-transparent dark:data-active:bg-transparent",
-                    isNew && "losos-tab-in",
+                    "group relative z-[1] h-7 shrink-0 justify-between gap-1.5 rounded-lg bg-transparent text-xs transition-colors data-active:bg-transparent dark:data-active:bg-transparent",
+                    isNew && "bubble-tab-in",
                     isActive
                       ? "text-foreground dark:text-foreground"
                       : "text-muted-foreground hover:text-foreground/80 dark:text-muted-foreground",
@@ -475,11 +479,25 @@ export function TabBar({
                         className="size-1.5 shrink-0 rounded-full bg-foreground/70"
                       />
                     ) : null}
+                    {t.tiled ? (
+                      <span
+                        role="img"
+                        aria-label="Tiled"
+                        title="Tiled"
+                        className="shrink-0 text-primary/80"
+                      >
+                        <HugeiconsIcon
+                          icon={Layout02Icon}
+                          size={10}
+                          strokeWidth={2}
+                        />
+                      </span>
+                    ) : null}
                   </span>
                   {tabs.length > 1 && (
                     <span
                       role="button"
-                      aria-label="Close tab"
+                      aria-label="Close window"
                       data-no-drag
                       onPointerDown={(e) => {
                         e.preventDefault();
@@ -547,6 +565,20 @@ export function TabBar({
                     )}
                     <ContextMenuItem
                       className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
+                      onSelect={() => onToggleTiled(t.id)}
+                    >
+                      <HugeiconsIcon
+                        icon={Layout02Icon}
+                        size={13}
+                        strokeWidth={1.75}
+                      />
+                      <span className="flex-1">
+                        {t.tiled ? "Stop tiling window" : "Tile window"}
+                      </span>
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem
+                      className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
                       disabled={!hasTabsToRight}
                       onSelect={() => onCloseTabsToRight(t.id)}
                     >
@@ -555,7 +587,7 @@ export function TabBar({
                         size={13}
                         strokeWidth={1.75}
                       />
-                      <span className="flex-1">Close tabs to the right</span>
+                      <span className="flex-1">Close windows to the right</span>
                     </ContextMenuItem>
                     <ContextMenuItem
                       className="gap-2 rounded-xl px-2.5 py-1.5 text-[13px]"
@@ -567,7 +599,7 @@ export function TabBar({
                         size={13}
                         strokeWidth={1.75}
                       />
-                      <span className="flex-1">Close other tabs</span>
+                      <span className="flex-1">Close other windows</span>
                     </ContextMenuItem>
                   </ContextMenuContent>
                 </ContextMenu>
@@ -729,9 +761,6 @@ export function TabIcon({ tab }: { tab: Tab }) {
       />
     );
   }
-  if (tab.kind === "agents") {
-    return <AgentIcon agent="herdr" size={14} className="shrink-0" />;
-  }
   return <TerminalTabIcon tab={tab} />;
 }
 
@@ -777,7 +806,7 @@ function TabRenameInput({
     <input
       ref={ref}
       defaultValue={initial}
-      aria-label="Rename tab"
+      aria-label="Rename window"
       className={cn(
         "w-28 min-w-0 rounded-sm bg-background px-1 text-xs text-foreground",
         "outline-none ring-1 ring-border focus:ring-ring",

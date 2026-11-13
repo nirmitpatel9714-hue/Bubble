@@ -4,16 +4,16 @@ import { expect, it } from "vitest";
 
 const FACES = [
   {
-    file: "losos-terminal-symbols.woff2",
-    family: "LosOS Terminal Symbols",
+    file: "bubble-terminal-symbols.woff2",
+    family: "Bubble Terminal Symbols",
     range: "U+E000-F8FF",
     sha256: "08107a419bbbc0d24ea11fdbae136bc7fa1943a0fc2b3495975a8b3082428081",
     // The face every terminal loads: small enough to be part of first paint.
     maxBytes: 400_000,
   },
   {
-    file: "losos-terminal-symbols-mdi.woff2",
-    family: "LosOS Terminal Symbols MDI",
+    file: "bubble-terminal-symbols-mdi.woff2",
+    family: "Bubble Terminal Symbols MDI",
     range: "U+F0000-FFFFD",
     sha256: "987533dfb02fd9f769dc199ffbf5f2bea02b9a102883eaa795fbebfacc10f4ac",
     maxBytes: 400_000,
@@ -44,14 +44,20 @@ it("carries the notices the bundled icon sets require", async () => {
     "utf8",
   );
   // Apache-2.0 (Material Design Icons): the full text, not a link.
-  expect(license).toContain("Material Design Icons by Pictogrammers and Google");
-  expect(license).toContain("TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION");
+  expect(license).toContain(
+    "Material Design Icons by Pictogrammers and Google",
+  );
+  expect(license).toContain(
+    "TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION",
+  );
   expect(license).toContain("END OF TERMS AND CONDITIONS");
   // CC BY 4.0 (Codicons, Font Awesome Free): attribution, licence link, changes.
   for (const holder of ["Microsoft Corporation", "Fonticons, Inc."]) {
     expect(license).toContain(holder);
   }
-  expect(license.match(/creativecommons\.org\/licenses\/by\/4\.0/g)?.length).toBeGreaterThanOrEqual(2);
+  expect(
+    license.match(/creativecommons\.org\/licenses\/by\/4\.0/g)?.length,
+  ).toBeGreaterThanOrEqual(2);
   expect(license).toContain("were modified as described above");
 });
 

@@ -194,6 +194,8 @@ export type Preferences = {
   customCodingAgents: CustomCodingAgent[];
   defaultWorkspaceEnv: string;
   shortcuts: Record<ShortcutId, KeyBinding[]>;
+  /** Pressed before every application chord. Default: Ctrl+Space. */
+  leaderKey: KeyBinding;
   editorAutoSave: boolean;
   editorAutoSaveDelay: number;
   editorFormatOnSave: boolean;
@@ -294,6 +296,7 @@ const KEY_ADDED_AGENTS = "addedAgents";
 const KEY_CUSTOM_CODING_AGENTS = "customCodingAgents";
 const KEY_DEFAULT_WORKSPACE_ENV = "defaultWorkspaceEnv";
 const KEY_SHORTCUTS = "shortcuts";
+const KEY_LEADER_KEY = "leaderKey";
 const KEY_EDITOR_AUTO_SAVE = "editorAutoSave";
 const KEY_EDITOR_AUTO_SAVE_DELAY = "editorAutoSaveDelay";
 const KEY_EDITOR_FORMAT_ON_SAVE = "editorFormatOnSave";
@@ -328,6 +331,28 @@ const TERMINAL_SCROLLBACK_MAX = 50_000;
 export const TERMINAL_SCROLLBACK_PRESETS = [
   500, 1000, 2000, 5000, 10_000, 25_000,
 ] as const;
+
+export const DEFAULT_LEADER_KEY: KeyBinding = { ctrl: true, key: " " };
+
+/** The leader must be Ctrl-based: no Alt and no Super. */
+export function normalizeLeaderKey(value: unknown): KeyBinding {
+  if (!value || typeof value !== "object") return DEFAULT_LEADER_KEY;
+  const candidate = value as Partial<KeyBinding>;
+  if (
+    typeof candidate.key !== "string" ||
+    candidate.key.length === 0 ||
+    candidate.ctrl !== true ||
+    candidate.alt === true ||
+    candidate.meta === true
+  ) {
+    return DEFAULT_LEADER_KEY;
+  }
+  return {
+    key: candidate.key,
+    ctrl: true,
+    ...(candidate.shift === true ? { shift: true } : {}),
+  };
+}
 
 export const DEFAULT_PREFERENCES: Preferences = {
   theme: "system",
@@ -393,6 +418,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   customCodingAgents: [],
   defaultWorkspaceEnv: "local",
   shortcuts: {} as Record<ShortcutId, KeyBinding[]>,
+  leaderKey: DEFAULT_LEADER_KEY,
   editorAutoSave: false,
   editorAutoSaveDelay: 1000,
   editorFormatOnSave: false,
@@ -409,7 +435,7 @@ const store = new LazyStore(STORE_PATH, { defaults: {}, autoSave: 200 });
 // page lives in a separate webview, so writes there never reach the main
 // window's subscribers. Mirror every setter through a Tauri event so any
 // window can listen.
-const PREFS_CHANGED_EVENT = "losos://prefs-changed";
+const PREFS_CHANGED_EVENT = "bubble://prefs-changed";
 
 async function writePref<T>(key: string, value: T): Promise<void> {
   await store.set(key, value);
@@ -593,6 +619,7 @@ export async function loadPreferences(): Promise<Preferences> {
     shortcuts:
       get<Record<ShortcutId, KeyBinding[]>>(KEY_SHORTCUTS) ??
       DEFAULT_PREFERENCES.shortcuts,
+    leaderKey: normalizeLeaderKey(get<unknown>(KEY_LEADER_KEY)),
     editorAutoSave:
       get<boolean>(KEY_EDITOR_AUTO_SAVE) ?? DEFAULT_PREFERENCES.editorAutoSave,
     editorAutoSaveDelay: clampAutoSaveDelay(
@@ -1032,6 +1059,10 @@ export async function setShortcuts(
   await writePref(KEY_SHORTCUTS, value);
 }
 
+export async function setLeaderKey(value: KeyBinding): Promise<void> {
+  await writePref(KEY_LEADER_KEY, normalizeLeaderKey(value));
+}
+
 export type PrefKey = keyof Preferences;
 
 /** Subscribe to changes from any window (settings → main). */
@@ -1099,6 +1130,7 @@ export async function onPreferencesChange(
     [KEY_CUSTOM_CODING_AGENTS]: "customCodingAgents",
     [KEY_DEFAULT_WORKSPACE_ENV]: "defaultWorkspaceEnv",
     [KEY_SHORTCUTS]: "shortcuts",
+    [KEY_LEADER_KEY]: "leaderKey",
     [KEY_EDITOR_AUTO_SAVE]: "editorAutoSave",
     [KEY_EDITOR_AUTO_SAVE_DELAY]: "editorAutoSaveDelay",
     [KEY_EDITOR_FORMAT_ON_SAVE]: "editorFormatOnSave",
@@ -1129,7 +1161,7 @@ export async function onPreferencesChange(
 
 // API key changes are stored in OS keychain (not the prefs store),
 // so we broadcast via a Tauri event for cross-window listeners.
-const KEYS_CHANGED_EVENT = "losos://ai-keys-changed";
+const KEYS_CHANGED_EVENT = "bubble://ai-keys-changed";
 
 export async function emitKeysChanged(): Promise<void> {
   await emit(KEYS_CHANGED_EVENT);

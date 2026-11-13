@@ -81,7 +81,17 @@ describe("isAllowedLocalImage", () => {
   const p = policy("/w/p");
 
   it("allows image types inside the boundary", () => {
-    for (const ext of ["png", "JPG", "jpeg", "gif", "webp", "avif", "svg", "bmp", "ico"]) {
+    for (const ext of [
+      "png",
+      "JPG",
+      "jpeg",
+      "gif",
+      "webp",
+      "avif",
+      "svg",
+      "bmp",
+      "ico",
+    ]) {
       expect(isAllowedLocalImage(`/w/p/img/a.${ext}`, p)).toBe(true);
     }
   });
@@ -93,7 +103,15 @@ describe("isAllowedLocalImage", () => {
   });
 
   it("refuses anything that is not an image type", () => {
-    for (const name of ["notes.md", "id_rsa", "a.png.txt", "a", ".png", "data.json", "x.html"]) {
+    for (const name of [
+      "notes.md",
+      "id_rsa",
+      "a.png.txt",
+      "a",
+      ".png",
+      "data.json",
+      "x.html",
+    ]) {
       expect(isAllowedLocalImage(`/w/p/${name}`, p)).toBe(false);
     }
   });
@@ -115,7 +133,10 @@ describe("rehypeLocalImages", () => {
   });
   const run = (src: string, doc = "/w/p/docs/readme.md", root = "/w/p") => {
     const node = img(src);
-    const t = { type: "root", children: [{ type: "element", tagName: "p", children: [node] }] };
+    const t = {
+      type: "root",
+      children: [{ type: "element", tagName: "p", children: [node] }],
+    };
     rehypeLocalImages(doc, (p) => `asset://${p}`, policy(root))()(t);
     return node.properties.src;
   };
@@ -130,7 +151,9 @@ describe("rehypeLocalImages", () => {
   });
 
   it("does not rewrite traversal out of the workspace", () => {
-    expect(run("../../../../.ssh/id_rsa.png")).toBe("../../../../.ssh/id_rsa.png");
+    expect(run("../../../../.ssh/id_rsa.png")).toBe(
+      "../../../../.ssh/id_rsa.png",
+    );
     expect(run("../../../etc/logo.png")).toBe("../../../etc/logo.png");
   });
 
@@ -152,7 +175,11 @@ describe("rehypeLocalImages", () => {
   });
 
   it("confines a document outside the workspace to its own folder", () => {
-    expect(run("./a.png", "/elsewhere/d/r.md", "/elsewhere/d")).toBe("asset:///elsewhere/d/a.png");
-    expect(run("../a.png", "/elsewhere/d/r.md", "/elsewhere/d")).toBe("../a.png");
+    expect(run("./a.png", "/elsewhere/d/r.md", "/elsewhere/d")).toBe(
+      "asset:///elsewhere/d/a.png",
+    );
+    expect(run("../a.png", "/elsewhere/d/r.md", "/elsewhere/d")).toBe(
+      "../a.png",
+    );
   });
 });

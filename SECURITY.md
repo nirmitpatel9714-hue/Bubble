@@ -1,6 +1,6 @@
 # Security
 
-LosOS runs shells, reads/writes files, and talks to AI providers, so security bugs matter. If you find one, please tell us before posting it publicly.
+Bubble runs shells, reads/writes files, and talks to AI providers, so security bugs matter. If you find one, please tell us before posting it publicly.
 
 ## Reporting
 
@@ -34,13 +34,13 @@ Until `1.0.0`, only the latest minor gets security fixes. See the current versio
 ## What we do to keep things safe
 
 - **API keys** live in the OS keychain via `keyring` - not on disk, not in `localStorage`, not in logs.
-- **No telemetry.** LosOS only talks to the network when you ask it to (AI requests, update checks, web preview).
+- **No telemetry.** Bubble only talks to the network when you ask it to (AI requests, update checks, web preview).
 - **AI tool approval.** File writes and shell commands from the agent need your OK before they run.
 - **No Node in the renderer.** The frontend only reaches the host through the allow-listed Tauri commands.
 - **Signed releases.** Updates are verified before they're applied.
 
 ## What we can't promise
 
-- LosOS runs whatever you (or the agent) tell it to run, with your permissions. That's kind of the point of a terminal.
+- Bubble runs whatever you (or the agent) tell it to run, with your permissions. That's kind of the point of a terminal.
 - AI providers see whatever you send them. Read their retention policies.
-- Local LLM endpoints (LM Studio, OpenAI-compatible) are trusted at the network level - only point LosOS at servers you control.
+- Local LLM endpoints (LM Studio, OpenAI-compatible) are trusted at the network level - only point Bubble at servers you control.

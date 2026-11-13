@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
 
   <p><strong>轻量、终端优先的 AI 原生开发工作区。</strong></p>
 
@@ -29,7 +29,7 @@
 
 ---
 
-LosOS 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE），基于 Tauri 2 + Rust 和 React 19 构建。它内置原生 PTY 后端与 WebGL 渲染器、使用你自己的密钥或完全本地模型运行的智能体 AI 侧边栏，以及代码编辑器、文件浏览器、带 Git 图的源代码管理和网页预览面板。磁盘占用约 7-8 MB。无遥测。无需账户。
+Bubble 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE），基于 Tauri 2 + Rust 和 React 19 构建。它内置原生 PTY 后端与 WebGL 渲染器、使用你自己的密钥或完全本地模型运行的智能体 AI 侧边栏，以及代码编辑器、文件浏览器、带 Git 图的源代码管理和网页预览面板。磁盘占用约 7-8 MB。无遥测。无需账户。
 
 ## 截图
 
@@ -100,7 +100,7 @@ LosOS 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE）�
 
 - **自带密钥提供商：** OpenAI、Anthropic、Google（Gemini）、Groq、xAI（Grok）、Cerebras、OpenRouter、DeepSeek、Mistral，以及任意兼容 OpenAI 的端点
 - **本地 / 离线：** LM Studio、MLX、Ollama
-- **智能体工作流：** 计划、子智能体、通过 `LOSOS.md` 实现的项目记忆、文件读取 / 写入 / 编辑 / 多处编辑 / grep / glob、需要批准的 bash、后台进程
+- **智能体工作流：** 计划、子智能体、通过 `BUBBLE.md` 实现的项目记忆、文件读取 / 写入 / 编辑 / 多处编辑 / grep / glob、需要批准的 bash、后台进程
 - **编码智能体编排：** 在终端中启动 Claude Code、检查其输出，并通过需要批准的工具发送后续工作
 - **输入区：** 通过 `#handle` 使用提示片段、通过 `@path` 添加文件、语音输入，以及从文件浏览器或选区附加到智能体
 - **自定义智能体**，拥有各自的系统提示和工具子集
@@ -108,7 +108,7 @@ LosOS 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE）�
 
 ## 安装
 
-最新安装程序位于 [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) 页面。LosOS 会从该页面自动更新。
+最新安装程序位于 [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) 页面。Bubble 会从该页面自动更新。
 
 ### Windows 说明
 
@@ -119,12 +119,12 @@ LosOS 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE）�
 
 - **Arch / AUR：** `yay -S losos-bin`（也可使用 `paru` 等）。它会跟随最新版本。
 - **NixOS / Nix：** 使用官方 flake。非 NixOS 运行 `nix profile install github:nirmitpatel9714-hue/LosOS`；NixOS 可导入 flake，并将 `inputs.losos.packages.${pkgs.system}.losos` 添加到 `environment.systemPackages`。也可以使用 `nixosModules.losos` 输出进行更简单的配置。
-- **AppImage：** 需要 FUSE。没有 FUSE 时运行 `./LosOS_*.AppImage --appimage-extract-and-run`。如果在 Wayland 上出现渲染问题，请尝试 `WEBKIT_DISABLE_DMABUF_RENDERER=1`。否则，`.deb` / `.rpm` 包会链接系统 GTK 栈，通常更流畅。
+- **AppImage：** 需要 FUSE。没有 FUSE 时运行 `./Bubble_*.AppImage --appimage-extract-and-run`。如果在 Wayland 上出现渲染问题，请尝试 `WEBKIT_DISABLE_DMABUF_RENDERER=1`。否则，`.deb` / `.rpm` 包会链接系统 GTK 栈，通常更流畅。
 
 ## 配置 AI
 
 1. 打开**设置 -> AI**。
-2. 选择提供商并粘贴 API 密钥。对于本地推理，将 LosOS 指向你的 LM Studio / MLX / Ollama 端点。
+2. 选择提供商并粘贴 API 密钥。对于本地推理，将 Bubble 指向你的 LM Studio / MLX / Ollama 端点。
 3. 密钥通过 `keyring` 写入操作系统钥匙串。密钥绝不会写入磁盘或 localStorage。
 
 ## 从源代码构建
@@ -171,4 +171,4 @@ Windows 构建使用 [SignPath.io](https://signpath.io) 提供的免费代码签
 
 ## 许可证
 
-LosOS 使用 Apache-2.0 许可证。有关依赖项的更多信息，请参阅 [Apache License 2.0](../../LICENSE)。
+Bubble 使用 Apache-2.0 许可证。有关依赖项的更多信息，请参阅 [Apache License 2.0](../../LICENSE)。

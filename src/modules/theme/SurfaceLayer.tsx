@@ -101,7 +101,7 @@ function BackgroundImage({ fastImageId }: { fastImageId: string | null }) {
   return createPortal(
     <div
       aria-hidden
-      className="losos-bg-surface"
+      className="bubble-bg-surface"
       style={{
         position: "fixed",
         inset: 0,

@@ -187,7 +187,7 @@ describe("vendored libghostty-vt compatibility", () => {
     const terminal = ghostty.createTerminal(80, 24);
     try {
       terminal.write(
-        "\x1b]2;LosOS title\x07" +
+        "\x1b]2;Bubble title\x07" +
           "\x1b]7;file://localhost/Users/losos\x1b\\" +
           "\x1b]133;A\x07" +
           "\x1b]133;B\x07" +
@@ -198,7 +198,7 @@ describe("vendored libghostty-vt compatibility", () => {
       );
 
       expect(terminal.drainEvents()).toEqual([
-        { type: "title", title: "LosOS title" },
+        { type: "title", title: "Bubble title" },
         { type: "pwd", uri: "file://localhost/Users/losos" },
         { type: "prompt-start" },
         { type: "prompt-end" },
@@ -217,7 +217,7 @@ describe("vendored libghostty-vt compatibility", () => {
     const terminal = ghostty.createTerminal(80, 24);
     try {
       const uri = "https://losos.dev/docs";
-      terminal.write(`\x1b]8;;${uri}\x1b\\LosOS\x1b]8;;\x1b\\`);
+      terminal.write(`\x1b]8;;${uri}\x1b\\Bubble\x1b]8;;\x1b\\`);
       terminal.update();
       expect(terminal.getHyperlinkUri(0, 0)).toBe(uri);
       const warmBytes = ghostty.getMemoryBytes();

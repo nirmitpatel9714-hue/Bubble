@@ -170,7 +170,7 @@ impl HookFacts {
     }
 }
 
-/// Payload of the `losos:agent-event` Tauri event.
+/// Payload of the `bubble:agent-event` Tauri event.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentEvent {

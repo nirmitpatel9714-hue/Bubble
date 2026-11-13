@@ -123,7 +123,7 @@ pub mod macos {
             }
         }
         if let Some(window) = app.get_webview_window("main") {
-            let _ = window.emit("losos:window-presentation", next);
+            let _ = window.emit("bubble:window-presentation", next);
         }
     }
 

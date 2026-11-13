@@ -1,10 +1,10 @@
 # losos-shell-integration (fish)
 # Emits OSC 7 (cwd) + OSC 133 A/B/C/D so the host tracks cwd and prompt
 # boundaries without re-parsing the prompt. fish 4.0+ writes its own OSC 133
-# A/B (the `mark-prompt` feature); LosOS disables it at spawn via
+# A/B (the `mark-prompt` feature); Bubble disables it at spawn via
 # fish_features=no-mark-prompt so these markers aren't emitted twice.
 
-# Installed into conf.d, which every fish session sources; only LosOS-spawned
+# Installed into conf.d, which every fish session sources; only Bubble-spawned
 # shells (LOSOS_TERMINAL=1) may get their prompt wrapped.
 if not set -q LOSOS_TERMINAL
     exit 0
@@ -20,7 +20,7 @@ if set -q LOSOS_CLI; and test -x "$LOSOS_CLI"
     end
 end
 
-# LosOS is a clean terminal; drop fish's default startup greeting. A user who
+# Bubble is a clean terminal; drop fish's default startup greeting. A user who
 # sets their own in config.fish (sourced after this) keeps it.
 function fish_greeting
 end
@@ -61,7 +61,7 @@ end
 # and drop our markers.
 function __losos_install_prompt
     # ponytail: cover Conda's named wrapper; generalize if another prompt
-    # framework preserves LosOS indirectly.
+    # framework preserves Bubble indirectly.
     if not set -q LOSOS_BLOCKS
         and functions -q __fish_prompt_orig
         and functions fish_prompt | string match -q '*__fish_prompt_orig*'

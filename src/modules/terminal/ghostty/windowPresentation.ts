@@ -89,7 +89,7 @@ function connect(): void {
   sync();
   if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
     void getCurrentWindow()
-      .listen<NativePresentation>("losos:window-presentation", ({ payload }) =>
+      .listen<NativePresentation>("bubble:window-presentation", ({ payload }) =>
         accept(payload),
       )
       .then(async (stop) => {

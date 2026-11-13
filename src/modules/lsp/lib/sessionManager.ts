@@ -4,7 +4,7 @@ import type { Extension } from "@codemirror/state";
 import type { EditorView } from "@codemirror/view";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
-import type { LosOSLspClient } from "./client";
+import type { BubbleLspClient } from "./client";
 import { detectBinary } from "./detect";
 import { getLspNavigator } from "./navigator";
 import { type LspPreset, serverForLanguage } from "./presets";
@@ -24,7 +24,7 @@ type Managed = {
   key: string;
   preset: LspPreset;
   root: string;
-  client: LosOSLspClient;
+  client: BubbleLspClient;
   transport: TauriLspTransport;
   refs: Map<string, number>;
   idleTimer: ReturnType<typeof setTimeout> | null;
@@ -207,13 +207,13 @@ async function createSession(
   const store = useLspRuntimeStore.getState();
   store.upsertSession({ key, presetId: preset.id, root, status: "starting" });
 
-  const [{ TauriLspTransport }, { LosOSLspClient }] = await Promise.all([
+  const [{ TauriLspTransport }, { BubbleLspClient }] = await Promise.all([
     import("./transport"),
     import("./client"),
   ]);
 
-  if (LosOSLspClient.hostPid === null) {
-    LosOSLspClient.hostPid = await invoke<number>("lsp_host_pid").catch(
+  if (BubbleLspClient.hostPid === null) {
+    BubbleLspClient.hostPid = await invoke<number>("lsp_host_pid").catch(
       () => null,
     );
   }
@@ -241,7 +241,7 @@ async function createSession(
   }
 
   const rootUri = pathToFileUri(root);
-  const client = new LosOSLspClient({
+  const client = new BubbleLspClient({
     transport,
     rootUri,
     workspaceFolders: [{ uri: rootUri, name: basename(root) }],

@@ -110,7 +110,7 @@ export function SettingsApp() {
       }
     };
     const unlistenPromise = getCurrentWebviewWindow().listen<string>(
-      "losos:settings-tab",
+      "bubble:settings-tab",
       (e) => apply(e.payload),
     );
     return () => {

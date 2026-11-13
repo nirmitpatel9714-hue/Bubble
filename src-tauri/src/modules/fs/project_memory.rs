@@ -34,9 +34,7 @@ fn read_memory(root: &Path, checked_path: &Path) -> Result<Option<String>, Strin
         use std::os::unix::fs::OpenOptionsExt;
         options.custom_flags(libc::O_NONBLOCK);
     }
-    let file = options
-        .open(root.join("LOSOS.md"))
-        .map_err(|e| e.to_string())?;
+    let file = options.open(checked_path).map_err(|e| e.to_string())?;
     if !file.metadata().map_err(|e| e.to_string())?.is_file() {
         return Err("project memory must be a regular file".into());
     }
@@ -134,7 +132,7 @@ mod tests {
         std::fs::create_dir(&outside).unwrap();
         let target = outside.join("instructions.md");
         std::fs::write(&target, "OUTSIDE_FIXTURE").unwrap();
-        std::os::unix::fs::symlink(&target, root.join("LOSOS.md")).unwrap();
+        std::os::unix::fs::symlink(&target, root.join("BUBBLE.md")).unwrap();
         let frontend_path = PathBuf::from(target.to_string_lossy().as_ref());
         assert!(read_memory(&root, &frontend_path).is_err());
     }
@@ -152,7 +150,7 @@ mod tests {
     fn ordinary_memory_is_bounded_utf8() {
         let dir = tempfile::tempdir().unwrap();
         let root = std::fs::canonicalize(dir.path()).unwrap();
-        let path = root.join("LOSOS.md");
+        let path = root.join("BUBBLE.md");
         std::fs::write(&path, "project instructions").unwrap();
         assert_eq!(
             read_memory(&root, &path).unwrap().as_deref(),
@@ -171,7 +169,7 @@ mod tests {
             let target = root.join(name);
             std::fs::create_dir_all(target.parent().unwrap()).unwrap();
             std::fs::write(&target, "SYNTHETIC_CREDENTIAL").unwrap();
-            let memory = root.join("LOSOS.md");
+            let memory = root.join("BUBBLE.md");
             std::os::unix::fs::symlink(&target, &memory).unwrap();
             assert!(read_memory(&root, &target).is_err(), "{name}");
             std::fs::remove_file(&memory).unwrap();
@@ -184,7 +182,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let root = std::fs::canonicalize(dir.path()).unwrap();
         let outside = tempfile::NamedTempFile::new().unwrap();
-        let memory = root.join("LOSOS.md");
+        let memory = root.join("BUBBLE.md");
         std::os::unix::fs::symlink(outside.path(), &memory).unwrap();
         assert!(read_memory(&root, outside.path()).is_err());
         std::fs::remove_file(&memory).unwrap();

@@ -40,7 +40,7 @@ function IconSlot({
       alt=""
       width={width}
       height={height}
-      className={cn(className, arrivedLate && "losos-icon-in")}
+      className={cn(className, arrivedLate && "bubble-icon-in")}
       onError={onError}
     />
   );

@@ -143,6 +143,27 @@ describe("hydrateTabs", () => {
     ).toEqual([]);
   });
 
+  it("round-trips the tiled flag", () => {
+    const serialized = serializeTabs([
+      term({ id: 1, tiled: true }),
+      term({ id: 2 }),
+      {
+        id: 3,
+        kind: "editor",
+        spaceId: "s1",
+        title: "x",
+        path: "/a/x.ts",
+        dirty: false,
+        preview: false,
+        tiled: true,
+      },
+    ]);
+    expect(serialized[0].tiled).toBe(true);
+    expect(serialized[1]).not.toHaveProperty("tiled");
+    const restored = hydrateTabs(serialized, "s1", counter());
+    expect(restored.map((t) => t.tiled)).toEqual([true, undefined, true]);
+  });
+
   it("hydrates editor/preview/markdown as cold with derived titles", () => {
     const serialized: SerializedTab[] = [
       { kind: "editor", path: "/a/foo.ts" },

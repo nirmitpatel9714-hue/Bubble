@@ -12,7 +12,7 @@ describe("resolveAgentNotificationDelivery", () => {
     ).toBe("none");
   });
 
-  it("uses a native alert while LosOS is unfocused", () => {
+  it("uses a native alert while Bubble is unfocused", () => {
     expect(
       resolveAgentNotificationDelivery({
         focused: false,

@@ -220,7 +220,7 @@
  * gutter is horizontal and anything cast downward would be clipped anyway
  * (react-resizable-panels clips panel content at the panel box). Separation
  * comes from the border plus the frame/pane tone step. */
-.losos-pane {
+.bubble-pane {
   border-radius: var(--pane-radius);
   border: 1px solid var(--border);
   background: var(--background);
@@ -241,7 +241,7 @@ html[data-vibrancy="on"] {
   --frame: color-mix(in oklab, var(--card) 55%, transparent);
 }
 
-html[data-chrome="borderless"] .losos-bg-surface {
+html[data-chrome="borderless"] .bubble-bg-surface {
   border-radius: 12px;
 }
 /* Window drag (macOS WebKit): while `data-live-resize` is set (see
@@ -378,28 +378,28 @@ html *::-webkit-scrollbar {
   display: none;
 }
 
-.losos-code-editor .cm-scroller {
+.bubble-code-editor .cm-scroller {
   margin-right: -4px;
   scrollbar-width: thin !important;
   scrollbar-color: color-mix(in srgb, var(--foreground) 18%, transparent)
     transparent !important;
 }
-.losos-code-editor .cm-scroller::-webkit-scrollbar {
+.bubble-code-editor .cm-scroller::-webkit-scrollbar {
   width: 7px !important;
   height: 7px !important;
   display: block !important;
 }
-.losos-code-editor .cm-scroller::-webkit-scrollbar-track,
-.losos-code-editor .cm-scroller::-webkit-scrollbar-corner {
+.bubble-code-editor .cm-scroller::-webkit-scrollbar-track,
+.bubble-code-editor .cm-scroller::-webkit-scrollbar-corner {
   background: transparent;
 }
-.losos-code-editor .cm-scroller::-webkit-scrollbar-thumb {
+.bubble-code-editor .cm-scroller::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
   background: color-mix(in srgb, var(--foreground) 18%, transparent);
   background-clip: padding-box;
 }
-.losos-code-editor .cm-scroller::-webkit-scrollbar-thumb:hover {
+.bubble-code-editor .cm-scroller::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(
     in srgb,
     var(--foreground) 30%,
@@ -416,7 +416,7 @@ html *::-webkit-scrollbar {
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes losos-collapsible-down {
+@keyframes bubble-collapsible-down {
   from {
     height: 0;
     opacity: 0;
@@ -427,7 +427,7 @@ html *::-webkit-scrollbar {
   }
 }
 
-@keyframes losos-collapsible-up {
+@keyframes bubble-collapsible-up {
   from {
     height: var(--radix-collapsible-content-height);
     opacity: 1;
@@ -438,20 +438,20 @@ html *::-webkit-scrollbar {
   }
 }
 
-.losos-collapsible-content {
+.bubble-collapsible-content {
   overflow: hidden;
 }
-.losos-collapsible-content[data-state="open"] {
-  animation: losos-collapsible-down var(--dur-base) var(--ease-soft);
+.bubble-collapsible-content[data-state="open"] {
+  animation: bubble-collapsible-down var(--dur-base) var(--ease-soft);
 }
-.losos-collapsible-content[data-state="closed"] {
-  animation: losos-collapsible-up var(--dur-base) var(--ease-soft);
+.bubble-collapsible-content[data-state="closed"] {
+  animation: bubble-collapsible-up var(--dur-base) var(--ease-soft);
 }
 
 /* Height auto<->0 reveal without JS measuring: animate the grid track from 0fr
  * to 1fr. The inner child must be the sole grid row with min-height:0. Used by
  * the docked AI input bar and the composer voice-status row. */
-.losos-reveal {
+.bubble-reveal {
   display: grid;
   grid-template-rows: 0fr;
   transition:
@@ -459,16 +459,16 @@ html *::-webkit-scrollbar {
     opacity var(--dur-base) var(--ease-premium);
   opacity: 0;
 }
-.losos-reveal[data-state="open"] {
+.bubble-reveal[data-state="open"] {
   grid-template-rows: 1fr;
   opacity: 1;
 }
-.losos-reveal > * {
+.bubble-reveal > * {
   min-height: 0;
   overflow: hidden;
 }
 
-@keyframes losos-panel-in {
+@keyframes bubble-panel-in {
   from {
     opacity: 0;
     transform: translateX(-40px);
@@ -478,11 +478,11 @@ html *::-webkit-scrollbar {
     transform: translateX(0);
   }
 }
-.losos-panel-in {
-  animation: losos-panel-in var(--dur-slow) var(--ease-premium);
+.bubble-panel-in {
+  animation: bubble-panel-in var(--dur-slow) var(--ease-premium);
 }
 
-@keyframes losos-tab-in {
+@keyframes bubble-tab-in {
   from {
     opacity: 0;
     transform: scale(0.86);
@@ -492,30 +492,30 @@ html *::-webkit-scrollbar {
     transform: scale(1);
   }
 }
-.losos-tab-in {
-  animation: losos-tab-in var(--dur-base) var(--ease-premium);
+.bubble-tab-in {
+  animation: bubble-tab-in var(--dur-base) var(--ease-premium);
 }
 
 /* Long AI chats: older messages skip layout and paint while off screen.
  * `auto` in contain-intrinsic-size makes the browser remember each message's
  * last rendered height, so the inline estimate only applies to messages that
  * have never been on screen. The newest messages opt out (see AiChat). */
-.losos-chat-item {
+.bubble-chat-item {
   content-visibility: auto;
   contain-intrinsic-size: auto 96px;
 }
 
 /* File icons load lazily; a slot that was blank at mount fades its icon in. */
-@keyframes losos-icon-in {
+@keyframes bubble-icon-in {
   from {
     opacity: 0;
   }
 }
-.losos-icon-in {
-  animation: losos-icon-in var(--dur-fast) var(--ease-soft);
+.bubble-icon-in {
+  animation: bubble-icon-in var(--dur-fast) var(--ease-soft);
 }
 
-@keyframes losos-pill-in {
+@keyframes bubble-pill-in {
   from {
     opacity: 0;
     transform: translateY(2px) scale(0.96);
@@ -525,13 +525,13 @@ html *::-webkit-scrollbar {
     transform: translateY(0) scale(1);
   }
 }
-.losos-pill-in {
-  animation: losos-pill-in var(--dur-base) var(--ease-premium);
+.bubble-pill-in {
+  animation: bubble-pill-in var(--dur-base) var(--ease-premium);
 }
 
 /* Text shimmer loop (replaces motion background-position animation). Driven by
  * --shimmer-duration / --shimmer-spread set inline per instance. */
-@keyframes losos-shimmer {
+@keyframes bubble-shimmer {
   from {
     background-position: 100% center;
   }
@@ -539,7 +539,7 @@ html *::-webkit-scrollbar {
     background-position: 0% center;
   }
 }
-.losos-shimmer {
+.bubble-shimmer {
   background-repeat: no-repeat, padding-box;
   background-size:
     250% 100%,
@@ -556,28 +556,28 @@ html *::-webkit-scrollbar {
       var(--color-muted-foreground)
     );
   /* 40 ticks per sweep (20 fps at the 2s default) rather than 60+ repaints/s. */
-  animation: losos-shimmer var(--shimmer-duration, 2s) steps(40, end) infinite;
+  animation: bubble-shimmer var(--shimmer-duration, 2s) steps(40, end) infinite;
 }
 
 /* Recording indicator: a hard on/off blink, two repaints per cycle. */
-@keyframes losos-blink {
+@keyframes bubble-blink {
   50% {
     opacity: 0.2;
   }
 }
-.losos-blink {
-  animation: losos-blink 1.2s steps(1, end) infinite;
+.bubble-blink {
+  animation: bubble-blink 1.2s steps(1, end) infinite;
 }
 
 /* Draws the eye to a pending prompt for a few beats, then settles to a static
  * dot: a waiting approval must not animate for as long as it sits there. */
-@keyframes losos-attention {
+@keyframes bubble-attention {
   50% {
     opacity: 0.3;
   }
 }
-.losos-attention-pulse {
-  animation: losos-attention 1.6s steps(8, end) 3;
+.bubble-attention-pulse {
+  animation: bubble-attention 1.6s steps(8, end) 3;
 }
 
 /* A window that is unfocused, hidden or occluded shows nothing the user is
@@ -597,15 +597,15 @@ html[data-window-inactive] *::after {
     --dur-base: 0.01ms;
     --dur-slow: 0.01ms;
   }
-  .losos-reveal {
+  .bubble-reveal {
     transition: none;
   }
-  .losos-shimmer {
+  .bubble-shimmer {
     animation: none;
     background-position: 0% center;
   }
-  .losos-blink,
-  .losos-attention-pulse {
+  .bubble-blink,
+  .bubble-attention-pulse {
     animation: none;
   }
 }

@@ -50,7 +50,7 @@ impl Display for GitError {
             ),
             GitError::TooOld { found, required } => write!(
                 f,
-                "git {found} is too old; LosOS needs git {required} or newer.",
+                "git {found} is too old; Bubble needs git {required} or newer.",
             ),
             GitError::NotADirectory(p) => write!(f, "not a directory: {p}"),
             GitError::PathOutsideWorkspace(p) => write!(

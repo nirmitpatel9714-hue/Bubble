@@ -25,8 +25,8 @@ describe("Ghostty artifact selection", () => {
         }),
       );
       vi.stubGlobal("fetch", fetch);
-      const { LosOSGhostty } = await import("@losos/ghostty-core/adapted");
-      const ghostty = await LosOSGhostty.load();
+      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      const ghostty = await BubbleGhostty.load();
       expect(fetch).toHaveBeenCalledExactlyOnceWith(
         expect.stringContaining(filename),
       );
@@ -61,8 +61,8 @@ describe("Ghostty artifact selection", () => {
           async () => new Response(await artifact(), { headers }),
         );
       vi.stubGlobal("fetch", fetch);
-      const { LosOSGhostty } = await import("@losos/ghostty-core/adapted");
-      return { fetch, ghostty: await LosOSGhostty.load() };
+      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      return { fetch, ghostty: await BubbleGhostty.load() };
     }
 
     it("fetches and compiles once however many terminals follow", async () => {
@@ -98,25 +98,25 @@ describe("Ghostty artifact selection", () => {
 
     it("rejects an empty artifact and a module without the bridge exports", async () => {
       vi.resetModules();
-      const { LosOSGhostty } = await import("@losos/ghostty-core/adapted");
-      await expect(LosOSGhostty.loadBytes(new ArrayBuffer(0))).rejects.toThrow(
+      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      await expect(BubbleGhostty.loadBytes(new ArrayBuffer(0))).rejects.toThrow(
         "empty",
       );
       const bare = await WebAssembly.compile(
         Uint8Array.of(0, 0x61, 0x73, 0x6d, 1, 0, 0, 0),
       );
-      expect(() => LosOSGhostty.fromModule(bare)).toThrow(
+      expect(() => BubbleGhostty.fromModule(bare)).toThrow(
         "Missing adapted Ghostty WASM export",
       );
     });
 
     it("gives each instance its own log import that stops reading memory once disposed", async () => {
       vi.resetModules();
-      const { LosOSGhostty } = await import("@losos/ghostty-core/adapted");
+      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
       const module = await WebAssembly.compile(await artifact());
       const imports: WebAssembly.Imports[] = [];
       const log = vi.fn();
-      const ghostty = LosOSGhostty.fromModule(module, {
+      const ghostty = BubbleGhostty.fromModule(module, {
         log,
         instantiate: (compiled, supplied) => {
           imports.push(supplied);

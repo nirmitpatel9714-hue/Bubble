@@ -19,9 +19,9 @@ function distroCommand(key: DistroKey, version: string): string {
     case "arch":
       return "yay -S losos-bin";
     case "debian":
-      return `sudo apt install ./LosOS_${version}_amd64.deb`;
+      return `sudo apt install ./Bubble_${version}_amd64.deb`;
     case "fedora":
-      return `sudo dnf install ./LosOS-${version}-1.x86_64.rpm`;
+      return `sudo dnf install ./Bubble-${version}-1.x86_64.rpm`;
   }
 }
 
@@ -92,12 +92,12 @@ export function UpdaterDialog() {
               : downloading
                 ? "Downloading update…"
                 : manual
-                  ? `LosOS v${manual.version} is available`
-                  : `LosOS v${update?.version} is available`}
+                  ? `Bubble v${manual.version} is available`
+                  : `Bubble v${update?.version} is available`}
           </DialogTitle>
           <DialogDescription>
             {ready
-              ? "Restart LosOS to finish installing."
+              ? "Restart Bubble to finish installing."
               : downloading
                 ? progress !== null
                   ? `${progress.toFixed(0)}% — ${formatBytes(status.downloaded)}`
@@ -163,10 +163,7 @@ export function UpdaterDialog() {
               <Button variant="ghost" size="sm" onClick={dismiss}>
                 Later
               </Button>
-              <Button
-                size="sm"
-                onClick={() => void openUrl(manual.releaseUrl)}
-              >
+              <Button size="sm" onClick={() => void openUrl(manual.releaseUrl)}>
                 Download package
               </Button>
             </>

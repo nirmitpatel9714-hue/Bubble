@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
   <p><strong>가볍고 터미널 중심인 AI 네이티브 개발 워크스페이스.</strong></p>
   <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-LosOS는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터미널 중심인 AI 네이티브 개발 환경(ADE)입니다. WebGL 렌더러를 갖춘 네이티브 PTY 백엔드, 사용자의 키나 완전한 로컬 모델로 실행되는 에이전트형 AI 사이드 패널, 코드 편집기, 파일 탐색기, Git 그래프를 포함한 소스 제어, 웹 미리보기 패널이 내장되어 있습니다. 디스크 사용량은 약 7-8 MB입니다. 원격 측정 없음. 계정 필요 없음.
+Bubble는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터미널 중심인 AI 네이티브 개발 환경(ADE)입니다. WebGL 렌더러를 갖춘 네이티브 PTY 백엔드, 사용자의 키나 완전한 로컬 모델로 실행되는 에이전트형 AI 사이드 패널, 코드 편집기, 파일 탐색기, Git 그래프를 포함한 소스 제어, 웹 미리보기 패널이 내장되어 있습니다. 디스크 사용량은 약 7-8 MB입니다. 원격 측정 없음. 계정 필요 없음.
 
 ## 스크린샷
 
@@ -80,7 +80,7 @@ LosOS는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터�
 
 - **BYOK 제공자:** OpenAI, Anthropic, Google(Gemini), Groq, xAI(Grok), Cerebras, OpenRouter, DeepSeek, Mistral 및 모든 OpenAI 호환 엔드포인트
 - **로컬 / 오프라인:** LM Studio, MLX, Ollama
-- **에이전트형 워크플로:** 계획, 하위 에이전트, `LOSOS.md`를 통한 프로젝트 메모리, 파일 읽기 / 쓰기 / 편집 / 다중 편집 / grep / glob, 승인형 bash, 백그라운드 프로세스
+- **에이전트형 워크플로:** 계획, 하위 에이전트, `BUBBLE.md`를 통한 프로젝트 메모리, 파일 읽기 / 쓰기 / 편집 / 다중 편집 / grep / glob, 승인형 bash, 백그라운드 프로세스
 - **코딩 에이전트 오케스트레이션:** 터미널에서 Claude Code를 실행하고 출력을 확인한 뒤 승인형 도구로 후속 작업 전송
 - **작성기:** `#handle` 프롬프트 스니펫, `@path` 파일, 음성 입력, 탐색기나 선택 항목에서 에이전트로 첨부
 - 자체 시스템 프롬프트와 도구 하위 집합을 가진 **사용자 지정 에이전트**
@@ -88,7 +88,7 @@ LosOS는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터�
 
 ## 설치
 
-최신 설치 프로그램은 [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) 페이지에 있습니다. LosOS는 이 페이지에서 자동 업데이트됩니다.
+최신 설치 프로그램은 [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) 페이지에 있습니다. Bubble는 이 페이지에서 자동 업데이트됩니다.
 
 ### Windows 참고 사항
 
@@ -99,7 +99,7 @@ LosOS는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터�
 
 - **Arch / AUR:** `yay -S losos-bin` 또는 `paru`. 최신 릴리스를 추적합니다.
 - **NixOS / Nix:** 공식 flake를 사용하세요. NixOS 외부에서는 `nix profile install github:nirmitpatel9714-hue/LosOS`를 실행합니다. NixOS에서는 flake를 가져오고 `inputs.losos.packages.${pkgs.system}.losos`를 `environment.systemPackages`에 추가합니다. 더 간단한 설정에는 `nixosModules.losos`도 있습니다.
-- **AppImage:** FUSE가 필요합니다. 없다면 `./LosOS_*.AppImage --appimage-extract-and-run`을 실행하세요. Wayland 렌더링 문제가 있으면 `WEBKIT_DISABLE_DMABUF_RENDERER=1`을 시도하세요. `.deb` / `.rpm` 패키지는 시스템 GTK 스택을 사용해 보통 더 부드럽습니다.
+- **AppImage:** FUSE가 필요합니다. 없다면 `./Bubble_*.AppImage --appimage-extract-and-run`을 실행하세요. Wayland 렌더링 문제가 있으면 `WEBKIT_DISABLE_DMABUF_RENDERER=1`을 시도하세요. `.deb` / `.rpm` 패키지는 시스템 GTK 스택을 사용해 보통 더 부드럽습니다.
 
 ## AI 설정
 
@@ -151,4 +151,4 @@ Windows 빌드는 [SignPath.io](https://signpath.io)가 제공하고 [SignPath F
 
 ## 라이선스
 
-LosOS는 Apache-2.0 라이선스를 따릅니다. 종속성에 대한 자세한 내용은 [Apache License 2.0](../../LICENSE)을 참조하세요.
+Bubble는 Apache-2.0 라이선스를 따릅니다. 종속성에 대한 자세한 내용은 [Apache License 2.0](../../LICENSE)을 참조하세요.

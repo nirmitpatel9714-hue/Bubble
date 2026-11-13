@@ -150,7 +150,7 @@ export class GhosttyInputController {
       (error: unknown) => {
         if (this.disposed) return;
         if (retry) this.loadCold(name, load, use, false);
-        else console.warn(`LosOS: ${name} failed to load`, error);
+        else console.warn(`Bubble: ${name} failed to load`, error);
       },
     );
   }

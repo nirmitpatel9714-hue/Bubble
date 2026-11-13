@@ -1,10 +1,13 @@
 export {
   SHORTCUTS,
   getBindingTokens,
+  getLeaderChordTokens,
+  matchLeaderChord,
   tabDigit,
   type ShortcutId,
   type KeyBinding,
 } from "./shortcuts";
+export { LeaderHud } from "./LeaderHud";
 export {
   useGlobalShortcuts,
   type ShortcutHandlers,

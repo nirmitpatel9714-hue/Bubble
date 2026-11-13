@@ -1,4 +1,4 @@
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import type { GhosttyTerminalConfig } from "@losos/ghostty-core/protocol";
 import { AdaptedGhosttyTerminalModel } from "./AdaptedGhosttyTerminalModel";
 import {
@@ -49,16 +49,16 @@ export type GhosttyCoreRuntimeOptions = {
   readonly scrollbackBudgetBytes?: number;
 };
 
-type GhosttyLoader = () => Promise<LosOSGhostty>;
+type GhosttyLoader = () => Promise<BubbleGhostty>;
 
-const deviceAttributeProbes = new WeakMap<LosOSGhostty, boolean>();
+const deviceAttributeProbes = new WeakMap<BubbleGhostty, boolean>();
 
 export class GhosttyCoreRuntime {
   private readonly loader: GhosttyLoader;
   private readonly models = new Map<number, AdaptedGhosttyTerminalModel>();
   private readonly pendingModels = new Set<number>();
-  private loadPromise: Promise<LosOSGhostty> | null = null;
-  private ghostty: LosOSGhostty | null = null;
+  private loadPromise: Promise<BubbleGhostty> | null = null;
+  private ghostty: BubbleGhostty | null = null;
   private status: GhosttyRuntimeDiagnostics["status"] = "cold";
   private lastError: string | null = null;
   private idleReleaseTimer: ReturnType<typeof setTimeout> | null = null;
@@ -66,7 +66,7 @@ export class GhosttyCoreRuntime {
   private disposed = false;
 
   constructor(
-    loader: GhosttyLoader = () => LosOSGhostty.load(),
+    loader: GhosttyLoader = () => BubbleGhostty.load(),
     options: GhosttyCoreRuntimeOptions = {},
   ) {
     this.loader = loader;
@@ -181,7 +181,7 @@ export class GhosttyCoreRuntime {
     };
   }
 
-  private load(): Promise<LosOSGhostty> {
+  private load(): Promise<BubbleGhostty> {
     if (this.disposed)
       return Promise.reject(new Error("Ghostty runtime is disposed"));
     if (this.ghostty) return Promise.resolve(this.ghostty);
@@ -280,7 +280,7 @@ export class GhosttyCoreRuntime {
  * property of the compiled module, so it is probed once on a throwaway
  * instance that is dropped immediately, and only when diagnostics ask.
  */
-function nativeDeviceAttributes(ghostty: LosOSGhostty): boolean {
+function nativeDeviceAttributes(ghostty: BubbleGhostty): boolean {
   const cached = deviceAttributeProbes.get(ghostty);
   if (cached !== undefined) return cached;
   const terminal = ghostty.createTerminal(2, 1);

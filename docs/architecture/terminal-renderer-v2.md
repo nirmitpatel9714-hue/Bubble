@@ -132,7 +132,7 @@ above the canvas and is transparent once the pane's first frame is shown.
 **Lifecycle.** WebKit (macOS 26) keeps the swapchain of a presented-then-destroyed
 WebGPU canvas in the WebContent process for good (~30 MiB for 2000×1300), and
 every swapchain a resizing canvas retires until JavaScriptCore collects its
-wrappers. Reproduced with raw WebGPU, no LosOS code (`--workload canvas`):
+wrappers. Reproduced with raw WebGPU, no Bubble code (`--workload canvas`):
 destroying a canvas per occlusion cycle +30 MiB/cycle; keeping it hidden 0. So:
 
 - A presented canvas is never destroyed, unconfigured or shrunk while the runtime

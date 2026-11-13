@@ -11,13 +11,13 @@ import { nord } from "./nord";
 import { rosePine } from "./rose-pine";
 import { sage } from "./sage";
 import { solarized } from "./solarized";
-import { lososDefault } from "./losos-default";
+import { bubbleDefault } from "./bubble-default";
 import { tide } from "./tide";
 import { tokyoNight } from "./tokyo-night";
 import { xcode } from "./xcode";
 
 const BUILTIN: Theme[] = [
-  lososDefault,
+  bubbleDefault,
   xcode,
   claude,
   kanagawa,

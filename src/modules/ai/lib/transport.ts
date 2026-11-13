@@ -8,19 +8,29 @@ import { native } from "./native";
 import { checkReadable } from "./security";
 import type { ToolContext } from "../tools/tools";
 
-async function readLosOSMd(
+async function readBubbleMd(
   workspaceRoot: string | null,
 ): Promise<string | null> {
   if (!workspaceRoot) return null;
   const workspace = { ...currentWorkspaceEnv() };
-  const path = `${workspaceRoot.replace(/\/$/, "")}/LOSOS.md`;
-  try {
-    const canonical = await native.canonicalize(path, workspace);
-    if (!checkReadable(canonical).ok || !checkReadable(path).ok) return null;
-    return await native.readProjectMemory(workspaceRoot, canonical, workspace);
-  } catch {
-    return null;
+  const base = workspaceRoot.replace(/[\\/]$/, "");
+  // BUBBLE.md is the current name; LOSOS.md is the legacy fallback.
+  for (const name of ["BUBBLE.md", "LOSOS.md"]) {
+    const path = `${base}/${name}`;
+    try {
+      const canonical = await native.canonicalize(path, workspace);
+      if (!checkReadable(canonical).ok || !checkReadable(path).ok) continue;
+      const content = await native.readProjectMemory(
+        workspaceRoot,
+        canonical,
+        workspace,
+      );
+      if (content !== null) return content;
+    } catch {
+      // Missing or unreadable candidate: try the next name.
+    }
   }
+  return null;
 }
 
 type LiveSnapshot = {
@@ -65,7 +75,7 @@ type SendOptions = {
 export function createContextAwareTransport(deps: Deps) {
   const run = async (options: SendOptions) => {
     const live = deps.getLive();
-    const projectMemory = await readLosOSMd(live.workspaceRoot);
+    const projectMemory = await readBubbleMd(live.workspaceRoot);
     const envBlock = formatEnvBlock(live);
     const messagesForRun = envBlock
       ? injectEnvIntoLastUser(options.messages, envBlock)

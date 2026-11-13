@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import type { GhosttyTerminalModelApi } from "@/modules/terminal/ghostty/GhosttyTerminalModel";
 import { Key, Mods } from "@losos/ghostty-core";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FakeElement, FakeTextArea } from "./fakeTextArea";
 import { GhosttyInputController } from "./GhosttyInputController";
@@ -312,7 +312,7 @@ describe("GhosttyInputController", () => {
           import.meta.url,
         ),
       );
-      const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+      const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
       const terminal = core.createTerminal(80, 24);
       const input = new FakeTextArea();
       const onData = vi.fn();
@@ -485,7 +485,7 @@ describe("GhosttyInputController", () => {
           import.meta.url,
         ),
       );
-      const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+      const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
       const terminal = core.createTerminal(80, 24);
       const input = new FakeTextArea();
       const onData = vi.fn();
@@ -590,7 +590,7 @@ describe("GhosttyInputController", () => {
           import.meta.url,
         ),
       );
-      const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+      const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
       const terminal = core.createTerminal(80, 24);
       const input = new FakeTextArea();
       const onData = vi.fn();
@@ -655,7 +655,7 @@ describe("GhosttyInputController", () => {
           import.meta.url,
         ),
       );
-      const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+      const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
       const terminal = core.createTerminal(80, 24);
       const input = new FakeTextArea();
       const onData = vi.fn();

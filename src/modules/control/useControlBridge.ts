@@ -137,7 +137,7 @@ export function useControlBridge({
           if (tabId === null) {
             throw new RequestError(
               "open_failed",
-              "LosOS could not create an editor tab",
+              "Bubble could not create an editor tab",
             );
           }
           await new Promise<void>((resolve) =>
@@ -173,7 +173,7 @@ export function useControlBridge({
       }
     };
 
-    void listen<ControlRequest>("losos:control-request", (event) => {
+    void listen<ControlRequest>("bubble:control-request", (event) => {
       void handleRequest(event.payload);
     })
       .then((stop) => {

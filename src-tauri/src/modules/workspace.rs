@@ -1290,15 +1290,15 @@ mod appimage_tests {
 
     #[test]
     fn strips_appdir_from_path_lists_and_unsets_when_empty() {
-        let appdir = Path::new("/tmp/.mount_LosOS_X");
+        let appdir = Path::new("/tmp/.mount_Bubble_X");
         let env = reader(&[
-            ("LD_LIBRARY_PATH", "/tmp/.mount_LosOS_X/usr/lib:/usr/lib"),
-            ("PATH", "/tmp/.mount_LosOS_X/usr/bin:/usr/bin:/bin"),
+            ("LD_LIBRARY_PATH", "/tmp/.mount_Bubble_X/usr/lib:/usr/lib"),
+            ("PATH", "/tmp/.mount_Bubble_X/usr/bin:/usr/bin:/bin"),
             (
                 "GST_PLUGIN_SYSTEM_PATH",
-                "/tmp/.mount_LosOS_X/usr/lib/gstreamer-1.0",
+                "/tmp/.mount_Bubble_X/usr/lib/gstreamer-1.0",
             ),
-            ("APPDIR", "/tmp/.mount_LosOS_X"),
+            ("APPDIR", "/tmp/.mount_Bubble_X"),
         ]);
         let out = compute_appimage_env_overrides(appdir, env);
 
@@ -1317,7 +1317,7 @@ mod appimage_tests {
 
     #[test]
     fn leaves_untouched_vars_alone() {
-        let appdir = Path::new("/tmp/.mount_LosOS_X");
+        let appdir = Path::new("/tmp/.mount_Bubble_X");
         let env = reader(&[
             ("LD_LIBRARY_PATH", "/usr/lib:/usr/local/lib"),
             ("LD_PRELOAD", "/home/u/my.so"),
@@ -1331,8 +1331,8 @@ mod appimage_tests {
 
     #[test]
     fn unsets_value_vars_only_when_pointing_into_appdir() {
-        let appdir = Path::new("/tmp/.mount_LosOS_X");
-        let into = reader(&[("LD_PRELOAD", "/tmp/.mount_LosOS_X/usr/lib/x.so")]);
+        let appdir = Path::new("/tmp/.mount_Bubble_X");
+        let into = reader(&[("LD_PRELOAD", "/tmp/.mount_Bubble_X/usr/lib/x.so")]);
         assert_eq!(
             find(&compute_appimage_env_overrides(appdir, into), "LD_PRELOAD"),
             Some(&None)

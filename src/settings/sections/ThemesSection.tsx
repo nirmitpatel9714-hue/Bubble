@@ -41,10 +41,7 @@ import {
 import { listBuiltinThemes } from "@/modules/theme/themes";
 import { DEFAULT_THEME_ID } from "@/modules/theme/types";
 import { validateTheme } from "@/modules/theme/validateTheme";
-import {
-  type Backdrop,
-  getBackdropKind,
-} from "@/modules/theme/vibrancy";
+import { type Backdrop, getBackdropKind } from "@/modules/theme/vibrancy";
 import { Edit02Icon, PlusSignIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -207,13 +204,13 @@ export function ThemesSection() {
               className="h-7 px-2 text-[11px]"
               onClick={onPickThemeFile}
             >
-              Import .losos-theme
+              Import .bubble-theme
             </Button>
           </div>
           <input
             ref={fileInputRef}
             type="file"
-            accept=".losos-theme,.json,application/json"
+            accept=".bubble-theme,.losos-theme,.json,application/json"
             className="hidden"
             onChange={(e) => {
               void handleThemeFiles(e.target.files);

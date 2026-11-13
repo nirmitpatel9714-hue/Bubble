@@ -6,7 +6,7 @@
 //! (stepped live resizes, order out/front, miniaturize). Nothing here exists in a normal build.
 //!
 //! Safety: a bench binary refuses to start under the product identifier, so it can never run
-//! against the profile of an installed LosOS. The orchestrator (`scripts/app-lab/run.py`)
+//! against the profile of an installed Bubble. The orchestrator (`scripts/app-lab/run.py`)
 //! gives every run its own identifier and `HOME`.
 
 use serde::{Deserialize, Serialize};

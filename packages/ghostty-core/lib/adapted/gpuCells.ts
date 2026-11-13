@@ -35,12 +35,12 @@ export const GPU_ATTR_OVERLINE = 1 << 4;
 export const GPU_ATTR_BLINK = 1 << 5;
 export const GPU_ATTR_WIDE_LEAD = 1 << 6;
 
-/** Glyph style bits (`LosOSGhosttyGpuGlyph.style`). */
+/** Glyph style bits (`BubbleGhosttyGpuGlyph.style`). */
 export const GPU_GLYPH_BOLD = 1 << 0;
 export const GPU_GLYPH_ITALIC = 1 << 1;
 
 /** Decoded view of one record, for tests and diagnostics (not a hot path). */
-export type LosOSGhosttyGpuCell = {
+export type BubbleGhosttyGpuCell = {
   readonly glyphId: number;
   readonly underlineStyle: number;
   readonly strikethrough: boolean;
@@ -56,7 +56,7 @@ export type LosOSGhosttyGpuCell = {
 export function decodeGpuCell(
   words: Uint32Array,
   cellIndex: number,
-): LosOSGhosttyGpuCell {
+): BubbleGhosttyGpuCell {
   const base = cellIndex * GPU_CELL_WORDS;
   const word0 = words[base];
   const attrs = word0 >>> GPU_ATTR_SHIFT;

@@ -1,6 +1,6 @@
 //! Server side of `losos hook`: validates a hook delivered over the control
-//! socket, turns it into a `losos:agent-event`, keeps the legacy
-//! `losos:agent-signal` stream in step, and brokers permission decisions.
+//! socket, turns it into a `bubble:agent-event`, keeps the legacy
+//! `bubble:agent-signal` stream in step, and brokers permission decisions.
 
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
@@ -20,8 +20,8 @@ use tauri::{Emitter, Manager};
 use crate::modules::pty::agent_detect::{AgentSignal, HookIntent};
 use crate::modules::pty::PaneTarget;
 
-pub const AGENT_EVENT: &str = "losos:agent-event";
-const SIGNAL_EVENT: &str = "losos:agent-signal";
+pub const AGENT_EVENT: &str = "bubble:agent-event";
+const SIGNAL_EVENT: &str = "bubble:agent-signal";
 
 const MAX_PENDING_DECISIONS: usize = 16;
 const MAX_PENDING_PER_PANE: usize = 4;
@@ -92,7 +92,7 @@ struct Pending {
     sender: SyncSender<HookDecision>,
 }
 
-/// Pending permission requests awaiting an answer from the LosOS UI.
+/// Pending permission requests awaiting an answer from the Bubble UI.
 #[derive(Default)]
 pub struct DecisionBroker {
     ready_windows: Mutex<HashSet<String>>,
@@ -423,7 +423,7 @@ fn handle_impl(
         return reject(request, "invalid_params", "unknown agent");
     };
     let Some(pane_id) = request.caller.pane_id else {
-        return reject(request, "unknown_pane", "hook requires a LosOS pane");
+        return reject(request, "unknown_pane", "hook requires a Bubble pane");
     };
     let Some(target) = host.pane(pane_id) else {
         return reject(request, "unknown_pane", "pane has no live terminal");

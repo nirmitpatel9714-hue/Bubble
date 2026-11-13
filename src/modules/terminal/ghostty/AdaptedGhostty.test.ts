@@ -6,7 +6,7 @@ import {
   ADAPTED_GHOSTTY_WASM_SHA256,
   ADAPTED_GHOSTTY_SCALAR_WASM_SHA256,
   ADAPTED_RESTTY_COMMIT,
-  LosOSGhostty,
+  BubbleGhostty,
 } from "@losos/ghostty-core/adapted";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -14,7 +14,7 @@ describe.each([
   ["SIMD", "ghostty-vt.wasm", ADAPTED_GHOSTTY_WASM_SHA256],
   ["scalar", "ghostty-vt-scalar.wasm", ADAPTED_GHOSTTY_SCALAR_WASM_SHA256],
 ])("%s Ghostty core", (_kind, artifact, checksum) => {
-  let ghostty: LosOSGhostty;
+  let ghostty: BubbleGhostty;
   let wasmBytes: ArrayBuffer;
 
   beforeAll(async () => {
@@ -24,10 +24,10 @@ describe.each([
     );
     const file = await readFile(path);
     wasmBytes = Uint8Array.from(file).buffer;
-    ghostty = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+    ghostty = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
   });
 
-  describe("LosOS Ghostty WASM adaptation", () => {
+  describe("Bubble Ghostty WASM adaptation", () => {
     describe.each(["soa", "gpu"] as const)("%s cursor state", (format) => {
       it.each(["block", "underline", "bar"] as const)(
         "round-trips the configured %s cursor",
@@ -391,7 +391,7 @@ describe.each([
       try {
         terminal.write(
           new TextEncoder().encode(
-            "\x1b]2;LosOS title\x07" +
+            "\x1b]2;Bubble title\x07" +
               "\x1b]7;file://localhost/Users/losos\x1b\\" +
               "\x1b]133;A\x07" +
               "\x1b]133;B\x07" +
@@ -403,7 +403,7 @@ describe.each([
         );
 
         expect(terminal.drainEvents()).toEqual([
-          { type: "title", title: "LosOS title" },
+          { type: "title", title: "Bubble title" },
           { type: "pwd", uri: "file://localhost/Users/losos" },
           { type: "prompt-start" },
           { type: "prompt-end" },
@@ -780,7 +780,7 @@ describe.each([
     });
 
     it("keeps five fresh terminals within the per-instance page budget", async () => {
-      const isolated = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+      const isolated = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
       const baseline = isolated.getMemoryBytes();
       const terminals = Array.from({ length: 5 }, () =>
         isolated.createTerminal(80, 24, {
@@ -798,7 +798,7 @@ describe.each([
     });
 
     it("stabilizes render-buffer memory across adjacent resize cycles", async () => {
-      const isolated = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+      const isolated = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
       const terminal = isolated.createTerminal(80, 24);
       const sizes = [
         [120, 40],
@@ -849,7 +849,7 @@ describe.each([
     });
 
     it("reuses WASM allocations across repeated presentation release cycles", async () => {
-      const isolated = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+      const isolated = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
       const terminal = isolated.createTerminal(120, 40);
       try {
         terminal.write(
@@ -875,7 +875,7 @@ describe.each([
     });
 
     it("bounds linear-memory growth for three agent-sized scrollbacks", async () => {
-      const isolated = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+      const isolated = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
       const baseline = isolated.getMemoryBytes();
       const terminals = Array.from({ length: 3 }, () =>
         isolated.createTerminal(120, 40, {

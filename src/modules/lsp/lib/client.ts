@@ -239,7 +239,7 @@ const linkHover: Extension = [
 ];
 
 export function lspInteractions(opts: {
-  client: LosOSLspClient;
+  client: BubbleLspClient;
   documentUri: string;
   rootPath: string;
   onExternal: (uri: string, line: number) => void;
@@ -398,7 +398,7 @@ type RawRpc = {
 
 // The lib's notify/request maps omit didClose, didSave and the
 // shutdown/exit handshake; servers need all three for correct lifecycle.
-export class LosOSLspClient extends LanguageServerClient {
+export class BubbleLspClient extends LanguageServerClient {
   static hostPid: number | null = null;
 
   // The lib omits the publishDiagnostics capability and servers like
@@ -406,7 +406,7 @@ export class LosOSLspClient extends LanguageServerClient {
   // enables the server-side parent watchdog.
   protected override getInitializeParams() {
     const params = super.getInitializeParams();
-    params.processId = LosOSLspClient.hostPid;
+    params.processId = BubbleLspClient.hostPid;
     params.capabilities.textDocument = {
       ...params.capabilities.textDocument,
       publishDiagnostics: { relatedInformation: true },
@@ -420,8 +420,11 @@ export class LosOSLspClient extends LanguageServerClient {
     position: LspPos;
     context: { includeDeclaration: boolean };
   }): Promise<LspLocation[] | null> {
-    return this.raw.request("textDocument/references", params, 10_000) as
-      Promise<LspLocation[] | null>;
+    return this.raw.request(
+      "textDocument/references",
+      params,
+      10_000,
+    ) as Promise<LspLocation[] | null>;
   }
 
   textDocumentDidClose(uri: string): void {

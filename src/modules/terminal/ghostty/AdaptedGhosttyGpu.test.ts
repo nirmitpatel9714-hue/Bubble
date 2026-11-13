@@ -12,13 +12,13 @@ import {
   GPU_GLYPH_BOLD,
   GPU_GLYPH_ID_MASK,
   GPU_GLYPH_ITALIC,
-  LosOSGhostty,
+  BubbleGhostty,
   decodeGpuCell,
-  type LosOSGhosttyGpuCell,
-  type LosOSGhosttyGpuGlyph,
-  type LosOSGhosttyGpuRenderState,
-  type LosOSGhosttyRenderState,
-  type LosOSGhosttyTerminal,
+  type BubbleGhosttyGpuCell,
+  type BubbleGhosttyGpuGlyph,
+  type BubbleGhosttyGpuRenderState,
+  type BubbleGhosttyRenderState,
+  type BubbleGhosttyTerminal,
 } from "@losos/ghostty-core/adapted";
 import { beforeAll, describe, expect, it } from "vitest";
 
@@ -37,9 +37,9 @@ const COUPLE = `\u{1F468}${ZWJ}\u{1F469}`;
 class GlyphMap {
   epoch = 0;
   epochChanges = 0;
-  readonly glyphs = new Map<number, LosOSGhosttyGpuGlyph>();
+  readonly glyphs = new Map<number, BubbleGhosttyGpuGlyph>();
 
-  apply(terminal: LosOSGhosttyTerminal, state: LosOSGhosttyGpuRenderState) {
+  apply(terminal: BubbleGhosttyTerminal, state: BubbleGhosttyGpuRenderState) {
     if (state.epoch !== this.epoch) {
       this.glyphs.clear();
       this.epoch = state.epoch;
@@ -50,7 +50,7 @@ class GlyphMap {
   }
 
   /** Rebuild from the full table (a consumer that missed deltas). */
-  resync(terminal: LosOSGhosttyTerminal, state: LosOSGhosttyGpuRenderState) {
+  resync(terminal: BubbleGhosttyTerminal, state: BubbleGhosttyGpuRenderState) {
     this.glyphs.clear();
     this.epoch = state.epoch;
     for (const glyph of terminal.gpuGlyphTable())
@@ -70,7 +70,7 @@ class GlyphMap {
 }
 
 type Snapshot = {
-  readonly state: LosOSGhosttyGpuRenderState;
+  readonly state: BubbleGhosttyGpuRenderState;
   readonly dirty: number[];
   readonly fullDamage: boolean;
   readonly anyDirty: boolean;
@@ -80,7 +80,7 @@ type Snapshot = {
 class GpuHarness {
   readonly map = new GlyphMap();
 
-  constructor(readonly terminal: LosOSGhosttyTerminal) {
+  constructor(readonly terminal: BubbleGhosttyTerminal) {
     terminal.setRenderFormat("gpu");
   }
 
@@ -100,7 +100,7 @@ class GpuHarness {
     };
   }
 
-  cell(snapshot: Snapshot, row: number, column: number): LosOSGhosttyGpuCell {
+  cell(snapshot: Snapshot, row: number, column: number): BubbleGhosttyGpuCell {
     return decodeGpuCell(snapshot.words, row * snapshot.state.cols + column);
   }
 
@@ -147,8 +147,8 @@ type ExpectedCell = {
 };
 
 function expectedFromSoa(
-  terminal: LosOSGhosttyTerminal,
-  state: LosOSGhosttyRenderState,
+  terminal: BubbleGhosttyTerminal,
+  state: BubbleGhosttyRenderState,
   index: number,
 ): ExpectedCell {
   const style = state.styleFlags[index];
@@ -201,8 +201,8 @@ function expectedFromSoa(
 function expectRecordsMatchSoa(
   harness: GpuHarness,
   snapshot: Snapshot,
-  soa: LosOSGhosttyTerminal,
-  soaState: LosOSGhosttyRenderState,
+  soa: BubbleGhosttyTerminal,
+  soaState: BubbleGhosttyRenderState,
   defaults = { fg: rgba(255, 255, 255), bg: rgba(0, 0, 0) },
 ) {
   const { rows, cols } = snapshot.state;
@@ -223,7 +223,7 @@ function expectRecordsMatchSoa(
   };
   let blinking = 0;
   for (let row = 0; row < rows; row += 1) {
-    let lead: LosOSGhosttyGpuCell | null = null;
+    let lead: BubbleGhosttyGpuCell | null = null;
     for (let column = 0; column < cols; column += 1) {
       const index = row * cols + column;
       const expected = expectedFromSoa(soa, soaState, index);
@@ -294,7 +294,7 @@ describe.each([
   ["scalar", "ghostty-vt-scalar.wasm", ADAPTED_GHOSTTY_SCALAR_WASM_SHA256],
 ])("%s Ghostty GPU cell records", (_kind, artifact, _checksum) => {
   let wasmBytes: ArrayBuffer;
-  let ghostty: LosOSGhostty;
+  let ghostty: BubbleGhostty;
 
   beforeAll(async () => {
     const file = await readFile(
@@ -304,7 +304,7 @@ describe.each([
       ),
     );
     wasmBytes = Uint8Array.from(file).buffer;
-    ghostty = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+    ghostty = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
   });
 
   function gpu(cols: number, rows: number) {
@@ -1161,7 +1161,7 @@ describe.each([
 
     it("allocates lazily, uses less memory than the SoA format and returns it on release", async () => {
       const measure = async (format: "soa" | "gpu") => {
-        const instance = await LosOSGhostty.loadBytes(wasmBytes.slice(0));
+        const instance = await BubbleGhostty.loadBytes(wasmBytes.slice(0));
         const terminals = Array.from({ length: 8 }, () => {
           const terminal = instance.createTerminal(120, 40, {
             maxScrollbackLines: 100,

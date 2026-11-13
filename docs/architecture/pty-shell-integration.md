@@ -1,14 +1,14 @@
 # PTY shell integration
 
-This guide elaborates on `LOSOS.md`. If anything here conflicts with `LOSOS.md`, `LOSOS.md` wins.
+This guide elaborates on `BUBBLE.md`. If anything here conflicts with `BUBBLE.md`, `BUBBLE.md` wins.
 
 ## Session model
 
 Block sessions keep direct terminal input until OSC 133 confirms prompt input.
 Bare shells therefore remain usable. Bash before 4.4 lacks PS0 and emits
 `OSC 133;B;losos_blocks=0`, retaining its native prompt instead of activating
-LosOS's shared command bar. Shell command labels stay bounded; block rerun uses
-the complete command submitted through LosOS, never a truncated OSC label.
+Bubble's shared command bar. Shell command labels stay bounded; block rerun uses
+the complete command submitted through Bubble, never a truncated OSC label.
 
 A terminal tab maps to one PTY session. Sessions live in `PtyState` (`src-tauri/src/modules/pty/mod.rs:20`):
 
@@ -71,9 +71,9 @@ Integration scripts live in `src-tauri/src/modules/pty/scripts/`:
 - `bashrc.bash` for bash
 - `init.fish` for fish, installed to `~/.config/fish/conf.d/losos.fish`
 
-Zsh is launched with `ZDOTDIR` pointing at a temp directory that sources our scripts and then the user's real configs, each with `ZDOTDIR` switched to the user's own directory while it runs. `ZDOTDIR` is the user's own at the prompt, in hooks and while ordinary commands run; only a command line that starts a zsh (`exec zsh`, nested `zsh`, `env X=1 zsh`, `$SHELL`) gets the integration directory exported for that command, so that shell is integrated again. The prompt end marker is also emitted from `zle-line-init`, which runs after the line editor drew whatever powerlevel10k or starship built. Bash uses `--rcfile` with a wrapper that sources the user's `~/.bashrc` after LosOS's. Fish uses `conf.d` so no user file is replaced.
+Zsh is launched with `ZDOTDIR` pointing at a temp directory that sources our scripts and then the user's real configs, each with `ZDOTDIR` switched to the user's own directory while it runs. `ZDOTDIR` is the user's own at the prompt, in hooks and while ordinary commands run; only a command line that starts a zsh (`exec zsh`, nested `zsh`, `env X=1 zsh`, `$SHELL`) gets the integration directory exported for that command, so that shell is integrated again. The prompt end marker is also emitted from `zle-line-init`, which runs after the line editor drew whatever powerlevel10k or starship built. Bash uses `--rcfile` with a wrapper that sources the user's `~/.bashrc` after Bubble's. Fish uses `conf.d` so no user file is replaced.
 
-All integrated shells emit **OSC 7** (cwd) and **OSC 133 A/B/C/D** (prompt boundaries and exit code) so LosOS can track cwd and detect command boundaries without parsing the user's prompt.
+All integrated shells emit **OSC 7** (cwd) and **OSC 133 A/B/C/D** (prompt boundaries and exit code) so Bubble can track cwd and detect command boundaries without parsing the user's prompt.
 
 ### Windows
 
@@ -93,7 +93,7 @@ The profile wraps the user's existing `prompt` function to emit OSC 7 + OSC 133 
 
 ### Fish 4.0+
 
-Fish 4.0 writes its own OSC 133 prompt markers. To avoid doubling, LosOS sets `fish_features=no-mark-prompt` and re-asserts its own prompt via `-C` after `config.fish` runs.
+Fish 4.0 writes its own OSC 133 prompt markers. To avoid doubling, Bubble sets `fish_features=no-mark-prompt` and re-asserts its own prompt via `-C` after `config.fish` runs.
 
 ## Concurrency and process lifetime on Windows
 
@@ -105,7 +105,7 @@ Fish 4.0 writes its own OSC 133 prompt markers. To avoid doubling, LosOS sets `f
 
 ### Job Object
 
-Each ConPTY child is assigned to a Windows Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` (`job.rs:34`). When the Job HANDLE drops - clean shutdown, panic, or even a SIGKILL'd LosOS process - the kernel kills every descendant of the shell. Without this, `TerminateProcess` only kills the immediate child and `npm run dev` started inside pwsh would be orphaned.
+Each ConPTY child is assigned to a Windows Job Object with `JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE` (`job.rs:34`). When the Job HANDLE drops - clean shutdown, panic, or even a SIGKILL'd Bubble process - the kernel kills every descendant of the shell. Without this, `TerminateProcess` only kills the immediate child and `npm run dev` started inside pwsh would be orphaned.
 
 On macOS and Linux, `Drop for Session` calls `killer.kill()`. Dev `Ctrl-C` of `cargo run` can still leave orphans because destructors may not run; that is acceptable for development only.
 
@@ -119,7 +119,7 @@ The same filter answers colour queries (`OSC 4;n;?`, `OSC 10/11/12;?`, `CSI ? 99
 
 ### Agent detection
 
-The reader thread runs an `AgentDetector` (`agent_detect.rs`) over the byte stream. It is armed by `OSC 133;C;<cmd>` or by a self-armed `OSC 777` marker and emits `losos:agent-signal` transitions (`started`, `working`, `attention`, `finished`, `exited`). Detection is driven only by OSC sequences, never by raw output, so a repainting TUI never flaps.
+The reader thread runs an `AgentDetector` (`agent_detect.rs`) over the byte stream. It is armed by `OSC 133;C;<cmd>` or by a self-armed `OSC 777` marker and emits `bubble:agent-signal` transitions (`started`, `working`, `attention`, `finished`, `exited`). Detection is driven only by OSC sequences, never by raw output, so a repainting TUI never flaps.
 
 ### Enter key
 
@@ -135,7 +135,7 @@ Terminal input sends `\r` (CR), not `\n` (LF). PowerShell on Windows requires CR
 
 ## See also
 
-- [`LOSOS.md`](../../LOSOS.md) - the architecture source of truth
+- [`BUBBLE.md`](../../BUBBLE.md) - the architecture source of truth
 - [`docs/README.md`](../README.md) - index of contributor guides
 - [Two-process model](two-process-model.md) - IPC boundary and command catalog
 - [Terminal renderer pool](terminal-renderer-pool.md) - model ownership and presentation pooling

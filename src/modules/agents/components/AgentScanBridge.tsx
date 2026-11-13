@@ -17,7 +17,7 @@ type ScanSession = {
 /** How often the pane process trees are sampled. */
 const SCAN_INTERVAL_MS = 2_000;
 /** The dashboard's refresh button asks for an immediate scan through this. */
-const SCAN_REQUEST_EVENT = "losos:agent-scan";
+const SCAN_REQUEST_EVENT = "bubble:agent-scan";
 
 /**
  * Runs one detection pass over every open terminal's process tree: matches
