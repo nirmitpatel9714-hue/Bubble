@@ -616,7 +616,7 @@ async function occlusion(run: Run) {
 }
 
 /**
- * Raw WebGPU canvas lifecycle probe (no LosOS renderer): isolates which canvas teardown
+ * Raw WebGPU canvas lifecycle probe (no Bubble renderer): isolates which canvas teardown
  * strategy leaves graphics memory behind when the window is occluded and restored. The
  * "destroy" variant reproduces WebGpuCanvasPool's reclaim (unconfigure, 1x1, remove, drop).
  */

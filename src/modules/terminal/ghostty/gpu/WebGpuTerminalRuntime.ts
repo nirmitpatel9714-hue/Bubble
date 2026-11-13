@@ -759,7 +759,7 @@ export class WebGpuTerminalRuntime {
           continue;
         target.consumeDirty();
         encoder ??= resources.device.createCommandEncoder({
-          label: "LosOS terminal window frame",
+          label: "Bubble terminal window frame",
         });
         const result = target.encode(encoder, resources);
         if (result.drawn > 0) rendered = true;
@@ -918,7 +918,7 @@ export class WebGpuTerminalRuntime {
     this.assertLive();
     if (!adapter) throw new Error("No compatible WebGPU adapter was found");
     const device = await adapter.requestDevice({
-      label: "LosOS shared terminal renderer",
+      label: "Bubble shared terminal renderer",
     });
     if (this.disposed || this.fatalError) {
       device.destroy();
@@ -981,7 +981,7 @@ export class WebGpuTerminalRuntime {
       texture: { sampleType: "unfilterable-float" },
     });
     this.bindGroupLayout = device.createBindGroupLayout({
-      label: "LosOS terminal bindings",
+      label: "Bubble terminal bindings",
       entries: [
         { binding: 0, visibility, buffer: { type: "uniform" } },
         storage(1),
@@ -997,16 +997,16 @@ export class WebGpuTerminalRuntime {
     });
 
     const backgroundModule = device.createShaderModule({
-      label: "LosOS terminal background shader",
+      label: "Bubble terminal background shader",
       code: BACKGROUND_SHADER,
     });
     const glyphModule = device.createShaderModule({
-      label: "LosOS terminal glyph shader",
+      label: "Bubble terminal glyph shader",
       code: GLYPH_SHADER,
     });
     const [backgroundPipeline, glyphPipeline] = await Promise.all([
       device.createRenderPipelineAsync({
-        label: "LosOS terminal background pipeline",
+        label: "Bubble terminal background pipeline",
         layout,
         vertex: { module: backgroundModule, entryPoint: "vertex_main" },
         fragment: {
@@ -1017,7 +1017,7 @@ export class WebGpuTerminalRuntime {
         primitive: { topology: "triangle-list" },
       }),
       device.createRenderPipelineAsync({
-        label: "LosOS terminal glyph pipeline",
+        label: "Bubble terminal glyph pipeline",
         layout,
         vertex: { module: glyphModule, entryPoint: "vertex_main" },
         fragment: {
@@ -1047,7 +1047,7 @@ export class WebGpuTerminalRuntime {
     this.backgroundPipeline = backgroundPipeline;
     this.glyphPipeline = glyphPipeline;
     this.emptyStorage = device.createBuffer({
-      label: "LosOS terminal empty storage",
+      label: "Bubble terminal empty storage",
       size: 16,
       usage: GPUBufferUsage.STORAGE,
     });

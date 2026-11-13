@@ -24,7 +24,7 @@ impl GitRepoFixture {
         run_git_in(&canonical, &["init", "-q"]);
         run_git_in(&canonical, &["symbolic-ref", "HEAD", "refs/heads/main"]);
         run_git_in(&canonical, &["config", "user.email", "test@losos.local"]);
-        run_git_in(&canonical, &["config", "user.name", "LosOS Test"]);
+        run_git_in(&canonical, &["config", "user.name", "Bubble Test"]);
         run_git_in(&canonical, &["config", "commit.gpgsign", "false"]);
         run_git_in(&canonical, &["config", "core.autocrlf", "false"]);
 

@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Clock } from "./Clock";
 import {
   SearchInline,
   type SearchInlineHandle,
@@ -45,10 +46,13 @@ type Props = {
   onRename: (id: number, title: string) => void;
   /** Move a dragged tab to a new position (insertion gap index). */
   onReorder: (fromId: number, toGapIndex: number) => void;
+  /** Turn niri-style tiling on or off for one window. */
+  onToggleTiled: (id: number) => void;
   onOverrideLanguage?: (id: number, lang: string | null) => void;
   onToggleSidebar: () => void;
   onOpenCommandPalette: () => void;
   onOpenSettings: () => void;
+  workspacesBar: ReactNode;
   spaceSwitcher: ReactNode;
   searchTarget: SearchTarget;
   searchRef: RefObject<SearchInlineHandle | null>;
@@ -73,10 +77,12 @@ export function Header({
   onPin,
   onRename,
   onReorder,
+  onToggleTiled,
   onOverrideLanguage,
   onToggleSidebar,
   onOpenCommandPalette,
   onOpenSettings,
+  workspacesBar,
   spaceSwitcher,
   searchTarget,
   searchRef,
@@ -146,16 +152,18 @@ export function Header({
       )}
 
       <div
-        className="flex min-w-0 flex-1 items-center gap-2"
+        className="flex min-w-0 flex-1 items-center gap-1.5"
         data-tauri-drag-region
         onContextMenu={(e) => {
           // Empty chrome falls through to WebKit Reload, which reloads the
-          // webview and pty_close_all's every shell (#1242). Per-tab menus
+          // webview and pty_close_all's every shell (#1242). Per-window menus
           // still open: Radix handles the trigger before this bubbles.
           e.preventDefault();
         }}
       >
+        {workspacesBar}
         {spaceSwitcher}
+        <span className="mx-0.5 h-4 w-px shrink-0 rounded-full bg-border/60" />
         <TabBar
           tabs={tabs}
           activeId={activeId}
@@ -173,11 +181,14 @@ export function Header({
           onPin={onPin}
           onRename={onRename}
           onReorder={onReorder}
+          onToggleTiled={onToggleTiled}
           onOverrideLanguage={onOverrideLanguage}
           compact={compact}
         />
         <div data-tauri-drag-region className="h-full min-w-2 flex-1" />
       </div>
+
+      <Clock />
 
       <SearchInline ref={searchRef} target={searchTarget} compact={compact} />
 

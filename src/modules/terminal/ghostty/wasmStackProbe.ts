@@ -1,4 +1,4 @@
-import type { LosOSGhosttyTerminal } from "@losos/ghostty-core/adapted";
+import type { BubbleGhosttyTerminal } from "@losos/ghostty-core/adapted";
 
 /**
  * Test support for the WebAssembly shadow stack. The module places its stack
@@ -296,7 +296,7 @@ type StackWorkloadReport = {
  * in the requested render format. Any WebAssembly trap propagates.
  */
 export function runStackWorkloads(
-  terminal: LosOSGhosttyTerminal,
+  terminal: BubbleGhosttyTerminal,
   format: "soa" | "gpu",
 ): StackWorkloadReport {
   if (format === "gpu") terminal.setRenderFormat("gpu");

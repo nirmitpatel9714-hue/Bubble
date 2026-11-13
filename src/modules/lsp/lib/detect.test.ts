@@ -19,7 +19,9 @@ const runtime = vi.hoisted(() => {
   return { state, useLspRuntimeStore: { getState: () => state } };
 });
 
-vi.mock("./runtimeStore", () => ({ useLspRuntimeStore: runtime.useLspRuntimeStore }));
+vi.mock("./runtimeStore", () => ({
+  useLspRuntimeStore: runtime.useLspRuntimeStore,
+}));
 
 import { detectBinary, redetectBinary } from "./detect";
 

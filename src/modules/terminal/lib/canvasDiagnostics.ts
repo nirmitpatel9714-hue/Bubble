@@ -7,7 +7,7 @@ export function terminalCanvasDiagnostics() {
   const devicePixelRatio = window.devicePixelRatio;
   return Array.from(
     document.querySelectorAll<HTMLCanvasElement>(
-      "[data-losos-terminal-canvas]",
+      "[data-bubble-terminal-canvas]",
     ),
     (canvas) => {
       const rect = canvas.getBoundingClientRect();

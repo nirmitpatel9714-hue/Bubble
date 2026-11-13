@@ -1,10 +1,10 @@
 # Two-process model and IPC command reference
 
-This guide elaborates on `LOSOS.md`. If anything here conflicts with `LOSOS.md`, `LOSOS.md` wins.
+This guide elaborates on `BUBBLE.md`. If anything here conflicts with `BUBBLE.md`, `BUBBLE.md` wins.
 
 ## The split
 
-LosOS is two processes: the Rust backend (`src-tauri/`) and the webview frontend (`src/`).
+Bubble is two processes: the Rust backend (`src-tauri/`) and the webview frontend (`src/`).
 
 - **Rust owns all OS access**: PTY, file system, git, shell spawn, network, secrets, workspace authorization.
 - **The webview never touches the FS, processes, or shells directly**. Every host operation goes through an `invoke()` call to a command registered in `src-tauri/src/lib.rs`.
@@ -139,7 +139,7 @@ See [CLI control plane](cli-control.md) for the local protocol and packaging mod
 
 ## See also
 
-- [`LOSOS.md`](../../LOSOS.md) - the architecture source of truth
+- [`BUBBLE.md`](../../BUBBLE.md) - the architecture source of truth
 - [`docs/README.md`](../README.md) - index of contributor guides
 - [PTY shell integration](pty-shell-integration.md) - how sessions and shell integration work
 - [Security model](security-model.md) - the boundaries every command must respect

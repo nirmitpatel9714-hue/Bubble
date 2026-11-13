@@ -189,13 +189,15 @@ export function SpaceSwitcher({
       return;
     }
     const rect = hit.getBoundingClientRect();
-    const edge: Edge = e.clientY < rect.top + rect.height / 2 ? "top" : "bottom";
+    const edge: Edge =
+      e.clientY < rect.top + rect.height / 2 ? "top" : "bottom";
     const kind = hit.getAttribute("data-drop");
     let next: DropTarget | null = null;
     if (st.kind === "space") {
       if (kind === "space") {
         const spaceId = hit.getAttribute("data-space-id");
-        if (spaceId && spaceId !== st.id) next = { kind: "space", spaceId, edge };
+        if (spaceId && spaceId !== st.id)
+          next = { kind: "space", spaceId, edge };
       }
     } else if (kind === "tab") {
       const tabId = Number(hit.getAttribute("data-tab-id"));
@@ -240,23 +242,25 @@ export function SpaceSwitcher({
       <PopoverTrigger asChild>
         <button
           type="button"
-          title={shortcut ? `Spaces · ${shortcut}` : "Spaces"}
-          className="flex h-7 shrink-0 items-center gap-2 rounded-md px-2 text-muted-foreground/90 outline-none transition-colors hover:bg-accent hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
+          aria-label="Manage workspaces"
+          title={
+            shortcut ? `Manage workspaces · ${shortcut}` : "Manage workspaces"
+          }
+          className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground/90 outline-none transition-colors hover:bg-accent hover:text-foreground data-[state=open]:bg-accent data-[state=open]:text-foreground"
         >
-          <span className="max-w-36 truncate text-xs font-medium">
-            {current.name}
-          </span>
           <HugeiconsIcon
-            icon={ArrowRight01Icon}
-            size={14}
-            strokeWidth={1.75}
-            className="shrink-0 opacity-65"
+            icon={ArrowDown01Icon}
+            size={13}
+            strokeWidth={2}
+            className="shrink-0 opacity-75"
           />
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" sideOffset={6} className="w-[20rem] p-1.5">
         <div className="flex items-center justify-between px-1.5 pb-1.5 pt-0.5">
-          <span className="text-xs font-semibold text-foreground">Spaces</span>
+          <span className="text-xs font-semibold text-foreground">
+            Workspaces
+          </span>
           {shortcut && (
             <Kbd className="h-5 bg-muted/70 text-[10px]">{shortcut}</Kbd>
           )}
@@ -305,7 +309,7 @@ export function SpaceSwitcher({
             className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
           >
             <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={1.75} />
-            <span className="flex-1">New space</span>
+            <span className="flex-1">New workspace</span>
           </button>
         </div>
       </PopoverContent>
@@ -396,7 +400,9 @@ function SpaceRow({
         data-space-id={space.id}
         role="button"
         tabIndex={editing ? -1 : 0}
-        onPointerDown={editing ? undefined : (e) => onPointerDown(e, "space", space.id)}
+        onPointerDown={
+          editing ? undefined : (e) => onPointerDown(e, "space", space.id)
+        }
         onPointerMove={onPointerMove}
         onPointerUp={editing ? undefined : (e) => onPointerUp(e, onSwitch)}
         onPointerCancel={(e) => onPointerUp(e)}
@@ -456,14 +462,18 @@ function SpaceRow({
             >
               <RowAction
                 icon={PencilEdit02Icon}
-                label="Rename space"
+                label="Rename workspace"
                 onClick={onStartRename}
               />
-              <RowAction icon={PlusSignIcon} label="New tab" onClick={onNewTab} />
+              <RowAction
+                icon={PlusSignIcon}
+                label="New window"
+                onClick={onNewTab}
+              />
               {canDelete && (
                 <RowAction
                   icon={Delete02Icon}
-                  label="Delete space"
+                  label="Delete workspace"
                   destructive
                   onClick={onDelete}
                 />
@@ -490,7 +500,7 @@ function SpaceRow({
           ))}
           {tabs.length === 0 && (
             <span className="px-2 py-1 text-[10.5px] text-muted-foreground/50">
-              {draggingTabFromOther ? "Drop to move here" : "No tabs"}
+              {draggingTabFromOther ? "Drop to move here" : "No windows"}
             </span>
           )}
         </div>
@@ -569,7 +579,7 @@ function TabRow({
             e.stopPropagation();
             onClose();
           }}
-          aria-label="Close tab"
+          aria-label="Close window"
           className="flex size-4 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/tab:opacity-70 hover:opacity-100"
         >
           <HugeiconsIcon icon={Cancel01Icon} size={11} strokeWidth={2} />

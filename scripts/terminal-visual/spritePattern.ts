@@ -182,7 +182,7 @@ function powerline(): SpriteRow[] {
     [
       segment(" user ", a, INK),
       sep(arrow, a, b),
-      segment(" ~/Dev/LosOS ", b, WHITE),
+      segment(" ~/Dev/Bubble ", b, WHITE),
       sep(arrow, b, c),
       segment(" main ", c, WHITE),
       sep(arrow, c, d),

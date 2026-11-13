@@ -23,6 +23,8 @@ type LeafBundle = {
 type Props = {
   node: PaneNode;
   tabVisible: boolean;
+  /** The containing tab is the app-active tab (not just visible in a tiled strip). */
+  tabFocused: boolean;
   activeLeafId: number;
   blocks: boolean;
   onFocusLeaf: (leafId: number) => void;
@@ -32,8 +34,15 @@ type Props = {
 export function PaneTreeView(props: Props) {
   const { node } = props;
   if (node.kind === "leaf") {
-    const { tabVisible, activeLeafId, blocks, onFocusLeaf, getBundle } = props;
-    const focused = node.id === activeLeafId;
+    const {
+      tabVisible,
+      tabFocused,
+      activeLeafId,
+      blocks,
+      onFocusLeaf,
+      getBundle,
+    } = props;
+    const focused = tabFocused && node.id === activeLeafId;
     const b = getBundle(node.id);
     return (
       <div

@@ -19,7 +19,7 @@ use tauri::{Emitter, Manager};
 use crate::modules::agent_events::{self, AgentHost, HookState, TauriAgentHost};
 use crate::modules::{fs, workspace};
 
-const CONTROL_EVENT: &str = "losos:control-request";
+const CONTROL_EVENT: &str = "bubble:control-request";
 const FRONTEND_TIMEOUT: Duration = Duration::from_secs(5);
 const IO_TIMEOUT: Duration = Duration::from_secs(7);
 const MAX_PENDING_REQUESTS: usize = 32;
@@ -626,7 +626,7 @@ fn forward_to_frontend(
         return ControlResponse::failure(
             request.id,
             "frontend_not_ready",
-            "LosOS is still restoring its workspace; try again shortly",
+            "Bubble is still restoring its workspace; try again shortly",
         );
     }
 
@@ -663,7 +663,7 @@ fn forward_to_frontend(
         return ControlResponse::failure(
             id,
             "frontend_unavailable",
-            format!("could not reach LosOS UI: {error}"),
+            format!("could not reach Bubble UI: {error}"),
         );
     }
 
@@ -687,12 +687,12 @@ fn forward_to_frontend(
                 .lock()
                 .expect("control pending poisoned")
                 .remove(&id);
-            ControlResponse::failure(id, "frontend_timeout", "LosOS UI did not respond in time")
+            ControlResponse::failure(id, "frontend_timeout", "Bubble UI did not respond in time")
         }
         Err(mpsc::RecvTimeoutError::Disconnected) => ControlResponse::failure(
             id,
             "frontend_unavailable",
-            "LosOS UI response channel closed",
+            "Bubble UI response channel closed",
         ),
     }
 }

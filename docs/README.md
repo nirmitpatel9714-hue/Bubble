@@ -1,12 +1,12 @@
-# LosOS contributor documentation
+# Bubble contributor documentation
 
-This directory holds long-form contributor and maintainer guides. `LOSOS.md` at the repo root is the living architecture doc and the source of truth; these guides elaborate on specific areas without duplicating it.
+This directory holds long-form contributor and maintainer guides. `BUBBLE.md` at the repo root is the living architecture doc and the source of truth; these guides elaborate on specific areas without duplicating it.
 
-If a guide conflicts with `LOSOS.md`, `LOSOS.md` wins.
+If a guide conflicts with `BUBBLE.md`, `BUBBLE.md` wins.
 
 ## Getting started
 
-- [LOSOS.md](../LOSOS.md) - the architecture source of truth; read this first
+- [BUBBLE.md](../BUBBLE.md) - the architecture source of truth; read this first
 - [CONTRIBUTING.md](../CONTRIBUTING.md) - how to contribute, quality bar, project layout
 
 ## Architecture guides

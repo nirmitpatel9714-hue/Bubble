@@ -231,7 +231,7 @@ function pattern(): string {
   const lines: string[] = [];
   const colored = (code: string, text: string) => `${esc}${code}m${text}${esc}0m`;
   lines.push(
-    `${colored("1;38;5;81", "LosOS renderer harness")}  dpr=${window.devicePixelRatio} font=${font.size}px`,
+    `${colored("1;38;5;81", "Bubble renderer harness")}  dpr=${window.devicePixelRatio} font=${font.size}px`,
   );
   lines.push(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
   lines.push(`regular: The quick brown fox jumps over the lazy dog 0123456789 {}[]()<>`);

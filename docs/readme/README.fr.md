@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
   <p><strong>Espace de développement léger, axé sur le terminal et natif pour l'IA.</strong></p>
   <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-LosOS est un environnement de développement (ADE) léger, open source, axé sur le terminal et natif pour l'IA, construit avec Tauri 2 + Rust et React 19. Il réunit un backend PTY natif avec moteur de rendu WebGL, un panneau latéral d'IA agentique fonctionnant avec vos propres clés ou des modèles entièrement locaux, un éditeur de code, un explorateur de fichiers, une gestion de sources avec graphe Git et un panneau d'aperçu web. Environ 7-8 Mo sur le disque. Aucune télémétrie. Aucun compte.
+Bubble est un environnement de développement (ADE) léger, open source, axé sur le terminal et natif pour l'IA, construit avec Tauri 2 + Rust et React 19. Il réunit un backend PTY natif avec moteur de rendu WebGL, un panneau latéral d'IA agentique fonctionnant avec vos propres clés ou des modèles entièrement locaux, un éditeur de code, un explorateur de fichiers, une gestion de sources avec graphe Git et un panneau d'aperçu web. Environ 7-8 Mo sur le disque. Aucune télémétrie. Aucun compte.
 
 ## Captures d'écran
 
@@ -80,7 +80,7 @@ LosOS est un environnement de développement (ADE) léger, open source, axé sur
 
 - **Fournisseurs avec vos propres clés :** OpenAI, Anthropic, Google (Gemini), Groq, xAI (Grok), Cerebras, OpenRouter, DeepSeek, Mistral et tout endpoint compatible OpenAI
 - **Local / hors ligne :** LM Studio, MLX, Ollama
-- **Flux agentique :** plans, sous-agents, mémoire du projet via `LOSOS.md`, lecture / écriture / modification / modifications multiples / grep / glob, bash soumis à approbation et processus en arrière-plan
+- **Flux agentique :** plans, sous-agents, mémoire du projet via `BUBBLE.md`, lecture / écriture / modification / modifications multiples / grep / glob, bash soumis à approbation et processus en arrière-plan
 - **Orchestration d'agents de programmation :** lancez Claude Code dans un terminal, inspectez sa sortie et envoyez des tâches de suivi via des outils soumis à approbation
 - **Zone de saisie :** extraits de prompt avec `#handle`, fichiers avec `@path`, saisie vocale et pièces jointes depuis l'explorateur ou une sélection
 - **Agents personnalisés** avec leur propre prompt système et sous-ensemble d'outils
@@ -88,7 +88,7 @@ LosOS est un environnement de développement (ADE) léger, open source, axé sur
 
 ## Installation
 
-Les installateurs récents sont disponibles sur la page [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). LosOS s'y met à jour automatiquement.
+Les installateurs récents sont disponibles sur la page [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble s'y met à jour automatiquement.
 
 ### Notes Windows
 
@@ -99,7 +99,7 @@ Les installateurs récents sont disponibles sur la page [Releases](https://githu
 
 - **Arch / AUR :** `yay -S losos-bin` ou `paru`. Suit la dernière version.
 - **NixOS / Nix :** utilisez le flake officiel avec `nix profile install github:nirmitpatel9714-hue/LosOS` hors NixOS. Sous NixOS, importez le flake et ajoutez `inputs.losos.packages.${pkgs.system}.losos` à `environment.systemPackages`. `nixosModules.losos` offre aussi une configuration simplifiée.
-- **AppImage :** nécessite FUSE. Sans FUSE : `./LosOS_*.AppImage --appimage-extract-and-run`. En cas de défauts sous Wayland, essayez `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Les paquets `.deb` / `.rpm` utilisent la pile GTK du système et sont souvent plus fluides.
+- **AppImage :** nécessite FUSE. Sans FUSE : `./Bubble_*.AppImage --appimage-extract-and-run`. En cas de défauts sous Wayland, essayez `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Les paquets `.deb` / `.rpm` utilisent la pile GTK du système et sont souvent plus fluides.
 
 ## Configurer l'IA
 
@@ -151,4 +151,4 @@ Les builds Windows sont signés avec un certificat gratuit fourni par [SignPath.
 
 ## Licence
 
-LosOS est distribué sous licence Apache-2.0. Pour plus d'informations sur les dépendances, consultez l'[Apache License 2.0](../../LICENSE).
+Bubble est distribué sous licence Apache-2.0. Pour plus d'informations sur les dépendances, consultez l'[Apache License 2.0](../../LICENSE).

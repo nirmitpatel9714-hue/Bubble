@@ -4,7 +4,7 @@ import type { Theme } from "./types";
 
 const STORE_PATH = "losos-custom-themes.json";
 const KEY = "themes";
-const CHANGED_EVENT = "losos://custom-themes-changed";
+const CHANGED_EVENT = "bubble://custom-themes-changed";
 
 const store = new LazyStore(STORE_PATH, { defaults: {}, autoSave: 200 });
 
@@ -30,7 +30,9 @@ export async function deleteCustomTheme(id: string): Promise<void> {
   await emit(CHANGED_EVENT);
 }
 
-export async function onCustomThemesChange(cb: () => void): Promise<UnlistenFn> {
+export async function onCustomThemesChange(
+  cb: () => void,
+): Promise<UnlistenFn> {
   const unsubLocal = await store.onChange((key) => {
     if (key === KEY) cb();
   });

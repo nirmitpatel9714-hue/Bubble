@@ -1,11 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useWhisperRecording } from "../hooks/useWhisperRecording";
 import { expandSnippetTokens, type Snippet } from "../lib/snippets";
 import { tryRunSlashCommand, type SlashCommandMeta } from "./slashCommands";
@@ -113,8 +107,8 @@ export function AiComposerProvider({ children }: ProviderProps) {
         void attachFileByPath(path);
       }
     };
-    window.addEventListener("losos:ai-attach-file", onAttach);
-    return () => window.removeEventListener("losos:ai-attach-file", onAttach);
+    window.addEventListener("bubble:ai-attach-file", onAttach);
+    return () => window.removeEventListener("bubble:ai-attach-file", onAttach);
     // attachFileByPath is stable for our purposes (closes over setFiles only)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -131,9 +125,7 @@ export function AiComposerProvider({ children }: ProviderProps) {
         next.push({
           id: sel.id,
           name:
-            sel.source === "editor"
-              ? "Editor selection"
-              : "Terminal selection",
+            sel.source === "editor" ? "Editor selection" : "Terminal selection",
           kind: "selection",
           mediaType: "text/plain",
           text: sel.text,
@@ -227,11 +219,15 @@ export function AiComposerProvider({ children }: ProviderProps) {
       return;
 
     // Slash-command interception. `/plan` toggles plan mode; `/init` rewrites
-    // the prompt to the LOSOS.md scan template before sending.
+    // the prompt to the BUBBLE.md scan template before sending.
     let effectiveText = trimmed;
     let commandMarker: string | null = null;
     let commandSource = trimmed;
-    if (pickedCommands.length > 0 && !trimmed.startsWith("/") && !trimmed.startsWith("#")) {
+    if (
+      pickedCommands.length > 0 &&
+      !trimmed.startsWith("/") &&
+      !trimmed.startsWith("#")
+    ) {
       commandSource = `#${pickedCommands[0].name} ${trimmed}`.trim();
     }
     if (commandSource.startsWith("/") || commandSource.startsWith("#")) {
@@ -262,10 +258,8 @@ export function AiComposerProvider({ children }: ProviderProps) {
         (f) =>
           `<selection source="${f.source ?? "terminal"}">\n${f.text ?? ""}\n</selection>`,
       );
-    const { body: bodyAfterTokens, blocks: snippetBlocks } = expandSnippetTokens(
-      effectiveText,
-      useSnippetsStore.getState().snippets,
-    );
+    const { body: bodyAfterTokens, blocks: snippetBlocks } =
+      expandSnippetTokens(effectiveText, useSnippetsStore.getState().snippets);
     const seenHandles = new Set<string>();
     const allSnippetBlocks: string[] = [];
     for (const s of pickedSnippets) {

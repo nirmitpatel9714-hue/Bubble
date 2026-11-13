@@ -183,7 +183,7 @@ export class WebGpuWindowCanvas {
   ) {
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-hidden", "true");
-    canvas.setAttribute("data-losos-terminal-canvas", "");
+    canvas.setAttribute("data-bubble-terminal-canvas", "");
     canvas.style.cssText =
       "position:absolute;left:0;top:0;display:block;pointer-events:none;visibility:hidden;";
     const context = canvas.getContext("webgpu");
@@ -404,7 +404,7 @@ export class WebGpuWindowCanvas {
     }
     if (!clear) return { drawn: 0, revealed: [] };
     const pass = encoder.beginRenderPass({
-      label: "LosOS terminal window pass",
+      label: "Bubble terminal window pass",
       colorAttachments: [
         {
           view: this.context.getCurrentTexture().createView(),

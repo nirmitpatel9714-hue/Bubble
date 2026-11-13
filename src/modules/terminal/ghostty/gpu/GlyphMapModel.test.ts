@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { beforeAll, describe, expect, it } from "vitest";
 import { AdaptedGhosttyTerminalModel } from "../AdaptedGhosttyTerminalModel";
 import type { GhosttyGpuFrame } from "../GhosttyTerminalModel";
@@ -39,7 +39,7 @@ const budget = { exhausted: () => false };
 describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
   "glyph map driven by the real Ghostty model (%s)",
   (artifact) => {
-    let core: LosOSGhostty;
+    let core: BubbleGhostty;
 
     beforeAll(async () => {
       const file = await readFile(
@@ -48,7 +48,7 @@ describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
           import.meta.url,
         ),
       );
-      core = await LosOSGhostty.loadBytes(Uint8Array.from(file).buffer);
+      core = await BubbleGhostty.loadBytes(Uint8Array.from(file).buffer);
     });
 
     function consumer(cols = 24, rows = 6) {

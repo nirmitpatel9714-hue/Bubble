@@ -377,7 +377,7 @@ export function ModelsSection() {
     <div className="flex flex-col gap-7">
       <SectionHeader
         title="Models"
-        description="Connect the providers you use. Keys live in your OS keychain and are used only by LosOS."
+        description="Connect the providers you use. Keys live in your OS keychain and are used only by Bubble."
       />
 
       <DefaultsBlock
@@ -684,12 +684,13 @@ function AutocompleteRow({
   const modelId = usePreferencesStore((s) => s.autocompleteModelId);
   const eligible = useMemo(() => getAutocompleteEligibleModels(), []);
   const userShortcuts = usePreferencesStore((s) => s.shortcuts);
+  const leaderKey = usePreferencesStore((s) => s.leaderKey);
   const aiCompleteShortcut = useMemo(() => {
     const s = SHORTCUTS.find((x) => x.id === "editor.aiComplete");
     const bindings = userShortcuts["editor.aiComplete"] || s?.defaultBindings;
     if (!bindings || bindings.length === 0) return "";
-    return getBindingTokens(bindings[0]).join("");
-  }, [userShortcuts]);
+    return getBindingTokens(bindings[0], leaderKey).join("");
+  }, [userShortcuts, leaderKey]);
 
   // One selectable model per fully-configured OpenAI-compatible endpoint.
   const compatItems = useMemo(

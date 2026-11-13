@@ -120,7 +120,7 @@ fn run(args: Vec<OsString>) -> Result<(), CliError> {
                 let error = response.error.unwrap_or_else(|| {
                     losos_control_protocol::ControlError::new(
                         "request_failed",
-                        "LosOS rejected the request",
+                        "Bubble rejected the request",
                     )
                 });
                 return Err(CliError::new(error.code, error.message, EXIT_REQUEST));
@@ -254,7 +254,7 @@ fn parse_open(args: Vec<OsString>) -> Result<Action, CliError> {
     let path = canonical.into_os_string().into_string().map_err(|_| {
         CliError::new(
             "non_utf8_path",
-            "LosOS cannot open a path that is not valid UTF-8",
+            "Bubble cannot open a path that is not valid UTF-8",
             EXIT_USAGE,
         )
     })?;
@@ -308,14 +308,14 @@ fn load_endpoint() -> Result<ControlDescriptor, CliError> {
             let bytes = std::fs::read(&path).map_err(|_| {
                 CliError::new(
                     "app_unavailable",
-                    "LosOS is not running; start the app and try again",
+                    "Bubble is not running; start the app and try again",
                     EXIT_UNAVAILABLE,
                 )
             })?;
             let descriptor = serde_json::from_slice(&bytes).map_err(|error| {
                 CliError::new(
                     "invalid_descriptor",
-                    format!("invalid LosOS control descriptor: {error}"),
+                    format!("invalid Bubble control descriptor: {error}"),
                     EXIT_PROTOCOL,
                 )
             })?;
@@ -340,7 +340,7 @@ fn validate_endpoint(
         return Err(CliError::new(
             "unsupported_protocol",
             format!(
-                "LosOS uses control protocol {}, but this CLI supports {PROTOCOL_VERSION}",
+                "Bubble uses control protocol {}, but this CLI supports {PROTOCOL_VERSION}",
                 descriptor.protocol
             ),
             EXIT_PROTOCOL,
@@ -354,7 +354,7 @@ fn validate_endpoint(
     {
         return Err(CliError::new(
             "invalid_endpoint",
-            "LosOS control token is invalid",
+            "Bubble control token is invalid",
             EXIT_PROTOCOL,
         ));
     }
@@ -362,7 +362,7 @@ fn validate_endpoint(
     if require_live_process && !process_is_alive(descriptor.pid) {
         return Err(CliError::new(
             "invalid_endpoint",
-            "LosOS control process is not running",
+            "Bubble control process is not running",
             EXIT_PROTOCOL,
         ));
     }
@@ -409,7 +409,7 @@ fn send_request(
     let mut stream = TcpStream::connect_timeout(&address, timeouts.connect).map_err(|error| {
         CliError::new(
             "app_unavailable",
-            format!("could not connect to LosOS: {error}"),
+            format!("could not connect to Bubble: {error}"),
             EXIT_UNAVAILABLE,
         )
     })?;
@@ -425,14 +425,14 @@ fn parse_loopback_address(address: &str) -> Result<SocketAddr, CliError> {
     let address: SocketAddr = address.parse().map_err(|error| {
         CliError::new(
             "invalid_endpoint",
-            format!("invalid LosOS control address: {error}"),
+            format!("invalid Bubble control address: {error}"),
             EXIT_PROTOCOL,
         )
     })?;
     if !address.ip().is_loopback() {
         return Err(CliError::new(
             "invalid_endpoint",
-            "LosOS control address must be loopback-only",
+            "Bubble control address must be loopback-only",
             EXIT_PROTOCOL,
         ));
     }
@@ -464,21 +464,21 @@ fn read_response(
     if bytes.len() > MAX_MESSAGE_BYTES {
         return Err(CliError::new(
             "message_too_large",
-            "LosOS response exceeded the protocol limit",
+            "Bubble response exceeded the protocol limit",
             EXIT_PROTOCOL,
         ));
     }
     if bytes.last() != Some(&b'\n') {
         return Err(CliError::new(
             "invalid_response",
-            "LosOS returned an incomplete response",
+            "Bubble returned an incomplete response",
             EXIT_PROTOCOL,
         ));
     }
     let response: ControlResponse = serde_json::from_slice(&bytes).map_err(|error| {
         CliError::new(
             "invalid_response",
-            format!("LosOS returned invalid JSON: {error}"),
+            format!("Bubble returned invalid JSON: {error}"),
             EXIT_PROTOCOL,
         )
     })?;
@@ -487,7 +487,7 @@ fn read_response(
     if response.protocol != PROTOCOL_VERSION || !matched_id {
         return Err(CliError::new(
             "invalid_response",
-            "LosOS returned a mismatched protocol version or request id",
+            "Bubble returned a mismatched protocol version or request id",
             EXIT_PROTOCOL,
         ));
     }
@@ -522,7 +522,7 @@ fn print_result(method: &str, result: Value, as_json: bool) {
                 .get("app_version")
                 .and_then(Value::as_str)
                 .unwrap_or("unknown");
-            println!("LosOS {version} is running");
+            println!("Bubble {version} is running");
         }
         METHOD_CAPABILITIES => {
             if let Some(methods) = result.get("methods").and_then(Value::as_array) {
@@ -550,9 +550,9 @@ fn print_result(method: &str, result: Value, as_json: bool) {
             let path = result.get("path").and_then(Value::as_str).unwrap_or("");
             let line = result.get("line").and_then(Value::as_u64);
             if let Some(line) = line {
-                println!("Opened {path}:{line} in LosOS");
+                println!("Opened {path}:{line} in Bubble");
             } else {
-                println!("Opened {path} in LosOS");
+                println!("Opened {path} in Bubble");
             }
         }
         _ => println!("{result}"),
@@ -561,9 +561,9 @@ fn print_result(method: &str, result: Value, as_json: bool) {
 
 fn print_help() {
     println!(
-        "LosOS command line interface\n\n\
+        "Bubble command line interface\n\n\
 Usage:\n  losos <file> [--line <n>] [--no-focus] [--json]\n  losos open <file> [--line <n>] [--no-focus] [--json]\n  losos ping [--json]\n  losos capabilities [--json]\n  losos identify [--json]\n  losos hook <agent> <event>   (agent hook entry point; reads JSON on stdin)\n  losos --version\n\n\
-The app must be running. Commands launched in a LosOS pane target that pane's space."
+The app must be running. Commands launched in a Bubble pane target that pane's space."
     );
 }
 

@@ -1,6 +1,6 @@
 # losos-shell-integration (zshenv)
 #
-# LosOS points ZDOTDIR at its integration directory so zsh reads these wrappers
+# Bubble points ZDOTDIR at its integration directory so zsh reads these wrappers
 # first. The user's files are sourced with ZDOTDIR switched back to their own
 # directory, so `$ZDOTDIR/conf.d/*.zsh` style loaders resolve where they expect.
 # A ZDOTDIR the user's .zshenv sets itself is remembered in LOSOS_USER_ZDOTDIR,

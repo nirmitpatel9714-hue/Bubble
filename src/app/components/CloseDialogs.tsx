@@ -96,10 +96,10 @@ function closeManyMessage(pending: CloseManyPending, tabs: Tab[]): string {
     );
     return dirty?.title
       ? `"${dirty.title}" has unsaved changes. Close it anyway?`
-      : "1 tab has unsaved changes. Close it anyway?";
+      : "1 window has unsaved changes. Close it anyway?";
   }
   if (dirtyCount > 0 && busyCount > 0) {
-    const dirty = `${dirtyCount} tab${dirtyCount === 1 ? " has" : "s have"} unsaved changes`;
+    const dirty = `${dirtyCount} window${dirtyCount === 1 ? " has" : "s have"} unsaved changes`;
     const busy =
       busyCount === 1
         ? "a process is running"
@@ -107,13 +107,13 @@ function closeManyMessage(pending: CloseManyPending, tabs: Tab[]): string {
     return `${dirty} and ${busy}. Closing will discard the changes and terminate the ${busyCount === 1 ? "process" : "processes"}. Close anyway?`;
   }
   if (dirtyCount > 0) {
-    return `${dirtyCount} tabs have unsaved changes. Closing will discard them. Close anyway?`;
+    return `${dirtyCount} windows have unsaved changes. Closing will discard them. Close anyway?`;
   }
   const process =
     busyCount === 1 ? "A process is" : `${busyCount} processes are`;
   return kind === "right"
-    ? `${process} running in ${busyCount === 1 ? "a tab" : "tabs"} to the right. Closing will terminate ${busyCount === 1 ? "it" : "them"}. Close anyway?`
-    : `${process} running in ${busyCount === 1 ? "another tab" : "other tabs"}. Closing will terminate ${busyCount === 1 ? "it" : "them"}. Close anyway?`;
+    ? `${process} running in ${busyCount === 1 ? "a window" : "windows"} to the right. Closing will terminate ${busyCount === 1 ? "it" : "them"}. Close anyway?`
+    : `${process} running in ${busyCount === 1 ? "another window" : "other windows"}. Closing will terminate ${busyCount === 1 ? "it" : "them"}. Close anyway?`;
 }
 
 /** Confirmation dialogs for closing dirty editors and terminals with live processes. */
@@ -258,8 +258,8 @@ export function CloseDialogs({
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingCloseMany?.kind === "right"
-                ? "Close Tabs to the Right"
-                : "Close Other Tabs"}
+                ? "Close Windows to the Right"
+                : "Close Other Windows"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingCloseMany ? closeManyMessage(pendingCloseMany, tabs) : ""}
@@ -288,7 +288,7 @@ export function CloseDialogs({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Quit LosOS?</AlertDialogTitle>
+            <AlertDialogTitle>Quit Bubble?</AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAppClose ? appCloseMessage(pendingAppClose) : ""}
             </AlertDialogDescription>

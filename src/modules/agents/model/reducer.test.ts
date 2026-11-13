@@ -278,7 +278,7 @@ describe("permission requests", () => {
     expect(agentOf(after).state).toBe("needs-approval");
   });
 
-  it("records a request LosOS cannot answer without an id", () => {
+  it("records a request Bubble cannot answer without an id", () => {
     const registry = run(
       hook("prompt"),
       hook("permission-request", { permission: permission() }),

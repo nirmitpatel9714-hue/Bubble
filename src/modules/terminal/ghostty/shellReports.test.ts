@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { GhosttySemanticEventRouter } from "./core/GhosttySemanticEventRouter";
 import {
@@ -10,7 +10,7 @@ import {
 
 vi.mock("@/lib/platform", () => ({ IS_WINDOWS: true }));
 
-let ghostty: LosOSGhostty;
+let ghostty: BubbleGhostty;
 
 beforeAll(async () => {
   const file = await readFile(
@@ -19,7 +19,7 @@ beforeAll(async () => {
       import.meta.url,
     ),
   );
-  ghostty = await LosOSGhostty.loadBytes(Uint8Array.from(file).buffer);
+  ghostty = await BubbleGhostty.loadBytes(Uint8Array.from(file).buffer);
 });
 
 afterEach(() => vi.useRealTimers());

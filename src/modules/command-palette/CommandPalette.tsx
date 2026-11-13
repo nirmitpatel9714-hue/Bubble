@@ -84,6 +84,7 @@ export function CommandPalette({
   const [page, setPage] = useState<"root" | "themes">("root");
   const [base, setBase] = useState<PaletteBase>("commands");
   const userShortcuts = usePreferencesStore((s) => s.shortcuts);
+  const leaderKey = usePreferencesStore((s) => s.leaderKey);
   const showHidden = usePreferencesStore((s) => s.showHidden);
   const { themeId, customThemes, setThemeId, previewThemeId } = useTheme();
 
@@ -175,7 +176,7 @@ export function CommandPalette({
     setBase(initialMode === "files" ? "files" : "commands");
     setPage("root");
     const handle = window.setTimeout(() => {
-      document.getElementById("losos-command-palette-input")?.focus();
+      document.getElementById("bubble-command-palette-input")?.focus();
     }, 0);
     return () => window.clearTimeout(handle);
   }, [open, initialMode]);
@@ -309,7 +310,7 @@ export function CommandPalette({
         onKeyDown={onKeyDown}
       >
         <CommandInput
-          id="losos-command-palette-input"
+          id="bubble-command-palette-input"
           value={query}
           onValueChange={setQuery}
           placeholder={placeholder}
@@ -372,6 +373,7 @@ export function CommandPalette({
                           shortcutLabel={formatShortcut(
                             item.shortcutId,
                             userShortcuts,
+                            leaderKey,
                           )}
                           onRun={() => runCommand(item)}
                         />
@@ -763,10 +765,11 @@ function basename(rel: string): string {
 function formatShortcut(
   shortcutId: ShortcutId | undefined,
   userShortcuts: Record<ShortcutId, KeyBinding[]>,
+  leaderKey: KeyBinding,
 ): string | null {
   if (!shortcutId) return null;
   const shortcut = SHORTCUTS_BY_ID.get(shortcutId);
   const bindings = userShortcuts[shortcutId] ?? shortcut?.defaultBindings;
-  const tokens = getBindingTokens(bindings?.[0]);
+  const tokens = getBindingTokens(bindings?.[0], leaderKey);
   return tokens.length ? tokens.join(" ") : null;
 }

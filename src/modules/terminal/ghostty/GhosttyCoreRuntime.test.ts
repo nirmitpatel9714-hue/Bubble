@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import v8 from "node:v8";
 import vm from "node:vm";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { PackedCellView } from "./core/packedCells";
 import { linkUriAt } from "./core/ViewportLinkResolver";
@@ -43,7 +43,7 @@ describe("GhosttyCoreRuntime", () => {
     "invalidates borrowed cells when presentation storage is freed by %s",
     async (operation) => {
       const runtime = new GhosttyCoreRuntime(() =>
-        LosOSGhostty.loadBytes(wasmBytes),
+        BubbleGhostty.loadBytes(wasmBytes),
       );
       try {
         const model = await runtime.createModel({
@@ -73,7 +73,7 @@ describe("GhosttyCoreRuntime", () => {
   it("releases the compiled module of a preload that never becomes a terminal", async () => {
     vi.useFakeTimers();
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes),
+      BubbleGhostty.loadBytes(wasmBytes),
     );
     try {
       await runtime.preload();
@@ -109,9 +109,9 @@ describe("GhosttyCoreRuntime", () => {
   });
 
   it("does not retain a late WASM load or create a model after disposal", async () => {
-    const core = await LosOSGhostty.loadBytes(wasmBytes);
+    const core = await BubbleGhostty.loadBytes(wasmBytes);
     const createTerminal = vi.spyOn(core, "createTerminal");
-    let deliver = (_core: LosOSGhostty) => {};
+    let deliver = (_core: BubbleGhostty) => {};
     const runtime = new GhosttyCoreRuntime(
       () =>
         new Promise((resolve) => {
@@ -136,7 +136,7 @@ describe("GhosttyCoreRuntime", () => {
   });
 
   it("skips a load cancelled before it starts and retries a synchronous loader failure", async () => {
-    const loader = vi.fn(() => LosOSGhostty.loadBytes(wasmBytes));
+    const loader = vi.fn(() => BubbleGhostty.loadBytes(wasmBytes));
     const abandoned = new GhosttyCoreRuntime(loader);
     const loading = abandoned.preload();
     abandoned.dispose();
@@ -157,7 +157,7 @@ describe("GhosttyCoreRuntime", () => {
   });
 
   it("releases a native terminal when its initial configuration fails", async () => {
-    const core = await LosOSGhostty.loadBytes(wasmBytes);
+    const core = await BubbleGhostty.loadBytes(wasmBytes);
     const runtime = new GhosttyCoreRuntime(() => Promise.resolve(core));
     try {
       await runtime.preload();
@@ -193,7 +193,7 @@ describe("GhosttyCoreRuntime", () => {
   });
 
   it("loads one WASM runtime for concurrent terminal models", async () => {
-    const loader = vi.fn(() => LosOSGhostty.loadBytes(wasmBytes.slice(0)));
+    const loader = vi.fn(() => BubbleGhostty.loadBytes(wasmBytes.slice(0)));
     const runtime = new GhosttyCoreRuntime(loader);
     const [first, second] = await Promise.all([
       runtime.createModel({ leafId: 1, cols: 80, rows: 24 }),
@@ -218,7 +218,7 @@ describe("GhosttyCoreRuntime", () => {
   it("returns a closed terminal's memory at once and releases the idle compiled module", async () => {
     vi.useFakeTimers();
     try {
-      const loader = vi.fn(() => LosOSGhostty.loadBytes(wasmBytes.slice(0)));
+      const loader = vi.fn(() => BubbleGhostty.loadBytes(wasmBytes.slice(0)));
       const runtime = new GhosttyCoreRuntime(loader);
       const first = await runtime.createModel({
         leafId: 101,
@@ -267,7 +267,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("keeps parsing while no rendering surface is attached", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const damage = vi.fn();
     const model = await runtime.createModel({
@@ -289,7 +289,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("keeps renderer identity out of the shared Ghostty model runtime", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 16,
@@ -306,7 +306,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("coalesces high-frequency PTY chunks into one render-state update", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 8,
@@ -336,7 +336,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("reuses mode snapshots until terminal modes actually change", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 81,
@@ -359,7 +359,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("exposes current modes during semantic callbacks in the same write", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const states: boolean[] = [];
     const model = await runtime.createModel({
@@ -379,7 +379,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("presents an OSC 133 wrapped Starship prompt atomically", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 18,
@@ -407,7 +407,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("holds synchronized output until reset with a bounded watchdog", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 17,
@@ -460,7 +460,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("does not present Fish's partial synchronized repaint from a queued resize frame", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 19,
@@ -491,7 +491,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("keeps a bottom-anchored Fish Starship prompt complete during local reflow", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 20,
@@ -524,7 +524,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("drains terminal replies as bytes in protocol order", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const replies: Uint8Array[] = [];
     const model = await runtime.createModel({
@@ -545,7 +545,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("renders a bounded scrollback viewport and returns to the live screen", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 10,
@@ -576,7 +576,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("extracts linear and rectangular selections from scrollback", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 13,
@@ -609,7 +609,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("copies soft-wrapped rows as one logical line", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 14,
@@ -630,7 +630,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("clears history while preserving the active cursor line", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 16,
@@ -651,7 +651,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("maps OSC 8 links through the visible viewport", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 15,
@@ -660,7 +660,9 @@ describe("GhosttyCoreRuntime", () => {
     });
     const uri = "https://losos.dev/docs";
     model.write(
-      new TextEncoder().encode(`\x1b]8;;${uri}\x1b\\LosOS\x1b]8;;\x1b\\ plain`),
+      new TextEncoder().encode(
+        `\x1b]8;;${uri}\x1b\\Bubble\x1b]8;;\x1b\\ plain`,
+      ),
     );
 
     expect(linkUriAt(model, 0, 0)).toBe(uri);
@@ -672,7 +674,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("finds plain URLs across wrapped rows without linking trailing blank cells", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({ leafId: 31, cols: 16, rows: 4 });
     model.write(
@@ -688,7 +690,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("updates model colors in place without changing terminal content", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 18,
@@ -715,7 +717,7 @@ describe("GhosttyCoreRuntime", () => {
 
   it("rejects duplicate leaves and unbounded dimensions", async () => {
     const runtime = new GhosttyCoreRuntime(() =>
-      LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+      BubbleGhostty.loadBytes(wasmBytes.slice(0)),
     );
     const model = await runtime.createModel({
       leafId: 11,
@@ -736,7 +738,7 @@ describe("GhosttyCoreRuntime", () => {
   describe("one WebAssembly instance per terminal model", () => {
     function observedCore() {
       const modules: WebAssembly.Module[] = [];
-      const core = LosOSGhostty.fromModule(wasmModule, {
+      const core = BubbleGhostty.fromModule(wasmModule, {
         instantiate: (module, imports) => {
           modules.push(module);
           return new WebAssembly.Instance(module, imports);
@@ -901,7 +903,7 @@ describe("GhosttyCoreRuntime", () => {
 
     it("detaches borrowed views when the model is disposed", async () => {
       const runtime = new GhosttyCoreRuntime(() =>
-        LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+        BubbleGhostty.loadBytes(wasmBytes.slice(0)),
       );
       try {
         const model = await runtime.createModel({
@@ -920,7 +922,7 @@ describe("GhosttyCoreRuntime", () => {
     });
 
     it("frees the instance when its last terminal is disposed", async () => {
-      const core = LosOSGhostty.fromModule(wasmModule);
+      const core = BubbleGhostty.fromModule(wasmModule);
       const open = () => {
         const terminal = core.createTerminal(80, 24);
         terminal.write(new TextEncoder().encode("hello\r\n".repeat(5_000)));
@@ -936,7 +938,7 @@ describe("GhosttyCoreRuntime", () => {
     });
 
     it("invalidates every terminal of a disposed shared instance", async () => {
-      const core = LosOSGhostty.fromModule(wasmModule);
+      const core = BubbleGhostty.fromModule(wasmModule);
       const instance = core.instantiate();
       const first = instance.createTerminal(20, 4);
       const second = instance.createTerminal(20, 4);
@@ -959,7 +961,7 @@ describe("GhosttyCoreRuntime", () => {
       vi.useFakeTimers();
       try {
         const reclaim = vi.fn();
-        const core = LosOSGhostty.fromModule(wasmModule, { reclaim });
+        const core = BubbleGhostty.fromModule(wasmModule, { reclaim });
         const terminals = [1, 2, 3].map(() => core.createTerminal(80, 24));
         const sizes = terminals.map((terminal) => terminal.instanceMemoryBytes);
         for (const terminal of terminals) terminal.dispose();
@@ -983,16 +985,16 @@ describe("GhosttyCoreRuntime", () => {
     it("runs the default collection hint and honours opting out", async () => {
       vi.useFakeTimers();
       try {
-        const core = LosOSGhostty.fromModule(wasmModule);
+        const core = BubbleGhostty.fromModule(wasmModule);
         core.createTerminal(80, 24).dispose();
         await expect(vi.advanceTimersByTimeAsync(250)).resolves.not.toThrow();
 
         const reclaim = vi.fn();
-        const silent = LosOSGhostty.fromModule(wasmModule, {
+        const silent = BubbleGhostty.fromModule(wasmModule, {
           reclaim: null,
         });
         silent.createTerminal(80, 24).dispose();
-        const custom = LosOSGhostty.fromModule(wasmModule, {
+        const custom = BubbleGhostty.fromModule(wasmModule, {
           reclaim,
           reclaimDelayMs: 10,
         });
@@ -1005,7 +1007,7 @@ describe("GhosttyCoreRuntime", () => {
     });
 
     it("leaves no instance behind when terminal creation fails", () => {
-      const core = LosOSGhostty.fromModule(wasmModule);
+      const core = BubbleGhostty.fromModule(wasmModule);
       expect(() => core.createTerminal(0, 24)).toThrow(RangeError);
       expect(core.memoryStats()).toMatchObject({
         instanceCount: 0,
@@ -1033,7 +1035,7 @@ describe("GhosttyCoreRuntime", () => {
 
     it("divides the budget between models and returns it when they close", async () => {
       const runtime = new GhosttyCoreRuntime(
-        () => LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+        () => BubbleGhostty.loadBytes(wasmBytes.slice(0)),
         { scrollbackBudgetBytes: 12 * MIB },
       );
       try {
@@ -1067,7 +1069,7 @@ describe("GhosttyCoreRuntime", () => {
 
     it("stops later terminals at their share without pruning history already held", async () => {
       const runtime = new GhosttyCoreRuntime(
-        () => LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+        () => BubbleGhostty.loadBytes(wasmBytes.slice(0)),
         { scrollbackBudgetBytes: 12 * MIB },
       );
       try {
@@ -1115,7 +1117,7 @@ describe("GhosttyCoreRuntime", () => {
 
     it("does not scale terminals while the total fits the default budget", async () => {
       const runtime = new GhosttyCoreRuntime(() =>
-        LosOSGhostty.loadBytes(wasmBytes.slice(0)),
+        BubbleGhostty.loadBytes(wasmBytes.slice(0)),
       );
       try {
         await Promise.all(

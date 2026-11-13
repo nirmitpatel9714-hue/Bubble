@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
 
   <p><strong>Espacio de desarrollo ligero, centrado en la terminal y nativo de IA.</strong></p>
 
@@ -29,7 +29,7 @@
 
 ---
 
-LosOS es un entorno de desarrollo (ADE) ligero, de código abierto, centrado en la terminal y nativo de IA, construido con Tauri 2 + Rust y React 19. Incluye un backend PTY nativo con renderizador WebGL, un panel lateral de IA con agentes que funciona con tus propias claves o modelos completamente locales, además de editor de código, explorador de archivos, control de código fuente con gráfico de Git y panel de vista previa web. Ocupa unos 7-8 MB en disco. Sin telemetría. Sin cuenta.
+Bubble es un entorno de desarrollo (ADE) ligero, de código abierto, centrado en la terminal y nativo de IA, construido con Tauri 2 + Rust y React 19. Incluye un backend PTY nativo con renderizador WebGL, un panel lateral de IA con agentes que funciona con tus propias claves o modelos completamente locales, además de editor de código, explorador de archivos, control de código fuente con gráfico de Git y panel de vista previa web. Ocupa unos 7-8 MB en disco. Sin telemetría. Sin cuenta.
 
 ## Capturas de pantalla
 
@@ -100,7 +100,7 @@ LosOS es un entorno de desarrollo (ADE) ligero, de código abierto, centrado en 
 
 - **Proveedores con tu propia clave:** OpenAI, Anthropic, Google (Gemini), Groq, xAI (Grok), Cerebras, OpenRouter, DeepSeek, Mistral y cualquier endpoint compatible con OpenAI
 - **Local / sin conexión:** LM Studio, MLX, Ollama
-- **Flujo con agentes:** planes, subagentes, memoria de proyecto mediante `LOSOS.md`, lectura / escritura / edición / edición múltiple / grep / glob, bash con aprobación y procesos en segundo plano
+- **Flujo con agentes:** planes, subagentes, memoria de proyecto mediante `BUBBLE.md`, lectura / escritura / edición / edición múltiple / grep / glob, bash con aprobación y procesos en segundo plano
 - **Orquestación de agentes de programación:** inicia Claude Code en una terminal, revisa su salida y envía trabajo adicional mediante herramientas sujetas a aprobación
 - **Compositor:** fragmentos de prompt con `#handle`, archivos con `@path`, entrada de voz y adjuntos desde el explorador o una selección
 - **Agentes personalizados** con su propio prompt de sistema y subconjunto de herramientas
@@ -108,7 +108,7 @@ LosOS es un entorno de desarrollo (ADE) ligero, de código abierto, centrado en 
 
 ## Instalación
 
-Los instaladores más recientes están en la página de [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). LosOS se actualiza automáticamente desde allí.
+Los instaladores más recientes están en la página de [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble se actualiza automáticamente desde allí.
 
 ### Notas para Windows
 
@@ -119,12 +119,12 @@ Los instaladores más recientes están en la página de [Releases](https://githu
 
 - **Arch / AUR:** `yay -S losos-bin` (o `paru`, etc.). Sigue la versión más reciente.
 - **NixOS / Nix:** usa el flake oficial: `nix profile install github:nirmitpatel9714-hue/LosOS` en sistemas que no sean NixOS, o importa el flake y añade `inputs.losos.packages.${pkgs.system}.losos` a `environment.systemPackages` en NixOS. También está disponible `nixosModules.losos` para una configuración más sencilla.
-- **AppImage:** requiere FUSE. Sin FUSE: `./LosOS_*.AppImage --appimage-extract-and-run`. Si hay problemas de renderizado en Wayland, prueba `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Los paquetes `.deb` / `.rpm` enlazan con la pila GTK del sistema y suelen funcionar con mayor fluidez.
+- **AppImage:** requiere FUSE. Sin FUSE: `./Bubble_*.AppImage --appimage-extract-and-run`. Si hay problemas de renderizado en Wayland, prueba `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Los paquetes `.deb` / `.rpm` enlazan con la pila GTK del sistema y suelen funcionar con mayor fluidez.
 
 ## Configurar la IA
 
 1. Abre **Ajustes -> IA**.
-2. Elige un proveedor y pega tu clave API. Para inferencia local, apunta LosOS a tu endpoint de LM Studio / MLX / Ollama.
+2. Elige un proveedor y pega tu clave API. Para inferencia local, apunta Bubble a tu endpoint de LM Studio / MLX / Ollama.
 3. Las claves se guardan en el llavero del sistema mediante `keyring`. Nunca se escriben en disco ni en localStorage.
 
 ## Compilar desde el código fuente
@@ -171,4 +171,4 @@ Las compilaciones de Windows se firman con un certificado gratuito de [SignPath.
 
 ## Licencia
 
-LosOS se distribuye bajo la licencia Apache-2.0. Para más información sobre las dependencias, consulta [Apache License 2.0](../../LICENSE).
+Bubble se distribuye bajo la licencia Apache-2.0. Para más información sobre las dependencias, consulta [Apache License 2.0](../../LICENSE).

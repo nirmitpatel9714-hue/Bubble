@@ -12,7 +12,7 @@ describe("wordWrapExtension", () => {
     expect(state.facet(EditorView.contentAttributes)).toEqual(
       expect.arrayContaining([
         { class: "cm-lineWrapping" },
-        { style: "--losos-editor-wrap-column: 80ch" },
+        { style: "--bubble-editor-wrap-column: 80ch" },
       ]),
     );
   });

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { usePreferencesStore } from "@/modules/settings/preferences";
-import { setShortcuts } from "@/modules/settings/store";
+import { setLeaderKey, setShortcuts } from "@/modules/settings/store";
 import {
   getBindingTokens,
   type KeyBinding,
@@ -32,8 +32,10 @@ import { SectionHeader } from "../components/SectionHeader";
 
 export function ShortcutsSection() {
   const userShortcuts = usePreferencesStore((s) => s.shortcuts);
+  const leaderKey = usePreferencesStore((s) => s.leaderKey);
   const [search, setSearch] = useState("");
   const [recordingId, setRecordingId] = useState<ShortcutId | null>(null);
+  const [recordingLeader, setRecordingLeader] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const filteredShortcuts = useMemo(() => {
@@ -92,6 +94,38 @@ export function ShortcutsSection() {
         </Button>
       </div>
 
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 bg-card/40 px-3 py-2.5">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-[12.5px] font-medium">Leader key</span>
+          <span className="text-[11px] text-muted-foreground">
+            Press it, release, then press a shortcut key. Alt and Super are not
+            allowed.
+          </span>
+        </div>
+        {recordingLeader ? (
+          <Recorder
+            requireCtrl
+            onRecord={(binding) => {
+              void setLeaderKey(binding);
+              setRecordingLeader(false);
+            }}
+            onCancel={() => setRecordingLeader(false)}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setRecordingLeader(true)}
+            className="flex min-w-[100px] cursor-pointer items-center justify-end gap-1 rounded-md px-1 py-1 transition-colors hover:bg-muted/40"
+          >
+            <KbdGroup>
+              {getBindingTokens(leaderKey).map((token) => (
+                <Kbd key={token}>{token}</Kbd>
+              ))}
+            </KbdGroup>
+          </button>
+        )}
+      </div>
+
       <div className="relative">
         <HugeiconsIcon
           icon={Search01Icon}
@@ -129,6 +163,7 @@ export function ShortcutsSection() {
                     onClear={() => onClear(s.id)}
                     onReset={() => onResetShortcut(s.id)}
                     userBindings={userShortcuts[s.id]}
+                    leaderKey={leaderKey}
                   />
                 ))}
               </div>
@@ -170,6 +205,7 @@ function ShortcutRow({
   onClear,
   onReset,
   userBindings,
+  leaderKey,
 }: {
   shortcut: Shortcut;
   isRecording: boolean;
@@ -179,6 +215,7 @@ function ShortcutRow({
   onClear: () => void;
   onReset: () => void;
   userBindings?: KeyBinding[];
+  leaderKey: KeyBinding;
 }) {
   const bindings =
     userBindings !== undefined ? userBindings : shortcut.defaultBindings;
@@ -193,7 +230,11 @@ function ShortcutRow({
 
       <div className="flex items-center gap-2">
         {isRecording ? (
-          <Recorder onRecord={onRecord} onCancel={onStopRecording} />
+          <Recorder
+            leader={shortcut.defaultBindings[0]?.leader === true}
+            onRecord={onRecord}
+            onCancel={onStopRecording}
+          />
         ) : (
           <>
             <div
@@ -202,7 +243,7 @@ function ShortcutRow({
             >
               {hasBindings ? (
                 <KbdGroup>
-                  {getBindingTokens(bindings[0]).map((t, i) => (
+                  {getBindingTokens(bindings[0], leaderKey).map((t, i) => (
                     <Kbd
                       key={i}
                       className="group-hover:bg-accent group-hover:text-accent-foreground transition-colors"
@@ -250,9 +291,15 @@ function ShortcutRow({
 function Recorder({
   onRecord,
   onCancel,
+  requireCtrl = false,
+  leader = false,
 }: {
   onRecord: (b: KeyBinding) => void;
   onCancel: () => void;
+  /** The leader key must be Ctrl-based (no Alt, no Super). */
+  requireCtrl?: boolean;
+  /** Record the second half of a leader chord: a plain key, Shift allowed. */
+  leader?: boolean;
 }) {
   const [_mods, setMods] = useState({
     ctrl: false,
@@ -285,6 +332,14 @@ function Recorder({
       // Require at least one primary modifier (Ctrl, Alt, Meta).
       // Reject Shift‑only shortcuts that would insert a character.
       const hasPrimaryModifier = e.ctrlKey || e.altKey || e.metaKey;
+      if (requireCtrl && (!e.ctrlKey || e.altKey || e.metaKey)) return;
+      if (leader) {
+        // Leader chords are pressed after the leader, so they carry no Ctrl,
+        // Alt, or Super. Shift + key is allowed; a plain key is the norm.
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        onRecord({ leader: true, key: e.key, shift: e.shiftKey });
+        return;
+      }
       const isCharacterKey = e.key.length === 1; // anything that types a glyph
       // this blocks shortcuts such as Shift+2 which would be "@" and Shift+, which would be "<" on many layouts
       if (!hasPrimaryModifier && (!e.shiftKey || isCharacterKey)) {
@@ -317,7 +372,7 @@ function Recorder({
       window.removeEventListener("keydown", onDown, { capture: true });
       window.removeEventListener("keyup", onUp, { capture: true });
     };
-  }, [onRecord, onCancel]);
+  }, [onRecord, onCancel, requireCtrl, leader]);
 
   return (
     <div className="flex items-center gap-2 rounded bg-accent/50 px-2 py-1 text-[11px] ring-1 ring-accent">

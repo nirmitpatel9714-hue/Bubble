@@ -1,4 +1,4 @@
-//! `losos:git-changed` notifications. A subscription registers the repository's
+//! `bubble:git-changed` notifications. A subscription registers the repository's
 //! non-ignored directories (plus HEAD, the index and the refs) with the shared
 //! file watcher and turns the directories it reports into
 //! `{ repo, kinds: [head | index | refs | worktree] }` events. With no
@@ -23,7 +23,7 @@ use crate::modules::git::errors::{GitError, Result};
 use crate::modules::git::plumbing::{common_dir, git_dir, open_worktree};
 use crate::modules::workspace::{WorkspaceEnv, WorkspaceRegistry};
 
-pub const EVENT: &str = "losos:git-changed";
+pub const EVENT: &str = "bubble:git-changed";
 const MAX_WORKTREE_DIRS: usize = 2048;
 const MAX_REF_DIRS: usize = 512;
 const SHALLOW_DEPTH: usize = 2;

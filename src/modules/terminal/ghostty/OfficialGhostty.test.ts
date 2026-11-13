@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import {
   GhosttyOptimizeMode,
   GhosttyRenderStateDirty,
@@ -11,7 +11,7 @@ import {
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 let ghostty: OfficialGhostty;
-let adaptedGhostty: LosOSGhostty;
+let adaptedGhostty: BubbleGhostty;
 let wasmBytes: ArrayBuffer;
 
 beforeAll(async () => {
@@ -27,7 +27,7 @@ beforeAll(async () => {
     import.meta.url,
   );
   const adaptedFile = await readFile(adaptedPath);
-  adaptedGhostty = await LosOSGhostty.loadBytes(
+  adaptedGhostty = await BubbleGhostty.loadBytes(
     Uint8Array.from(adaptedFile).buffer,
   );
 });
@@ -273,7 +273,7 @@ function rawCellStyleId(row: Uint32Array, column: number): number {
 
 function expectEquivalentViewport(
   official: ReturnType<OfficialGhostty["createTerminal"]>,
-  adapted: ReturnType<LosOSGhostty["createTerminal"]>,
+  adapted: ReturnType<BubbleGhostty["createTerminal"]>,
 ): void {
   official.updateRenderState();
   const officialRows: number[][] = [];

@@ -26,8 +26,8 @@ const NERD_FONT_CANDIDATES = [
   "Hasklug Nerd Font",
 ];
 
-const SYMBOLS_FAMILY = "LosOS Terminal Symbols";
-const EXTENDED_SYMBOLS_FAMILY = "LosOS Terminal Symbols MDI";
+const SYMBOLS_FAMILY = "Bubble Terminal Symbols";
+const EXTENDED_SYMBOLS_FAMILY = "Bubble Terminal Symbols MDI";
 
 /**
  * Per codepoint, the first face that has the glyph wins. The installed Symbols Nerd

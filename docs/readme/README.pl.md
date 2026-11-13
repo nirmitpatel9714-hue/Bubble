@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="../../public/logo.png" width="144" height="144" alt="LosOS" />
-  <h1>LosOS</h1>
+  <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
+  <h1>Bubble</h1>
   <p><strong>Lekkie, terminalowe środowisko programistyczne stworzone z myślą o AI.</strong></p>
   <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-LosOS to lekkie, otwartoźródłowe, terminalowe środowisko programistyczne (ADE) stworzone z myślą o AI, zbudowane na Tauri 2 + Rust i React 19. Zawiera natywny backend PTY z rendererem WebGL, panel agentowej AI działający z własnymi kluczami lub całkowicie lokalnymi modelami, a także edytor kodu, eksplorator plików, kontrolę źródeł z grafem Git i panel podglądu stron. Około 7-8 MB na dysku. Bez telemetrii. Bez konta.
+Bubble to lekkie, otwartoźródłowe, terminalowe środowisko programistyczne (ADE) stworzone z myślą o AI, zbudowane na Tauri 2 + Rust i React 19. Zawiera natywny backend PTY z rendererem WebGL, panel agentowej AI działający z własnymi kluczami lub całkowicie lokalnymi modelami, a także edytor kodu, eksplorator plików, kontrolę źródeł z grafem Git i panel podglądu stron. Około 7-8 MB na dysku. Bez telemetrii. Bez konta.
 
 ## Zrzuty ekranu
 
@@ -80,7 +80,7 @@ LosOS to lekkie, otwartoźródłowe, terminalowe środowisko programistyczne (AD
 
 - **Dostawcy z własnym kluczem:** OpenAI, Anthropic, Google (Gemini), Groq, xAI (Grok), Cerebras, OpenRouter, DeepSeek, Mistral i dowolny endpoint zgodny z OpenAI
 - **Lokalnie / offline:** LM Studio, MLX, Ollama
-- **Agentowy przepływ pracy:** plany, podagenci, pamięć projektu przez `LOSOS.md`, odczyt / zapis / edycja / wielokrotna edycja / grep / glob, bash wymagający zgody i procesy w tle
+- **Agentowy przepływ pracy:** plany, podagenci, pamięć projektu przez `BUBBLE.md`, odczyt / zapis / edycja / wielokrotna edycja / grep / glob, bash wymagający zgody i procesy w tle
 - **Orkiestracja agentów programistycznych:** uruchom Claude Code w terminalu, sprawdź wynik i wysyłaj dalsze zadania przez narzędzia wymagające zgody
 - **Pole wprowadzania:** fragmenty promptów przez `#handle`, pliki przez `@path`, wejście głosowe i załączniki z eksploratora lub zaznaczenia
 - **Własne agenty** z osobnym promptem systemowym i zestawem narzędzi
@@ -88,7 +88,7 @@ LosOS to lekkie, otwartoźródłowe, terminalowe środowisko programistyczne (AD
 
 ## Instalacja
 
-Najnowsze instalatory znajdują się na stronie [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). LosOS aktualizuje się stamtąd automatycznie.
+Najnowsze instalatory znajdują się na stronie [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble aktualizuje się stamtąd automatycznie.
 
 ### Uwagi dla Windows
 
@@ -99,7 +99,7 @@ Najnowsze instalatory znajdują się na stronie [Releases](https://github.com/ni
 
 - **Arch / AUR:** `yay -S losos-bin` lub `paru`. Pakiet śledzi najnowsze wydanie.
 - **NixOS / Nix:** użyj oficjalnego flake. Poza NixOS uruchom `nix profile install github:nirmitpatel9714-hue/LosOS`. W NixOS zaimportuj flake i dodaj `inputs.losos.packages.${pkgs.system}.losos` do `environment.systemPackages`. Dostępny jest też prostszy moduł `nixosModules.losos`.
-- **AppImage:** wymaga FUSE. Bez niego uruchom `./LosOS_*.AppImage --appimage-extract-and-run`. Przy błędach renderowania w Wayland spróbuj `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Pakiety `.deb` / `.rpm` korzystają z systemowego GTK i zwykle działają płynniej.
+- **AppImage:** wymaga FUSE. Bez niego uruchom `./Bubble_*.AppImage --appimage-extract-and-run`. Przy błędach renderowania w Wayland spróbuj `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Pakiety `.deb` / `.rpm` korzystają z systemowego GTK i zwykle działają płynniej.
 
 ## Konfiguracja AI
 
@@ -151,4 +151,4 @@ Wersje dla Windows są podpisane bezpłatnym certyfikatem od [SignPath.io](https
 
 ## Licencja
 
-LosOS jest objęty licencją Apache-2.0. Informacje o zależnościach znajdziesz w [Apache License 2.0](../../LICENSE).
+Bubble jest objęty licencją Apache-2.0. Informacje o zależnościach znajdziesz w [Apache License 2.0](../../LICENSE).

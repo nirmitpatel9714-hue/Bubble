@@ -1,8 +1,4 @@
-import {
-  git,
-  type GitRepoInfo,
-  type GitStatusSnapshot,
-} from "@/modules/git";
+import { git, type GitRepoInfo, type GitStatusSnapshot } from "@/modules/git";
 import { useWorkspaceEnvStore, workspaceScopeKey } from "@/modules/workspace";
 import {
   useCallback,
@@ -24,9 +20,7 @@ const SC_STATUS_TTL_MS = 2000;
 
 type SourceControlRefreshMode = "auto" | "always" | "never";
 type SourceControlRemoteAction = "fetch" | "pull" | "push";
-type SourceControlRemoteActionMode =
-  | "contextual"
-  | SourceControlRemoteAction;
+type SourceControlRemoteActionMode = "contextual" | SourceControlRemoteAction;
 
 type SourceControlRemoteActionResult = {
   ok: boolean;
@@ -51,9 +45,7 @@ export type SourceControlSummary = {
   applyStatus: (
     updater: (status: GitStatusSnapshot) => GitStatusSnapshot,
   ) => void;
-  refresh: (options?: {
-    remote?: SourceControlRefreshMode;
-  }) => Promise<void>;
+  refresh: (options?: { remote?: SourceControlRefreshMode }) => Promise<void>;
   runRemoteAction: (
     mode?: SourceControlRemoteActionMode,
   ) => Promise<SourceControlRemoteActionResult>;
@@ -313,10 +305,7 @@ export function useSourceControl(
   const doRefresh = useCallback(
     async (remoteMode: SourceControlRefreshMode): Promise<void> => {
       const refreshContextKey = contextKey;
-      if (
-        !enabledRef.current ||
-        refreshContextKey !== contextKeyRef.current
-      ) {
+      if (!enabledRef.current || refreshContextKey !== contextKeyRef.current) {
         return;
       }
       const requestId = ++requestIdRef.current;
@@ -416,8 +405,7 @@ export function useSourceControl(
           repo.upstream &&
           remoteMode !== "never" &&
           (remoteMode === "always" ||
-            Date.now() -
-              (autoFetchByRepoRef.current.get(repo.repoRoot) ?? 0) >=
+            Date.now() - (autoFetchByRepoRef.current.get(repo.repoRoot) ?? 0) >=
               AUTO_FETCH_THROTTLE_MS);
 
         if (shouldAutoFetch) {
@@ -503,8 +491,7 @@ export function useSourceControl(
 
       setState((current) => ({ ...current, busyAction: action }));
       const actionContextKey = contextKeyRef.current;
-      const isCurrentContext = () =>
-        actionContextKey === contextKeyRef.current;
+      const isCurrentContext = () => actionContextKey === contextKeyRef.current;
 
       try {
         if (action === "fetch") {
@@ -609,12 +596,7 @@ export function useSourceControl(
     contextPath,
   );
   useEffect(() => {
-    if (
-      !enabled ||
-      !live ||
-      workspaceEnv.kind !== "local" ||
-      !watchedRoot
-    )
+    if (!enabled || !live || workspaceEnv.kind !== "local" || !watchedRoot)
       return;
     return watchSourceControl(
       watchedRoot,

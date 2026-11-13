@@ -1,6 +1,6 @@
 # Resource efficiency
 
-Current resource architecture, its invariants, and how to measure it. `LOSOS.md`
+Current resource architecture, its invariants, and how to measure it. `BUBBLE.md`
 takes precedence; the renderer details are in
 [renderer v2](terminal-renderer-v2.md), the transport in
 [PTY transport v2](pty-transport-v2.md).

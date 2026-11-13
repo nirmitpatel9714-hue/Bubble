@@ -1,6 +1,6 @@
-# LosOS Ghostty WASM adaptation
+# Bubble Ghostty WASM adaptation
 
-This is the production-candidate terminal core for the pooled LosOS renderer
+This is the production-candidate terminal core for the pooled Bubble renderer
 architecture. It adapts the mature bulk render-state bridge from Restty
 without importing Restty's application runtime, PTY transport, perpetual
 per-terminal frame loop, or per-pane GPU lifecycle.
@@ -16,7 +16,7 @@ per-terminal frame loop, or per-pane GPU lifecycle.
 - SIMD SHA-256: `32b630675916b3122c2c187c640191e90ae848ee9f196ec5fe091681560c1f11`
 - Scalar SHA-256: `3749923e6d7c9ad8f1919f0072073843d9792dcd41d6628b42f208b1f733aa13`
 
-LosOS-specific changes include:
+Bubble-specific changes include:
 
 - rebasing the bridge onto the pinned current Ghostty API;
 - Ghostty `TinyIo`, avoiding the binary and runtime overhead of threaded I/O;
@@ -37,7 +37,7 @@ LosOS-specific changes include:
 - native mode, size, color, visibility, and version query replies;
 - generated upstream Ghostty XTGETTCAP responses and native DECRQSS replies;
 - synchronized-output state for damage suppression with bounded recovery;
-- one WebAssembly instance (one linear memory) per LosOS model, all created
+- one WebAssembly instance (one linear memory) per Bubble model, all created
   from a single compiled module; disposing the model drops the instance, which
   is the only way WebAssembly memory is ever returned to the operating system;
 - Ghostty's module-global exact-page WASM pool, avoiding geometric page-pool
@@ -92,7 +92,7 @@ LosOS-specific changes include:
   colors, text blink, graphemes, and wide-cell state;
 - a raw `.wasm` asset instead of a multi-megabyte JavaScript string literal.
 
-The bridge deliberately stays below LosOS's model/surface boundary. LosOS
+The bridge deliberately stays below Bubble's model/surface boundary. Bubble
 retains renderer pooling, hidden-tab renderer release, damage-driven frame
 scheduling, shell integration, semantic routing, and fallback selection.
 
@@ -138,9 +138,9 @@ about 0.4 microseconds to a write plus render-state update.
 ## October 14 upstream update
 
 Both artifacts use the exact `main` revision above (141 commits after the
-previous `7ec9e26a` pin). LosOS continues to use its adapted bulk bridge; it does
+previous `7ec9e26a` pin). Bubble continues to use its adapted bulk bridge; it does
 not consume the mutable official nightly binary as a drop-in ABI. Upstream
-changes that matter to LosOS:
+changes that matter to Bubble:
 
 - use-after-free when scrollback pruning frees the page holding the cursor
   (ghostty-org/ghostty#14686), which long-running agent sessions that prune
@@ -167,12 +167,12 @@ zero plateau growth. The format added about 16 KiB to each artifact.
 
 The September 7 pin includes upstream page allocation, default-palette sharing
 and fixed terminal allocation reductions. There is no tagged stable standalone
-libghostty WASM release in the inspected release list; LosOS still builds its
+libghostty WASM release in the inspected release list; Bubble still builds its
 adapted bridge from an exact source revision, rather than consuming the nightly
 artifact or treating Ghostty's application version as a stable library ABI.
 
 The update alone saved only one 64 KiB WASM page across 20 blank 120x40 models.
-With LosOS's lazy presentation arrays, the identical workload uses 10,878,976
+With Bubble's lazy presentation arrays, the identical workload uses 10,878,976
 bytes instead of 16,187,392 bytes at `0e3fae9`, a 5,308,416-byte reduction.
 Isolated per-artifact row-edit, scrolling and OSC microbenchmarks were within
 roughly 2% of baseline; this is not evidence of an application CPU speedup.

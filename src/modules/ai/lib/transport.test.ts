@@ -59,16 +59,42 @@ describe("automatic project memory", () => {
   });
 
   it("passes ordinary memory bytes and rechecks the next turn", async () => {
-    native.canonicalize.mockResolvedValue("/repo-normal/LOSOS.md");
+    native.canonicalize.mockImplementation(async (path: string) => path);
     native.readProjectMemory.mockResolvedValue("project instructions");
     expect(await send("/repo-normal")).toBe("project instructions");
     expect(native.readProjectMemory).toHaveBeenCalledWith(
       "/repo-normal",
-      "/repo-normal/LOSOS.md",
+      "/repo-normal/BUBBLE.md",
       { kind: "local" },
     );
     native.canonicalize.mockResolvedValue("/repo-normal/.env");
     expect(await send("/repo-normal")).toBeNull();
+  });
+
+  it("prefers BUBBLE.md over the legacy LOSOS.md", async () => {
+    native.canonicalize.mockImplementation(async (path: string) => path);
+    native.readProjectMemory.mockResolvedValue("current instructions");
+    expect(await send("/repo-current")).toBe("current instructions");
+    expect(native.readProjectMemory).toHaveBeenCalledTimes(1);
+    expect(native.readProjectMemory).toHaveBeenCalledWith(
+      "/repo-current",
+      "/repo-current/BUBBLE.md",
+      { kind: "local" },
+    );
+  });
+
+  it("falls back to the legacy LOSOS.md when BUBBLE.md is missing", async () => {
+    native.canonicalize.mockImplementation(async (path: string) => {
+      if (path.endsWith("/BUBBLE.md")) throw new Error("missing");
+      return path;
+    });
+    native.readProjectMemory.mockResolvedValue("legacy instructions");
+    expect(await send("/repo-legacy")).toBe("legacy instructions");
+    expect(native.readProjectMemory).toHaveBeenCalledWith(
+      "/repo-legacy",
+      "/repo-legacy/LOSOS.md",
+      { kind: "local" },
+    );
   });
 
   it("fails closed if canonicalization fails", async () => {
@@ -84,13 +110,13 @@ it("keeps the captured workspace when it changes during canonicalization", async
   currentWorkspaceEnv.mockReturnValue({ kind: "local" });
   native.canonicalize.mockImplementation(async () => {
     currentWorkspaceEnv.mockReturnValue({ kind: "wsl" });
-    return "/repo-switch/LOSOS.md";
+    return "/repo-switch/BUBBLE.md";
   });
   native.readProjectMemory.mockResolvedValue("original workspace");
   expect(await send("/repo-switch")).toBe("original workspace");
   expect(native.readProjectMemory).toHaveBeenLastCalledWith(
     "/repo-switch",
-    "/repo-switch/LOSOS.md",
+    "/repo-switch/BUBBLE.md",
     { kind: "local" },
   );
 });

@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 import { AdaptedGhosttyTerminalModel } from "@/modules/terminal/ghostty/AdaptedGhosttyTerminalModel";
 import { describe, expect, it, vi } from "vitest";
 import type {
@@ -65,7 +65,7 @@ describe("terminal selection pointer ownership", () => {
         import.meta.url,
       ),
     );
-    const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+    const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const model = new AdaptedGhosttyTerminalModel(core, {
       backend: "ghostty-webgpu",
       cols: 120,
@@ -111,7 +111,7 @@ describe("terminal selection pointer ownership", () => {
         import.meta.url,
       ),
     );
-    const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+    const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const model = new AdaptedGhosttyTerminalModel(core, {
       backend: "ghostty-webgpu",
       cols: 80,
@@ -151,7 +151,7 @@ describe("terminal selection pointer ownership", () => {
         import.meta.url,
       ),
     );
-    const core = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+    const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const model = new AdaptedGhosttyTerminalModel(core, {
       backend: "ghostty-webgpu",
       cols: 80,

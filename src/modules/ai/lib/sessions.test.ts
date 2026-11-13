@@ -85,12 +85,16 @@ describe("deriveTitle", () => {
       id: "m2",
       role: "user",
       parts: [
-        { type: "file" as const, url: "file:///b.txt", mediaType: "text/plain" },
+        {
+          type: "file" as const,
+          url: "file:///b.txt",
+          mediaType: "text/plain",
+        },
         { type: "text", text: "second question" },
       ],
     } as unknown as UIMessage;
-    expect(
-      deriveTitle([message("first question"), second]),
-    ).toBe("first question");
+    expect(deriveTitle([message("first question"), second])).toBe(
+      "first question",
+    );
   });
 });

@@ -152,7 +152,9 @@ export const PreviewPane = forwardRef<PreviewPaneHandle, Props>(
           }
         >
           {url && !allowed ? (
-            <p className="p-4 text-sm text-destructive">This URL cannot be loaded in preview.</p>
+            <p className="p-4 text-sm text-destructive">
+              This URL cannot be loaded in preview.
+            </p>
           ) : url ? (
             loaded ? (
               <iframe

@@ -58,15 +58,16 @@ export const SearchInline = forwardRef<SearchInlineHandle, Props>(
     }, []);
 
     const userShortcuts = usePreferencesStore((s) => s.shortcuts);
+    const leaderKey = usePreferencesStore((s) => s.leaderKey);
 
     const shortcutText = useMemo(() => {
       const s = SHORTCUTS.find((s) => s.id === "search.focus");
       if (!s) return "";
       const bindings = userShortcuts["search.focus"] || s.defaultBindings;
       if (!bindings || bindings.length === 0) return "";
-      const tokens = getBindingTokens(bindings[0]);
+      const tokens = getBindingTokens(bindings[0], leaderKey);
       return tokens.join(KEY_SEP);
-    }, [userShortcuts]);
+    }, [userShortcuts, leaderKey]);
 
     const baseLabel = target?.kind === "git-history" ? "Git search" : "Search";
 

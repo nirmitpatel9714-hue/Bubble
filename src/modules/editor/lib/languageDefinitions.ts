@@ -472,7 +472,7 @@ export const LANGUAGES: LanguageDefinition[] = [
       ),
   },
   {
-    name: "LosOS Theme",
+    name: "Bubble Theme",
     extensions: ["losos-theme"],
     loader: async () => {
       const [{ json }, { colorSwatches }] = await Promise.all([

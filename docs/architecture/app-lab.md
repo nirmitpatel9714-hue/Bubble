@@ -1,6 +1,6 @@
 # App lab: resource benchmark of the real application
 
-`scripts/app-lab` measures the **real** LosOS app (full React shell, real PTYs, real
+`scripts/app-lab` measures the **real** Bubble app (full React shell, real PTYs, real
 tabs and splits, real window, the release profile users run) instead of the synthetic
 renderer in `scripts/renderer-profile`. It exists because the renderer lab did not reproduce
 what the user sees every day: memory that jumps on every tab switch and does not come back.
@@ -79,7 +79,7 @@ backing size, so none is ever resized).
 
 ## Isolation
 
-The bundle is `LosOS App Lab.app` with the identifier `app.losos.app-lab`, launched with
+The bundle is `Bubble App Lab.app` with the identifier `app.losos.app-lab`, launched with
 its own `HOME` (so the control-server descriptor, shell-integration files and history never touch
 the real user's) and `LOSOS_BENCH_ISOLATED=1`. The bench binary refuses to start under the product
 identifier or without that variable (`modules/bench.rs::guard`, unit tested), and the profile

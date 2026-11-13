@@ -1,13 +1,13 @@
 import { readFile } from "node:fs/promises";
 import {
-  LosOSGhostty,
-  type LosOSGhosttyRenderState,
-  type LosOSGhosttyTerminal,
+  BubbleGhostty,
+  type BubbleGhosttyRenderState,
+  type BubbleGhosttyTerminal,
 } from "@losos/ghostty-core/adapted";
 import { afterAll, beforeAll, bench, describe } from "vitest";
 
 const artifacts = ["ghostty-vt.wasm", "ghostty-vt-scalar.wasm"];
-const terminals: LosOSGhosttyTerminal[] = [];
+const terminals: BubbleGhosttyTerminal[] = [];
 const streamingUpdate = new TextEncoder().encode(
   Array.from(
     { length: 1_024 },
@@ -46,11 +46,11 @@ const inkTicks = INK_SPINNER.map((spinner) => {
 });
 
 type InkTerminals = {
-  readonly parseOnly: LosOSGhosttyTerminal;
-  readonly soa: LosOSGhosttyTerminal;
-  readonly gpu: LosOSGhosttyTerminal;
-  readonly scrollSoa: LosOSGhosttyTerminal;
-  readonly scrollGpu: LosOSGhosttyTerminal;
+  readonly parseOnly: BubbleGhosttyTerminal;
+  readonly soa: BubbleGhosttyTerminal;
+  readonly gpu: BubbleGhosttyTerminal;
+  readonly scrollSoa: BubbleGhosttyTerminal;
+  readonly scrollGpu: BubbleGhosttyTerminal;
 };
 // A streaming log: one new line per tick scrolls the whole viewport.
 const scrollLines = Array.from({ length: 64 }, (_, line) =>
@@ -67,7 +67,7 @@ let inkTick = 0;
  * and a 64-byte instance written for every cell, blank or not.
  */
 const packScratch = new Uint32Array(16);
-function packLikeBuildRows(state: LosOSGhosttyRenderState): number {
+function packLikeBuildRows(state: BubbleGhosttyRenderState): number {
   let checksum = 0;
   const { cols } = state;
   for (let row = 0; row < state.rows; row += 1) {
@@ -113,7 +113,9 @@ beforeAll(async () => {
         import.meta.url,
       ),
     );
-    const ghostty = await LosOSGhostty.loadBytes(Uint8Array.from(bytes).buffer);
+    const ghostty = await BubbleGhostty.loadBytes(
+      Uint8Array.from(bytes).buffer,
+    );
     terminals.push(
       ghostty.createTerminal(120, 40, {
         maxScrollbackBytes: 8 * 1024 * 1024,

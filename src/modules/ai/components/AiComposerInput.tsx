@@ -257,7 +257,7 @@ export function AiComposerInput() {
                   c.submit();
                 }
               }}
-              placeholder="Ask LosOS anything   -   # for snippets and commands, @ for files"
+              placeholder="Ask Bubble anything   -   # for snippets and commands, @ for files"
               rows={1}
               className={cn(
                 "max-h-40 flex-1 resize-none bg-transparent text-[13px] leading-relaxed outline-none",
@@ -288,10 +288,10 @@ export function AiComposerInput() {
       </Popover>
 
       {voiceRow.mounted && (
-        <div data-state={voiceRow.state} className="losos-reveal">
+        <div data-state={voiceRow.state} className="bubble-reveal">
           <div className="flex items-center gap-1.5 px-1 text-[11px] text-muted-foreground">
             {c.voice.recording ? (
-              <span className="size-1.5 losos-blink rounded-full bg-destructive" />
+              <span className="size-1.5 bubble-blink rounded-full bg-destructive" />
             ) : (
               <Spinner className="size-3" />
             )}

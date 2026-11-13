@@ -1,13 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { beforeAll, describe, expect, it } from "vitest";
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 
 const bytes = (text: string) => new TextEncoder().encode(text);
 
 describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
   "parser-time prompt markers (%s)",
   (artifact) => {
-    let core: LosOSGhostty;
+    let core: BubbleGhostty;
     beforeAll(async () => {
       const file = await readFile(
         new URL(
@@ -15,7 +15,7 @@ describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
           import.meta.url,
         ),
       );
-      core = await LosOSGhostty.loadBytes(Uint8Array.from(file).buffer);
+      core = await BubbleGhostty.loadBytes(Uint8Array.from(file).buffer);
     });
 
     function markers(chunks: string[]) {

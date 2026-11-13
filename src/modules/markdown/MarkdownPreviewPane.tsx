@@ -2,13 +2,7 @@ import { MarkdownCode } from "@/components/ai-elements/markdown-code";
 import { checkReadable } from "@/modules/ai/lib/security";
 import { cn } from "@/lib/utils";
 import { useAssetGrant } from "@/lib/useAssetGrant";
-import {
-  memo,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { memo, useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import { defaultRehypePlugins, Streamdown } from "streamdown";
 import { previewBoundary, rehypeLocalImages } from "./lib/assetPath";
 import { MarkdownLink } from "./MarkdownLink";
@@ -106,7 +100,11 @@ const MarkdownBody = memo(function MarkdownBody({
   boundary: string;
   content: string;
 }) {
-  const { urlFor: assetUrlFor, error: assetError, retry } = useAssetGrant(boundary);
+  const {
+    urlFor: assetUrlFor,
+    error: assetError,
+    retry,
+  } = useAssetGrant(boundary);
   const rehypePlugins = useMemo(() => {
     const d = defaultRehypePlugins;
     return [
@@ -122,16 +120,23 @@ const MarkdownBody = memo(function MarkdownBody({
 
   return (
     <>
-    {assetError && <div className="mb-3 text-xs text-muted-foreground"><p role="alert">Local images unavailable: {assetError}</p><button type="button" className="underline" onClick={retry}>Retry images</button></div>}
-    <Streamdown
-      className="select-text [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-      components={components}
-      rehypePlugins={rehypePlugins}
-      mode="static"
-      parseIncompleteMarkdown={false}
-    >
-      {content}
-    </Streamdown>
+      {assetError && (
+        <div className="mb-3 text-xs text-muted-foreground">
+          <p role="alert">Local images unavailable: {assetError}</p>
+          <button type="button" className="underline" onClick={retry}>
+            Retry images
+          </button>
+        </div>
+      )}
+      <Streamdown
+        className="select-text [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+        components={components}
+        rehypePlugins={rehypePlugins}
+        mode="static"
+        parseIncompleteMarkdown={false}
+      >
+        {content}
+      </Streamdown>
     </>
   );
 });

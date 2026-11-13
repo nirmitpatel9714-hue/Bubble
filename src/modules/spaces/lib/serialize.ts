@@ -15,7 +15,7 @@ type SerializedNode =
   | { kind: "leaf"; cwd?: string; active?: boolean }
   | { kind: "split"; dir: SplitDir; children: SerializedNode[] };
 
-export type SerializedTab =
+export type SerializedTab = (
   | {
       kind: "terminal";
       tree: SerializedNode;
@@ -24,7 +24,8 @@ export type SerializedTab =
     }
   | { kind: "editor"; path: string }
   | { kind: "preview"; url: string }
-  | { kind: "markdown"; path: string };
+  | { kind: "markdown"; path: string }
+) & { tiled?: boolean };
 
 function basename(path: string): string {
   const parts = path.split(/[\\/]/).filter(Boolean);
@@ -69,20 +70,22 @@ export function isSerializableTab(tab: Tab): boolean {
 
 function serializeTab(tab: Tab): SerializedTab | null {
   if (!isSerializableTab(tab)) return null;
+  const tiled = tab.tiled ? { tiled: true as const } : {};
   switch (tab.kind) {
     case "terminal":
       return {
+        ...tiled,
         kind: "terminal",
         tree: serializeNode(tab.paneTree, tab.activeLeafId),
         ...(tab.blocks && { blocks: true }),
         ...(tab.customTitle !== undefined && { customTitle: tab.customTitle }),
       };
     case "editor":
-      return { kind: "editor", path: tab.path };
+      return { ...tiled, kind: "editor", path: tab.path };
     case "preview":
-      return { kind: "preview", url: tab.url };
+      return { ...tiled, kind: "preview", url: tab.url };
     case "markdown":
-      return { kind: "markdown", path: tab.path };
+      return { ...tiled, kind: "markdown", path: tab.path };
     default:
       return null;
   }
@@ -146,6 +149,7 @@ function hydrateTab(
   spaceId: string,
   allocId: () => number,
 ): Tab | null {
+  const tiled = s.tiled ? { tiled: true as const } : {};
   switch (s.kind) {
     case "terminal": {
       const { tree, activeLeafId, firstLeafCwd } = hydrateTree(s.tree, allocId);
@@ -153,6 +157,7 @@ function hydrateTab(
         s.customTitle ??
         (firstLeafCwd ? basename(firstLeafCwd) : s.blocks ? "blocks" : "shell");
       return {
+        ...tiled,
         id: allocId(),
         kind: "terminal",
         spaceId,
@@ -167,6 +172,7 @@ function hydrateTab(
     }
     case "editor":
       return {
+        ...tiled,
         id: allocId(),
         kind: "editor",
         spaceId,
@@ -178,6 +184,7 @@ function hydrateTab(
       } satisfies EditorTab;
     case "preview":
       return {
+        ...tiled,
         id: allocId(),
         kind: "preview",
         spaceId,
@@ -187,6 +194,7 @@ function hydrateTab(
       } satisfies PreviewTab;
     case "markdown":
       return {
+        ...tiled,
         id: allocId(),
         kind: "markdown",
         spaceId,

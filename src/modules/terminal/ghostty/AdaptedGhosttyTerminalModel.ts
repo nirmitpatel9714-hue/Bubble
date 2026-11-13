@@ -8,11 +8,11 @@ import type {
   TerminalRowRange,
 } from "@/modules/terminal/backend/contracts";
 import type {
-  LosOSGhostty,
-  LosOSGhosttyGpuRenderState,
-  LosOSGhosttyRenderBase,
-  LosOSGhosttyRenderState,
-  LosOSGhosttyTerminal,
+  BubbleGhostty,
+  BubbleGhosttyGpuRenderState,
+  BubbleGhosttyRenderBase,
+  BubbleGhosttyRenderState,
+  BubbleGhosttyTerminal,
 } from "@losos/ghostty-core/adapted";
 import type {
   GhosttyTerminalConfig,
@@ -78,7 +78,7 @@ type AdaptedGhosttyTerminalModelOptions = GhosttyTerminalModelOptions & {
 };
 
 /**
- * LosOS-owned model adapter for the current Ghostty terminal and render-state
+ * Bubble-owned model adapter for the current Ghostty terminal and render-state
  * implementation. The terminal model is independent from GPU surfaces so it
  * survives RendererPool lease release and keeps parsing hidden-tab output.
  *
@@ -91,7 +91,7 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
   /** Scrollback bytes the configuration asks for, before the global budget. */
   readonly requestedScrollbackBytes: number;
 
-  private readonly terminal: LosOSGhosttyTerminal;
+  private readonly terminal: BubbleGhosttyTerminal;
   private blockMatch: { line: number; col: number; len: number } | null = null;
   private readonly directCellReader = new GhosttyRenderCellView();
   private readonly damageListeners = new Set<() => void>();
@@ -99,8 +99,8 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
   private eventSink: ((event: GhosttyTerminalEvent) => void) | null;
   private onDispose: (() => void) | null;
   private pendingDamage: TerminalDamage = FULL_DAMAGE;
-  private renderState: LosOSGhosttyRenderState | null = null;
-  private gpuState: LosOSGhosttyGpuRenderState | null = null;
+  private renderState: BubbleGhosttyRenderState | null = null;
+  private gpuState: BubbleGhosttyGpuRenderState | null = null;
   private renderFormatValue: GhosttyRenderFormat = "soa";
   /** Record changes (GPU format) accumulated across updates since the last frame. */
   private pendingCellDamage: TerminalDamage = FULL_DAMAGE;
@@ -128,7 +128,7 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
   private disposed = false;
 
   constructor(
-    ghostty: LosOSGhostty,
+    ghostty: BubbleGhostty,
     options: AdaptedGhosttyTerminalModelOptions,
   ) {
     validateDimensions(options.cols, options.rows);
@@ -846,13 +846,13 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
   }
 
   /** Render state in whichever format the model currently produces. */
-  private ensureCurrentState(): LosOSGhosttyRenderBase {
+  private ensureCurrentState(): BubbleGhosttyRenderBase {
     return this.renderFormatValue === "gpu"
       ? this.ensureGpuState()
       : this.ensureRenderState();
   }
 
-  private ensureRenderState(): LosOSGhosttyRenderState {
+  private ensureRenderState(): BubbleGhosttyRenderState {
     if (this.renderFormatValue !== "soa") this.switchRenderFormat("soa");
     const state = this.renderState;
     if (
@@ -879,7 +879,7 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
     return current;
   }
 
-  private ensureGpuState(): LosOSGhosttyGpuRenderState {
+  private ensureGpuState(): BubbleGhosttyGpuRenderState {
     if (this.renderFormatValue !== "gpu") this.switchRenderFormat("gpu");
     const state = this.gpuState;
     if (!this.renderStateCurrent || !state) {
@@ -923,7 +923,7 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
     this.renderStateCurrent = false;
   }
 
-  private packRenderState(state: LosOSGhosttyRenderState): void {
+  private packRenderState(state: BubbleGhosttyRenderState): void {
     const byteLength = state.cellCount * CELL_STRIDE;
     if (this.packedViewport.byteLength !== byteLength) {
       this.packedViewport = new Uint8Array(byteLength);
@@ -1032,13 +1032,13 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
 }
 
 class GhosttyRenderCellView implements TerminalCellReader {
-  private state: LosOSGhosttyRenderState | null = null;
+  private state: BubbleGhosttyRenderState | null = null;
 
   get length(): number {
     return this.current().cellCount;
   }
 
-  update(state: LosOSGhosttyRenderState): void {
+  update(state: BubbleGhosttyRenderState): void {
     this.state = state;
   }
 
@@ -1103,7 +1103,7 @@ class GhosttyRenderCellView implements TerminalCellReader {
     return packedRgb(this.current().backgroundRgba, index * 4);
   }
 
-  private current(): LosOSGhosttyRenderState {
+  private current(): BubbleGhosttyRenderState {
     if (!this.state) throw new Error("Ghostty render cells are unavailable");
     return this.state;
   }
@@ -1149,7 +1149,7 @@ function encodePalette(palette: readonly number[]): Uint8Array {
   return colors;
 }
 
-function damageFromRenderState(state: LosOSGhosttyRenderBase): TerminalDamage {
+function damageFromRenderState(state: BubbleGhosttyRenderBase): TerminalDamage {
   if (state.fullDamage) return FULL_DAMAGE;
   const ranges: TerminalRowRange[] = [];
   let first = -1;

@@ -62,6 +62,7 @@ import { setShowHidden } from "@/modules/settings/store";
 import {
   type ShortcutHandlers,
   type ShortcutId,
+  LeaderHud,
   shouldDisableAskSelection,
   shouldDisablePaneSwapShortcut,
   tabDigit,
@@ -83,6 +84,7 @@ import {
   useSpacePersistence,
   useSpaces,
   useSpacesBoot,
+  WorkspacesBar,
 } from "@/modules/spaces";
 import { StatusBar } from "@/modules/statusbar";
 import {
@@ -190,11 +192,11 @@ export default function App() {
     closeAiDiffTab,
     openGitDiffTab,
     openCommitHistoryTab,
-    openAgentsDashboard,
     openCommitFileDiffTab,
     closeTab,
     closeTabs,
     updateTab,
+    setTabTiled,
     selectByIndex,
     setLeafCwd,
     focusPane,
@@ -500,7 +502,7 @@ export default function App() {
   }, [activeId]);
 
   // Most-recently-used tab ids, most recent first, pruned to live tabs. Drives
-  // the Ctrl+Tab quick switcher so it cycles by recency, not strip order.
+  // the leader+Tab quick switcher so it cycles by recency, not strip order.
   const mruRef = useRef<number[]>([activeId]);
   useEffect(() => {
     mruRef.current = [
@@ -576,7 +578,7 @@ export default function App() {
       // Dispatch a window event the composer listens for. Same pattern as
       // selections — keeps file-explorer decoupled from the AI module.
       window.dispatchEvent(
-        new CustomEvent<string>("losos:ai-attach-file", { detail: path }),
+        new CustomEvent<string>("bubble:ai-attach-file", { detail: path }),
       );
       openPanel();
       focusInput(null);
@@ -677,7 +679,7 @@ export default function App() {
         }
         toast("Terminal is busy", {
           description:
-            "Open a new tab to go there, or exit the running program.",
+            "Open a new window to go there, or exit the running program.",
         });
       });
     },
@@ -724,7 +726,7 @@ export default function App() {
     let unlisten: (() => void) | undefined;
     let disposed = false;
     (async () => {
-      const off = await listen<string[]>("losos:open-file", (e) => {
+      const off = await listen<string[]>("bubble:open-file", (e) => {
         openLaunchFiles(e.payload);
       });
       if (disposed) off();
@@ -899,6 +901,11 @@ export default function App() {
 
   const [zenMode, setZenMode] = useState(false);
 
+  const toggleTiling = useCallback(() => {
+    if (!activeTab) return;
+    setTabTiled(activeTab.id, !activeTab.tiled);
+  }, [activeTab, setTabTiled]);
+
   // Focus an agent's tab, switching to its space first so the header and tab
   // strip don't end up showing a different space than the focused pane.
   const activateAgentTarget = useCallback(
@@ -931,6 +938,7 @@ export default function App() {
           (tabDigit(e, e.shiftKey) ?? 1) - 1,
           activeSpaceId ?? DEFAULT_SPACE_ID,
         ),
+      "tiling.toggle": toggleTiling,
       "space.next": () => cycleSpace(1),
       "space.prev": () => cycleSpace(-1),
       "space.overview": () => setSwitcherOpen(true),
@@ -968,7 +976,6 @@ export default function App() {
         const t = nextAttentionTarget();
         if (t) activateAgentTarget(t.tabId, t.leafId);
       },
-      "agent.dashboard": openAgentsDashboard,
       "settings.open": () => void openSettingsWindow(),
       "sidebar.toggle": toggleSidebar,
       "explorer.focus": toggleExplorerFocus,
@@ -999,6 +1006,7 @@ export default function App() {
       openPreviewTab,
       activeSpaceId,
       selectByIndex,
+      toggleTiling,
       splitActivePaneInActiveTab,
       focusNextPaneInTab,
       swapActivePane,
@@ -1014,7 +1022,6 @@ export default function App() {
       zoomOut,
       zoomReset,
       activateAgentTarget,
-      openAgentsDashboard,
     ],
   );
 
@@ -1044,8 +1051,9 @@ export default function App() {
         );
       }
       if (id === "terminal.clear") {
-        // Only intercept ⌘K while a terminal is focused; elsewhere let the key
-        // fall through (we never preventDefault when disabled).
+        // Only intercept the terminal's leader chord while a terminal is
+        // focused; elsewhere let the chord fall through (we never
+        // preventDefault when disabled).
         const target =
           (e.target as HTMLElement | null) ?? document.activeElement;
         return !isTerminalSurfaceTarget(target);
@@ -1056,17 +1064,6 @@ export default function App() {
         id === "blocks.next"
       ) {
         return !(activeTab?.kind === "terminal" && activeTab.blocks === true);
-      }
-      if (id === "sidebar.toggle") {
-        // Ctrl+B is also Claude Code's "run in background" key. While a terminal
-        // is focused, let Ctrl+B reach the shell/Claude instead of toggling the
-        // sidebar. Ctrl+Shift+B (second binding) still toggles it from anywhere.
-        const target =
-          (e.target as HTMLElement | null) ?? document.activeElement;
-        const inTerminal = isTerminalSurfaceTarget(target);
-        // Only defer the plain (no-shift) Ctrl/⌘+B binding; the Shift variant
-        // is the always-on toggle and is never claimed by the terminal.
-        return inTerminal && !e.shiftKey;
       }
       return false;
     },
@@ -1272,6 +1269,8 @@ export default function App() {
     [setActiveId],
   );
 
+  const workspacesBar = <WorkspacesBar tabs={tabs} />;
+
   const spaceSwitcher = (
     <SpaceSwitcher
       open={switcherOpen}
@@ -1303,7 +1302,6 @@ export default function App() {
             openNewEditor: () => setNewEditorOpen(true),
             openNewPreview: () => openPreviewTab(""),
             openGitGraph: openGitGraphFromContext,
-            openAgentsDashboard: openAgentsDashboard,
             toggleSourceControl,
             closeActiveTabOrPane: handleCloseTabOrPane,
             splitPaneRight: () => splitActivePaneInActiveTab("row"),
@@ -1335,7 +1333,6 @@ export default function App() {
       openNewPrivateTab,
       openPreviewTab,
       openGitGraphFromContext,
-      openAgentsDashboard,
       toggleSourceControl,
       handleCloseTabOrPane,
       splitActivePaneInActiveTab,
@@ -1479,9 +1476,14 @@ export default function App() {
               onPin={pinTab}
               onRename={handleRenameTab}
               onReorder={reorderTabByGap}
+              onToggleTiled={(id) => {
+                const tab = tabsRef.current.find((t) => t.id === id);
+                if (tab) setTabTiled(id, !tab.tiled);
+              }}
               onToggleSidebar={toggleSidebar}
               onOpenCommandPalette={() => openCommandPalette("commands")}
               onOpenSettings={() => void openSettingsWindow()}
+              workspacesBar={workspacesBar}
               spaceSwitcher={spaceSwitcher}
               searchTarget={searchTarget}
               searchRef={searchInlineRef}
@@ -1515,10 +1517,10 @@ export default function App() {
                 }}
               >
                 <div className="h-full min-h-0 pl-2 pr-0.5">
-                  <div className="losos-pane flex h-full min-h-0 flex-col">
+                  <div className="bubble-pane flex h-full min-h-0 flex-col">
                     <div
                       key={sidebarView}
-                      className="min-h-0 flex-1 losos-panel-in"
+                      className="min-h-0 flex-1 bubble-panel-in"
                     >
                       {sidebarView === "explorer" ? (
                         <FileExplorer
@@ -1546,7 +1548,6 @@ export default function App() {
                           onActivate={onActivateAgent}
                           onActivateLocal={onActivateLocalAgent}
                           visible={!sidebarCollapsed}
-                          onOpenDashboard={openAgentsDashboard}
                         />
                       ) : (
                         <SourceControlPanel
@@ -1575,12 +1576,13 @@ export default function App() {
               <ResizableHandle className="w-1 rounded-full bg-transparent transition-colors duration-[var(--dur-fast)] after:w-4 hover:bg-border" />
               <ResizablePanel id="workspace" defaultSize="78%" minSize="30%">
                 <div className="h-full min-h-0 pl-0.5 pr-2">
-                  <div className="losos-pane flex h-full min-h-0 flex-col">
+                  <div className="bubble-pane flex h-full min-h-0 flex-col">
                     <div className="relative min-h-0 flex-1">
                       <WorkspaceSurface
                         tabs={tabs}
                         activeId={activeId}
                         activeTab={activeTab}
+                        onActivateTab={setActiveId}
                         registerTerminalHandle={registerTerminalHandle}
                         onSearchReady={handleSearchReady}
                         onCwd={handleTerminalCwd}
@@ -1596,8 +1598,6 @@ export default function App() {
                         onOpenCommitFile={openCommitFileDiffTab}
                         onGitHistorySearchHandle={setGitHistoryHandle}
                         onSetMarkdownView={setMarkdownView}
-                        onActivateAgent={onActivateAgent}
-                        onActivateLocalAgent={onActivateLocalAgent}
                       />
                     </div>
 
@@ -1675,6 +1675,8 @@ export default function App() {
           {switcherState && (
             <TabSwitcherHud tabs={spaceTabs} state={switcherState} />
           )}
+
+          <LeaderHud />
 
           <CommandPalette
             open={commandPaletteOpen}

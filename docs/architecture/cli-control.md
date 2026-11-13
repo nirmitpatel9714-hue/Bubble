@@ -1,10 +1,10 @@
 # CLI control plane
 
-This guide elaborates on `LOSOS.md`. If anything here conflicts with `LOSOS.md`, `LOSOS.md` wins.
+This guide elaborates on `BUBBLE.md`. If anything here conflicts with `BUBBLE.md`, `BUBBLE.md` wins.
 
 ## Current surface
 
-LosOS bundles a small Rust client internally named `losos-cli`. Native terminal panes expose it as the public `losos` command:
+Bubble bundles a small Rust client internally named `losos-cli`. Native terminal panes expose it as the public `losos` command:
 
 ```text
 losos <file> [--line <n>] [--no-focus] [--json]
@@ -15,9 +15,9 @@ losos identify [--json]
 losos hook <agent> <event>
 ```
 
-The app must already be running. A command launched inside a LosOS pane targets that pane's space, even if another space or tab has UI focus. An external client without pane context falls back to the active UI context.
+The app must already be running. A command launched inside a Bubble pane targets that pane's space, even if another space or tab has UI focus. An external client without pane context falls back to the active UI context.
 
-`losos hook` is the entry point agent hooks call. It reads the hook JSON from stdin and delivers it with `LOSOS_PANE_ID`. It does nothing outside a LosOS pane, never exits non-zero, and prints `{}` unless it is returning a permission decision. `LOSOS_HOOK_TIMEOUT` (seconds, default 600, at most 900) bounds how long it waits for a decision, `LOSOS_HOOK_WAIT=0` disables waiting, and `LOSOS_HOOK_DEBUG=1` prints why a delivery failed to stderr.
+`losos hook` is the entry point agent hooks call. It reads the hook JSON from stdin and delivers it with `LOSOS_PANE_ID`. It does nothing outside a Bubble pane, never exits non-zero, and prints `{}` unless it is returning a permission decision. `LOSOS_HOOK_TIMEOUT` (seconds, default 600, at most 900) bounds how long it waits for a decision, `LOSOS_HOOK_WAIT=0` disables waiting, and `LOSOS_HOOK_DEBUG=1` prints why a delivery failed to stderr.
 
 ## Components
 
@@ -42,18 +42,18 @@ Security properties:
 - Messages are newline-delimited JSON and capped at 64 KiB.
 - Request ids are bounded and restricted to log-safe ASCII.
 - Connections and pending UI requests are capped at 32, with bounded read, write, and UI response timeouts.
-- The CLI verifies that a cache descriptor still names a live LosOS process before sending its token.
+- The CLI verifies that a cache descriptor still names a live Bubble process before sending its token.
 - A hook names its pane in the caller context. The pane must belong to a live PTY, hook payloads are trimmed by the CLI (at most 40 KiB, 1 MiB read from stdin) and re-bounded by the adapters, and tool and subagent events are rate limited per pane.
 - A hook that waits for a permission decision is answered twice: an interim result with `held: true` right away, then the decision. The CLI waits about two seconds for the first answer and extends the wait only after `held`, so a dead or foreign endpoint never costs the decision wait.
 - A held hook keeps its connection for at most 15 minutes, no more than four per pane and sixteen overall. It is released immediately when the pane's window has not announced decision support, and cancelled when the agent disconnects, the pane closes, or that window withdraws or reloads its page (support is tracked per window and cleared on page load). Request ids are random and only the requesting connection learns them.
 - File paths are canonicalized and required to reference a regular file inside an authorized workspace before the editor is opened.
 - The descriptor is removed only when it still belongs to the exiting process, so an older instance cannot delete a newer instance's endpoint.
 
-The token is injected into LosOS-spawned native shells together with `LOSOS_PANE_ID`. Child coding agents inherit the caller context intentionally, which gives them the same local UI-control capability as the terminal that launched them. Tokens must never be logged or added to command output.
+The token is injected into Bubble-spawned native shells together with `LOSOS_PANE_ID`. Child coding agents inherit the caller context intentionally, which gives them the same local UI-control capability as the terminal that launched them. Tokens must never be logged or added to command output.
 
 ## Command discovery inside a PTY
 
-The packaged helper is named `losos-cli` because a macOS app bundle places sidecars beside the GUI executable, which is already named `losos`. At app startup LosOS creates a user-private, per-process `bin/losos` hard link to the packaged helper, falling back to a symlink on Unix or a copy on Windows. That directory is prepended to the PTY `PATH`.
+The packaged helper is named `losos-cli` because a macOS app bundle places sidecars beside the GUI executable, which is already named `losos`. At app startup Bubble creates a user-private, per-process `bin/losos` hard link to the packaged helper, falling back to a symlink on Unix or a copy on Windows. That directory is prepended to the PTY `PATH`.
 
 Existing Bash, Zsh, Fish, and PowerShell integration also defines an interactive `losos` function that executes `$LOSOS_CLI`. The real PATH entry is still required because non-interactive child shells do not reliably inherit shell functions.
 
@@ -68,8 +68,8 @@ The release profile uses one codegen unit, fat LTO, size optimization, abort-on-
 ## Current limits
 
 - WSL panes do not receive the control credentials or CLI launcher yet. Windows path translation and WSL networking must be implemented and tested together.
-- LosOS does not yet install a global command for external Terminal.app, PowerShell, or other terminals. The bundled helper and cache descriptor already support that future installer step.
-- The CLI does not launch a stopped LosOS app yet.
+- Bubble does not yet install a global command for external Terminal.app, PowerShell, or other terminals. The bundled helper and cache descriptor already support that future installer step.
+- The CLI does not launch a stopped Bubble app yet.
 - Split, tab, screen-read, and input commands are not part of protocol version 1 yet.
 - Agent hooks are inert in WSL panes for the same reason the credentials are not injected there.
 
@@ -86,7 +86,7 @@ These limits are explicit so unsupported paths fail as unavailable instead of si
 
 ## See also
 
-- [`LOSOS.md`](../../LOSOS.md) - architecture source of truth
+- [`BUBBLE.md`](../../BUBBLE.md) - architecture source of truth
 - [Two-process model](two-process-model.md) - Tauri IPC boundary
 - [PTY shell integration](pty-shell-integration.md) - environment injection and shell startup
 - [Security model](security-model.md) - workspace and secret boundaries

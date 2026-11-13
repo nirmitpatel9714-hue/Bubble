@@ -18,6 +18,7 @@ export type ShortcutId =
   | "tab.next"
   | "tab.prev"
   | "tab.selectByIndex"
+  | "tiling.toggle"
   | "space.next"
   | "space.prev"
   | "space.overview"
@@ -46,7 +47,6 @@ export type ShortcutId =
   | "ai.toggleMini"
   | "ai.askSelection"
   | "agent.focusAttention"
-  | "agent.dashboard"
   | "settings.open"
   | "sidebar.toggle"
   | "editor.undo"
@@ -57,8 +57,8 @@ export type ShortcutId =
 
 export type ShortcutGroup =
   | "General"
-  | "Tabs"
-  | "Spaces"
+  | "Workspaces"
+  | "Windows"
   | "Panes"
   | "Terminal"
   | "Search"
@@ -72,6 +72,8 @@ export type KeyBinding = {
   shift?: boolean;
   alt?: boolean;
   meta?: boolean;
+  /** A two-step chord: press the leader, then this key. */
+  leader?: boolean;
 };
 
 export type Shortcut = {
@@ -83,8 +85,8 @@ export type Shortcut = {
 };
 
 // Matching walks this list in order and skips a shortcut its host disables, so
-// terminal.clear stays ahead of commandPalette.open: on macOS ⌘K clears a
-// focused terminal and opens the palette everywhere else.
+// terminal.clear stays ahead of commandPalette.open: leader+Shift+K clears a
+// focused terminal and leader+K opens the palette everywhere else.
 const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   {
     id: "terminal.clear",
@@ -113,33 +115,33 @@ const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   },
   {
     id: "tab.new",
-    label: "New tab",
-    group: "Tabs",
+    label: "New window",
+    group: "Windows",
   },
   {
     id: "tab.newBlock",
     label: "New Blocks terminal",
-    group: "Tabs",
+    group: "Windows",
   },
   {
     id: "tab.newPrivate",
     label: "New private terminal",
-    group: "Tabs",
+    group: "Windows",
   },
   {
     id: "tab.newPreview",
     label: "New web preview",
-    group: "Tabs",
+    group: "Windows",
   },
   {
     id: "tab.newEditor",
-    label: "New editor tab",
-    group: "Tabs",
+    label: "New editor window",
+    group: "Windows",
   },
   {
     id: "tab.close",
-    label: "Close tab or pane",
-    group: "Tabs",
+    label: "Close window or pane",
+    group: "Windows",
   },
   {
     id: "pane.splitRight",
@@ -205,35 +207,40 @@ const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   },
   {
     id: "tab.next",
-    label: "Next tab",
-    group: "Tabs",
+    label: "Next window",
+    group: "Windows",
     allowRepeat: true,
   },
   {
     id: "tab.prev",
-    label: "Previous tab",
-    group: "Tabs",
+    label: "Previous window",
+    group: "Windows",
     allowRepeat: true,
   },
   {
     id: "tab.selectByIndex",
-    label: "Jump to tab 1\u20139",
-    group: "Tabs",
+    label: "Jump to window 1\u20139",
+    group: "Windows",
+  },
+  {
+    id: "tiling.toggle",
+    label: "Toggle tiling for this window",
+    group: "Windows",
   },
   {
     id: "space.next",
-    label: "Next space",
-    group: "Spaces",
+    label: "Next workspace",
+    group: "Workspaces",
   },
   {
     id: "space.prev",
-    label: "Previous space",
-    group: "Spaces",
+    label: "Previous workspace",
+    group: "Workspaces",
   },
   {
     id: "space.overview",
-    label: "Open spaces",
-    group: "Spaces",
+    label: "Open workspaces",
+    group: "Workspaces",
   },
   {
     id: "explorer.search",
@@ -242,7 +249,7 @@ const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   },
   {
     id: "search.focus",
-    label: "Find in tab",
+    label: "Find in window",
     group: "Search",
   },
   {
@@ -263,11 +270,6 @@ const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   {
     id: "agent.focusAttention",
     label: "Jump to agent needing attention",
-    group: "AI",
-  },
-  {
-    id: "agent.dashboard",
-    label: "Open agent dashboard",
     group: "AI",
   },
   {
@@ -346,7 +348,8 @@ export const SHORTCUTS: Shortcut[] = buildShortcuts(IS_MAC);
 
 export const SHORTCUT_GROUPS: ShortcutGroup[] = [
   "General",
-  "Tabs",
+  "Workspaces",
+  "Windows",
   "Panes",
   "Terminal",
   "View",
@@ -416,6 +419,37 @@ export function matchBinding(
   id?: ShortcutId,
   recorded = false,
 ): boolean {
+  // Leader chords are resolved by matchLeaderChord after the leader press.
+  if (binding.leader) return false;
+  return (
+    keyMatches(e, binding, id, recorded) &&
+    !!e.ctrlKey === !!binding.ctrl &&
+    !!e.shiftKey === !!binding.shift &&
+    !!e.altKey === !!binding.alt &&
+    !!e.metaKey === !!binding.meta
+  );
+}
+
+/** True when a key press completes a leader chord (leader already consumed). */
+export function matchLeaderChord(
+  e: KeyboardEvent,
+  binding: KeyBinding,
+  id?: ShortcutId,
+  recorded = false,
+): boolean {
+  if (!binding.leader) return false;
+  // The leader itself is a single non-Alt, non-Super chord.
+  if (e.ctrlKey || e.altKey || e.metaKey) return false;
+  if (!!e.shiftKey !== !!binding.shift) return false;
+  return keyMatches(e, binding, id, recorded);
+}
+
+function keyMatches(
+  e: KeyboardEvent,
+  binding: KeyBinding,
+  id?: ShortcutId,
+  recorded = false,
+): boolean {
   const eventKey = e.key.toLowerCase();
   const bindingKey = binding.key.toLowerCase();
 
@@ -450,19 +484,24 @@ export function matchBinding(
     if (keyFromCode(e.code) !== bindingKey) return false;
   }
 
-  return (
-    !!e.ctrlKey === !!binding.ctrl &&
-    !!e.shiftKey === !!binding.shift &&
-    !!e.altKey === !!binding.alt &&
-    !!e.metaKey === !!binding.meta
-  );
+  return true;
 }
 
 /**
  * Display helpers
  */
-export function getBindingTokens(binding?: KeyBinding): string[] {
-  if (!binding) return [];
+function keyToken(key: string): string {
+  let keyLabel = key;
+  if (keyLabel === " ") keyLabel = "Space";
+  else if (keyLabel === "ArrowUp") keyLabel = "↑";
+  else if (keyLabel === "ArrowDown") keyLabel = "↓";
+  else if (keyLabel === "ArrowLeft") keyLabel = "←";
+  else if (keyLabel === "ArrowRight") keyLabel = "→";
+  else if (keyLabel.length === 1) keyLabel = keyLabel.toUpperCase();
+  return keyLabel;
+}
+
+function modifierTokens(binding: KeyBinding): string[] {
   const tokens: string[] = [];
   if (IS_MAC) {
     if (binding.ctrl) tokens.push("⌃");
@@ -475,15 +514,31 @@ export function getBindingTokens(binding?: KeyBinding): string[] {
     if (binding.shift) tokens.push("Shift");
     if (binding.meta) tokens.push("Win");
   }
-
-  let keyLabel = binding.key;
-  if (keyLabel === " ") keyLabel = "Space";
-  else if (keyLabel === "ArrowUp") keyLabel = "↑";
-  else if (keyLabel === "ArrowDown") keyLabel = "↓";
-  else if (keyLabel === "ArrowLeft") keyLabel = "←";
-  else if (keyLabel === "ArrowRight") keyLabel = "→";
-  else if (keyLabel.length === 1) keyLabel = keyLabel.toUpperCase();
-
-  tokens.push(keyLabel);
   return tokens;
+}
+
+/** The chord part of a leader binding, without the leader prefix. */
+export function getLeaderChordTokens(binding?: KeyBinding): string[] {
+  if (!binding?.leader) return [];
+  const tokens = IS_MAC
+    ? [...(binding.shift ? ["⇧"] : [])]
+    : [...(binding.shift ? ["Shift"] : [])];
+  tokens.push(keyToken(binding.key));
+  return tokens;
+}
+
+/** Display tokens for a binding. Leader bindings show the leader prefix when
+ *  provided, else the generic "Leader" placeholder. */
+export function getBindingTokens(
+  binding?: KeyBinding,
+  leader?: KeyBinding,
+): string[] {
+  if (!binding) return [];
+  if (binding.leader) {
+    const prefix = leader
+      ? modifierTokens(leader).concat(keyToken(leader.key))
+      : ["Leader"];
+    return [...prefix, ...getLeaderChordTokens(binding)];
+  }
+  return [...modifierTokens(binding), keyToken(binding.key)];
 }

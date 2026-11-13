@@ -2,10 +2,9 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 import { AiDiffStack, EditorStack, GitDiffStack } from "@/modules/editor";
 import { GitHistoryStack } from "@/modules/git-history";
-import { AgentDashboardStack } from "@/modules/herdr";
 import { MarkdownStack } from "@/modules/markdown";
 import { PreviewStack } from "@/modules/preview";
-import type { Tab } from "@/modules/tabs";
+import { labelFor, TabIcon, type Tab } from "@/modules/tabs";
 import { TerminalStack } from "@/modules/terminal";
 
 type TerminalStackProps = ComponentProps<typeof TerminalStack>;
@@ -18,6 +17,8 @@ type Props = {
   tabs: Tab[];
   activeId: number;
   activeTab: Tab | undefined;
+  /** Activate a tiled column that the pointer lands on. */
+  onActivateTab: (id: number) => void;
   registerTerminalHandle: TerminalStackProps["registerHandle"];
   onSearchReady: TerminalStackProps["onSearchReady"];
   onCwd: TerminalStackProps["onCwd"];
@@ -33,11 +34,14 @@ type Props = {
   onOpenCommitFile: GitHistoryStackProps["onOpenCommitFile"];
   onGitHistorySearchHandle: GitHistoryStackProps["onSearchHandle"];
   onSetMarkdownView: EditorStackProps["onSetMarkdownView"];
-  onActivateAgent: (tabId: number, leafId: number) => void;
-  onActivateLocalAgent: () => void;
 };
 
 const LAYER = "absolute inset-0";
+
+type SurfaceProps = Omit<Props, "onActivateTab"> & {
+  /** This surface is the app-active window (tiled columns can be inactive). */
+  active?: boolean;
+};
 
 /**
  * Stacks every tab-kind surface absolutely on top of each other and toggles
@@ -47,10 +51,11 @@ const LAYER = "absolute inset-0";
  * Layers sit flush inside the workspace pane; only the terminal layer is inset,
  * because the terminal draws glyphs right up to its container edge.
  */
-export function WorkspaceSurface({
+function TabSurface({
   tabs,
   activeId,
   activeTab,
+  active = true,
   registerTerminalHandle,
   onSearchReady,
   onCwd,
@@ -66,9 +71,7 @@ export function WorkspaceSurface({
   onOpenCommitFile,
   onGitHistorySearchHandle,
   onSetMarkdownView,
-  onActivateAgent,
-  onActivateLocalAgent,
-}: Props) {
+}: SurfaceProps) {
   const kind = activeTab?.kind;
   const isTerminalTab = kind === "terminal";
   const isEditorTab = kind === "editor";
@@ -77,7 +80,6 @@ export function WorkspaceSurface({
   const isAiDiffTab = kind === "ai-diff";
   const isGitDiffTab = kind === "git-diff" || kind === "git-commit-file";
   const isGitHistoryTab = kind === "git-history";
-  const isAgentsTab = kind === "agents";
 
   return (
     <div className="relative h-full min-h-0">
@@ -92,6 +94,7 @@ export function WorkspaceSurface({
         <TerminalStack
           tabs={tabs}
           activeId={activeId}
+          active={active}
           registerHandle={registerTerminalHandle}
           onSearchReady={onSearchReady}
           onCwd={onCwd}
@@ -164,17 +167,97 @@ export function WorkspaceSurface({
           onSearchHandle={onGitHistorySearchHandle}
         />
       </div>
-      <div
-        className={cn(LAYER, !isAgentsTab && "invisible pointer-events-none")}
-        aria-hidden={!isAgentsTab}
-      >
-        <AgentDashboardStack
-          tabs={tabs}
-          activeId={activeId}
-          onActivate={onActivateAgent}
-          onActivateLocal={onActivateLocalAgent}
-        />
+    </div>
+  );
+}
+
+/**
+ * The workspace surface. Normally every tab is stacked and the active one is
+ * visible. When the active tab is tiled, its workspace's tiled tabs render as
+ * equal-width niri-style columns instead; all other tabs stay mounted in a
+ * hidden surface so terminal sessions and editor state survive the switch.
+ */
+export function WorkspaceSurface({
+  tabs,
+  activeId,
+  activeTab,
+  onActivateTab,
+  ...surface
+}: Props) {
+  const tiled =
+    activeTab?.tiled === true
+      ? tabs.filter((t) => t.tiled && t.spaceId === activeTab.spaceId)
+      : [];
+
+  if (tiled.length === 0) {
+    return (
+      <TabSurface
+        tabs={tabs}
+        activeId={activeId}
+        activeTab={activeTab}
+        {...surface}
+      />
+    );
+  }
+
+  const tiledIds = new Set(tiled.map((t) => t.id));
+  const parked = tabs.filter((t) => !tiledIds.has(t.id));
+
+  return (
+    <div className="relative h-full min-h-0">
+      <div className="flex h-full min-h-0 gap-1.5 overflow-x-auto">
+        {tiled.map((tab) => {
+          const isActive = tab.id === activeId;
+          return (
+            <div
+              key={tab.id}
+              data-tiled-tab={tab.id}
+              data-active={isActive}
+              onPointerDown={() => {
+                if (!isActive) onActivateTab(tab.id);
+              }}
+              className={cn(
+                "relative h-full min-w-[280px] flex-1 basis-0 overflow-hidden rounded-lg border bg-background/40 transition-colors",
+                isActive ? "border-primary/50" : "border-border/40",
+              )}
+            >
+              {tab.cold ? (
+                <div className="flex h-full flex-col items-center justify-center gap-2 px-4 text-center">
+                  <TabIcon tab={tab} />
+                  <span className="max-w-full truncate text-xs text-muted-foreground">
+                    {labelFor(tab)}
+                  </span>
+                  <span className="text-[10px] tracking-wide text-muted-foreground/60 uppercase">
+                    Click to load
+                  </span>
+                </div>
+              ) : (
+                <TabSurface
+                  tabs={[tab]}
+                  activeId={tab.id}
+                  activeTab={tab}
+                  active={isActive}
+                  {...surface}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
+      {parked.length > 0 && (
+        <div
+          className="pointer-events-none invisible absolute inset-0"
+          aria-hidden
+        >
+          <TabSurface
+            tabs={parked}
+            activeId={activeId}
+            activeTab={undefined}
+            active={false}
+            {...surface}
+          />
+        </div>
+      )}
     </div>
   );
 }

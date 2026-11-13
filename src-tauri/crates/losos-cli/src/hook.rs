@@ -37,7 +37,7 @@ const FIRST_RESPONSE: Duration = Duration::from_secs(2);
 const DECISION_SLACK: Duration = Duration::from_secs(10);
 const MAX_EVENT_NAME: usize = 64;
 
-/// LosOS context a hook inherits from the shell that started the agent.
+/// Bubble context a hook inherits from the shell that started the agent.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct HookEnvironment {
     pub pane_id: u32,
@@ -49,7 +49,7 @@ pub struct HookEnvironment {
 }
 
 impl HookEnvironment {
-    /// `None` when this process is not inside a LosOS pane, which makes the
+    /// `None` when this process is not inside a Bubble pane, which makes the
     /// hook inert in every other terminal.
     pub fn from_lookup(get: impl Fn(&str) -> Option<String>) -> Option<Self> {
         let pane_id = get("LOSOS_PANE_ID")?.trim().parse::<u32>().ok()?;
@@ -83,7 +83,7 @@ pub fn main(args: &[OsString]) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-/// Delivers one agent hook to LosOS and prints what the agent expects on
+/// Delivers one agent hook to Bubble and prints what the agent expects on
 /// stdout. Never fails the agent: every problem degrades to `{}`.
 pub fn run(
     args: &[OsString],
@@ -106,7 +106,7 @@ fn deliver(
     environment: Option<&HookEnvironment>,
     stdin: Box<dyn Read + Send>,
 ) -> Result<String, String> {
-    let environment = environment.ok_or("not inside a LosOS pane")?;
+    let environment = environment.ok_or("not inside a Bubble pane")?;
     let (agent, event) = parse_args(args)?;
 
     let original = read_payload(stdin);
@@ -148,7 +148,7 @@ fn deliver(
         let reason = response
             .error
             .map_or_else(|| "rejected".to_string(), |error| error.code);
-        return Err(format!("LosOS rejected the hook: {reason}"));
+        return Err(format!("Bubble rejected the hook: {reason}"));
     }
     let result: HookResult = serde_json::from_value(response.result.unwrap_or(Value::Null))
         .map_err(|error| format!("unreadable hook result: {error}"))?;

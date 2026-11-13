@@ -1,18 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { buildShortcuts, type KeyBinding, type ShortcutId } from "../shortcuts";
-import { resolveShortcut } from "./resolveShortcut";
+import { resolveShortcut, type ShortcutMode } from "./resolveShortcut";
 
 const mac = buildShortcuts(true);
 const other = buildShortcuts(false);
 
+const CODE_FOR: Record<string, string> = {
+  " ": "Space",
+  ",": "Comma",
+  ".": "Period",
+  "/": "Slash",
+  ";": "Semicolon",
+  "[": "BracketLeft",
+  "]": "BracketRight",
+  "=": "Equal",
+  "-": "Minus",
+  "`": "Backquote",
+  "\\": "Backslash",
+};
+
 function press(
   key: string,
-  mods: string,
+  mods = "",
   over: Partial<KeyboardEvent> = {},
 ): KeyboardEvent {
   return {
     key,
-    code: /^[a-z]$/i.test(key) ? `Key${key.toUpperCase()}` : key,
+    code: /^[a-z]$/i.test(key)
+      ? `Key${key.toUpperCase()}`
+      : (CODE_FOR[key] ?? key),
     ctrlKey: mods.includes("C"),
     shiftKey: mods.includes("S"),
     altKey: mods.includes("A"),
@@ -26,10 +42,11 @@ const run = (
   shortcuts: typeof mac,
   event: KeyboardEvent,
   opts: {
+    mode: ShortcutMode;
     disabled?: ShortcutId[];
     handlers?: ShortcutId[] | "all";
     user?: Partial<Record<ShortcutId, KeyBinding[]>>;
-  } = {},
+  },
 ) =>
   resolveShortcut(event, {
     shortcuts,
@@ -39,137 +56,157 @@ const run = (
       opts.handlers === undefined ||
       opts.handlers === "all" ||
       opts.handlers.includes(id),
+    mode: opts.mode,
   });
 
-describe("resolveShortcut on macOS", () => {
-  it("clears a focused terminal with Command+K and opens the palette elsewhere", () => {
-    const event = press("k", "M");
-    // In a terminal terminal.clear is enabled.
-    expect(run(mac, event)).toBe("terminal.clear");
-    // Elsewhere the host disables it and the match continues to the palette.
-    expect(run(mac, event, { disabled: ["terminal.clear"] })).toBe(
-      "commandPalette.open",
-    );
+const leader = (
+  shortcuts: typeof mac,
+  event: KeyboardEvent,
+  opts: Omit<Parameters<typeof run>[2], "mode"> = {},
+) => run(shortcuts, event, { ...opts, mode: "leader" });
+
+const direct = (
+  shortcuts: typeof mac,
+  event: KeyboardEvent,
+  opts: Omit<Parameters<typeof run>[2], "mode"> = {},
+) => run(shortcuts, event, { ...opts, mode: "direct" });
+
+describe.each([
+  ["macOS", mac],
+  ["Windows and Linux", other],
+])("leader mode on %s", (_name, shortcuts) => {
+  it("resolves an application shortcut from its plain chord", () => {
+    expect(leader(shortcuts, press("p"))).toBe("commandPalette.files");
+    expect(leader(shortcuts, press("n"))).toBe("tab.new");
+    expect(leader(shortcuts, press("t"))).toBe("tiling.toggle");
+    expect(leader(shortcuts, press(" "))).toBe("space.overview");
+    expect(leader(shortcuts, press(","))).toBe("settings.open");
   });
 
-  it("keeps Command+P for files and Command+Shift+P for the palette", () => {
-    expect(run(mac, press("p", "M"))).toBe("commandPalette.files");
-    expect(run(mac, press("P", "MS"))).toBe("commandPalette.open");
-    expect(run(mac, press("H", "MS"))).toBe("commandPalette.content");
+  it("treats Shift as part of the chord", () => {
+    expect(leader(shortcuts, press("F", "S"))).toBe("commandPalette.content");
+    expect(leader(shortcuts, press("f"))).toBeNull();
+    expect(leader(shortcuts, press("N", "S"))).toBe("tab.newPrivate");
+    expect(leader(shortcuts, press("n"))).toBe("tab.new");
   });
 
-  it("never lets a disabled match stop a later one", () => {
-    expect(
-      run(mac, press("k", "M"), {
-        disabled: ["terminal.clear", "commandPalette.open"],
-      }),
-    ).toBeNull();
-  });
-});
-
-describe("resolveShortcut on Windows and Linux", () => {
-  it("gives Go to file and the palette chords no terminal program reads", () => {
-    expect(run(other, press("O", "CS"))).toBe("commandPalette.files");
-    expect(run(other, press("P", "CS"))).toBe("commandPalette.open");
-    expect(run(other, press("H", "CS"))).toBe("commandPalette.content");
+  it("rejects Ctrl, Alt and Super after the leader", () => {
+    for (const mods of ["C", "A", "M", "CA", "CM", "AS"])
+      expect(leader(shortcuts, press("p", mods))).toBeNull();
   });
 
-  it("leaves Ctrl+P, Ctrl+K and Ctrl+O to the shell", () => {
-    for (const key of ["p", "k", "o"])
-      expect(run(other, press(key, "C"))).toBeNull();
+  it("resolves arrows and Tab for window switching", () => {
+    expect(leader(shortcuts, press("ArrowRight"))).toBe("tab.next");
+    expect(leader(shortcuts, press("ArrowLeft"))).toBe("tab.prev");
+    expect(leader(shortcuts, press("Tab"))).toBe("tab.next");
+    expect(leader(shortcuts, press("Tab", "S"))).toBe("tab.prev");
   });
 
-  it("keeps the chords the editor binds (Ctrl+Shift+L, G, \\, [ and ]) off the app", () => {
-    for (const key of ["L", "G"])
-      expect(run(other, press(key, "CS"))).toBeNull();
-    expect(run(other, press("|", "CS", { code: "Backslash" }))).toBeNull();
-    expect(run(other, press("{", "CS", { code: "BracketLeft" }))).toBeNull();
-    expect(run(other, press("}", "CS", { code: "BracketRight" }))).toBeNull();
-  });
-
-  it("opens a preview, splits down and shows source on chords nothing else reads", () => {
-    expect(run(other, press("~", "CS", { code: "Backquote" }))).toBe(
-      "tab.newPreview",
-    );
-    expect(run(other, press("Enter", "CS"))).toBe("pane.splitDown");
-    expect(run(other, press(":", "CS", { code: "Semicolon" }))).toBe(
-      "pane.source",
-    );
-  });
-
-  it("switches space on Ctrl+Alt+PageDown and PageUp", () => {
-    expect(run(other, press("PageDown", "CA"))).toBe("space.next");
-    expect(run(other, press("PageUp", "CA"))).toBe("space.prev");
-  });
-
-  it("jumps to a tab on Ctrl+Shift+digit and leaves Ctrl+digit to the terminal", () => {
-    expect(run(other, press("#", "CS", { code: "Digit3" }))).toBe(
+  it("jumps to a window only on leader+digit", () => {
+    expect(leader(shortcuts, press("3", "", { code: "Digit3" }))).toBe(
       "tab.selectByIndex",
     );
-    for (const digit of ["1", "2", "3", "8"])
-      expect(
-        run(other, press(digit, "C", { code: `Digit${digit}` })),
-      ).toBeNull();
-  });
-});
-
-describe("resolveShortcut", () => {
-  it.each([
-    ["AZERTY slash", "/", "Period"],
-    ["AZERTY period", ".", "Semicolon"],
-    ["German semicolon", ";", "Comma"],
-    ["German slash", "/", "Digit7"],
-    ["Dvorak comma", "<", "KeyW"],
-  ])("replays a recorded %s before any default fallback", (_, key, code) => {
-    const event = press(key, "CS", { code });
-    const user = {
-      "view.zenMode": [
-        {
-          key: event.key,
-          ctrl: event.ctrlKey,
-          shift: event.shiftKey,
-          alt: event.altKey,
-          meta: event.metaKey,
-        },
-      ],
-    };
-    expect(run(other, event, { user })).toBe("view.zenMode");
-    expect(run(other, { ...event, shiftKey: false }, { user })).not.toBe(
-      "view.zenMode",
+    // Leader+0 is Reset zoom, not a window jump.
+    expect(leader(shortcuts, press("0", "", { code: "Digit0" }))).toBe(
+      "view.zoomReset",
     );
+    // A shifted symbol on a digit key is not a jump.
+    expect(leader(shortcuts, press("!", "S", { code: "Digit1" }))).toBeNull();
+    expect(leader(shortcuts, press("q"))).toBeNull();
   });
 
-  it("does not reinterpret a recorded symbol as a default base key", () => {
-    const user = { "view.zenMode": [{ key: "/", ctrl: true, shift: true }] };
-    expect(run(other, press("?", "CS", { code: "Slash" }), { user })).toBe(
-      "explorer.search",
-    );
+  it("never resolves a native editing chord", () => {
+    expect(leader(shortcuts, press("s", "C"))).toBeNull();
+    expect(leader(shortcuts, press("s", "M"))).toBeNull();
   });
 
-  it("continues to defaults when a recorded match is disabled", () => {
-    const user = { "view.zenMode": [{ key: "/", ctrl: true, shift: true }] };
+  it("lets a recorded leader binding win over a default", () => {
+    const user = { "view.zenMode": [{ leader: true, key: "k" }] };
+    expect(leader(shortcuts, press("k"), { user })).toBe("view.zenMode");
+    expect(leader(shortcuts, press("z"), { user })).toBeNull();
+  });
+
+  it("continues past a disabled recorded match to a default", () => {
+    const user = { "view.zenMode": [{ leader: true, key: "k" }] };
     expect(
-      run(other, press("/", "CS", { code: "Period" }), {
-        user,
-        disabled: ["view.zenMode"],
-      }),
-    ).toBe("explorer.toggleHidden");
+      leader(shortcuts, press("k"), { user, disabled: ["view.zenMode"] }),
+    ).toBe("commandPalette.open");
   });
 
-  it("honours a user binding over the default", () => {
-    const user = { "commandPalette.open": [{ ctrl: true, key: "k" }] };
-    expect(run(other, press("k", "C"), { user })).toBe("commandPalette.open");
-    expect(run(other, press("P", "CS"), { user })).toBeNull();
+  it("continues past a disabled default to another default", () => {
+    const user = { "commandPalette.open": [{ leader: true, key: "g" }] };
+    expect(leader(shortcuts, press("g"), { user })).toBe("commandPalette.open");
+    expect(
+      leader(shortcuts, press("g"), {
+        user,
+        disabled: ["commandPalette.open"],
+      }),
+    ).toBe("pane.source");
   });
 
   it("ends the search at an enabled shortcut without a handler", () => {
-    expect(run(other, press("O", "CS"), { handlers: [] })).toBeNull();
+    expect(leader(shortcuts, press("p"), { handlers: [] })).toBeNull();
+  });
+
+  it("skips repeats unless the shortcut allows them", () => {
+    expect(leader(shortcuts, press("ArrowDown", "", { repeat: true }))).toBe(
+      "blocks.next",
+    );
+    expect(leader(shortcuts, press("t", "", { repeat: true }))).toBeNull();
+  });
+
+  it("replays a recorded symbol as typed, not as its logical key", () => {
+    const user = { "view.zenMode": [{ leader: true, key: "/" }] };
+    expect(leader(shortcuts, press("/"), { user })).toBe("view.zenMode");
+    expect(leader(shortcuts, press("?"), { user })).toBeNull();
+  });
+});
+
+describe.each([
+  ["macOS", mac, "M"],
+  ["Windows and Linux", other, "C"],
+])("direct mode on %s", (_name, shortcuts, mod) => {
+  it("resolves native editing chords", () => {
+    expect(direct(shortcuts, press("s", mod))).toBe("editor.save");
+    expect(direct(shortcuts, press("z", mod))).toBe("editor.undo");
+    expect(direct(shortcuts, press("Z", `${mod}S`))).toBe("editor.redo");
+  });
+
+  it("requires the chord's modifiers exactly", () => {
+    expect(direct(shortcuts, press("s", `${mod}S`))).toBeNull();
+    expect(direct(shortcuts, press("s"))).toBeNull();
+  });
+
+  it("never resolves a leader chord", () => {
+    expect(direct(shortcuts, press("p"))).toBeNull();
+    expect(direct(shortcuts, press("t"))).toBeNull();
+    expect(direct(shortcuts, press("F", "S"))).toBeNull();
+    expect(direct(shortcuts, press("ArrowRight"))).toBeNull();
+  });
+
+  it("resolves a recorded direct binding", () => {
+    const user = { "view.zenMode": [{ ctrl: true, key: "k" }] };
+    expect(direct(shortcuts, press("k", "C"), { user })).toBe("view.zenMode");
+    expect(direct(shortcuts, press("z"), { user })).toBeNull();
+  });
+
+  it("continues to defaults when a recorded match is disabled", () => {
+    const user = {
+      "editor.save": [{ ctrl: mod === "C", meta: mod === "M", key: "z" }],
+    };
+    expect(
+      direct(shortcuts, press("z", mod), {
+        user,
+        disabled: ["editor.save"],
+      }),
+    ).toBe("editor.undo");
+  });
+
+  it("ends the search at an enabled shortcut without a handler", () => {
+    expect(direct(shortcuts, press("s", mod), { handlers: [] })).toBeNull();
   });
 
   it("skips repeats of shortcuts that do not allow them", () => {
-    expect(run(other, press("T", "CS", { repeat: true }))).toBeNull();
-    expect(run(other, press("ArrowDown", "CS", { repeat: true }))).toBe(
-      "blocks.next",
-    );
+    expect(direct(shortcuts, press("z", mod, { repeat: true }))).toBeNull();
   });
 });

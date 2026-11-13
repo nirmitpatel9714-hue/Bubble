@@ -101,14 +101,19 @@ describe("current model pricing", () => {
     ["claude-fable-5", 10, 50, 1],
     ["claude-sonnet-5", 3, 15, 0.3],
     ["grok-4.5", 2, 6, 0.5],
-  ] as const)("uses the published token pricing for %s", (modelId, input, output, cacheRead) => {
-    expect(MODEL_PRICING[modelId]).toEqual({ input, output, cacheRead });
-  });
+  ] as const)(
+    "uses the published token pricing for %s",
+    (modelId, input, output, cacheRead) => {
+      expect(MODEL_PRICING[modelId]).toEqual({ input, output, cacheRead });
+    },
+  );
 });
 
 describe("modelKeepsReasoning", () => {
   it("keeps reasoning for compat endpoints (freeform provider)", () => {
-    const info = resolveModel(compatModelIdForEndpoint(endpoint.id), [endpoint]);
+    const info = resolveModel(compatModelIdForEndpoint(endpoint.id), [
+      endpoint,
+    ]);
     expect(modelKeepsReasoning(info)).toBe(true);
   });
 
@@ -148,9 +153,12 @@ describe("model sampling capabilities", () => {
     ["anthropic", "claude-sonnet-5"],
     ["xai", "grok-4.5"],
     ["groq", "openai/gpt-oss-20b"],
-  ] as const)("allocates a reasoning output budget for %s/%s", (provider, modelId) => {
-    expect(modelUsesReasoningTokens(provider, modelId)).toBe(true);
-  });
+  ] as const)(
+    "allocates a reasoning output budget for %s/%s",
+    (provider, modelId) => {
+      expect(modelUsesReasoningTokens(provider, modelId)).toBe(true);
+    },
+  );
 });
 
 describe("migrateLegacyCompatEndpoint", () => {
@@ -217,7 +225,11 @@ describe("estimateCost", () => {
   });
 
   it("falls back to the input price when a model has no cache-read rate", () => {
-    const grok = { inputTokens: 1_000_000, outputTokens: 0, cachedInputTokens: 400_000 };
+    const grok = {
+      inputTokens: 1_000_000,
+      outputTokens: 0,
+      cachedInputTokens: 400_000,
+    };
     expect(estimateCost("grok-4.20-reasoning", grok)).toBeCloseTo(3, 6);
   });
 

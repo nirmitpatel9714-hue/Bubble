@@ -521,7 +521,7 @@ fn write_commit(
                     [
                         (
                             OsString::from(format!("GIT_{who}_NAME")),
-                            OsString::from("LosOS"),
+                            OsString::from("Bubble"),
                         ),
                         (
                             OsString::from(format!("GIT_{who}_EMAIL")),

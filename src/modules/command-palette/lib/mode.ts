@@ -18,8 +18,8 @@ const PREFIXES: ReadonlyArray<{
 ];
 
 /**
- * `base` is what a query without a sigil means: Cmd+Shift+P opens the palette
- * on commands, Cmd+P on files. A sigil switches mode in either.
+ * `base` is what a query without a sigil means: leader+K opens the palette
+ * on commands, leader+P on files. A sigil switches mode in either.
  */
 export function parseQuery(
   raw: string,

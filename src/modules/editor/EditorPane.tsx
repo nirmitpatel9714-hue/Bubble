@@ -125,7 +125,12 @@ export const EditorPane = memo(
         path,
         onDirtyChange,
       });
-    const assetGrant = useAssetGrant((doc.status === "binary" || doc.status === "toolarge") && mediaPreviewKind(path) ? path : null);
+    const assetGrant = useAssetGrant(
+      (doc.status === "binary" || doc.status === "toolarge") &&
+        mediaPreviewKind(path)
+        ? path
+        : null,
+    );
     const reloadRef = useRef(reload);
     reloadRef.current = reload;
     const adoptDiskTextRef = useRef(adoptDiskText);
@@ -585,11 +590,27 @@ export const EditorPane = memo(
 
       if (isImage || isVideo || isAudio || isPdf) {
         const assetUrl = assetGrant.urlFor(path);
-        if (!assetUrl) return (
-          <div className="p-4 text-xs text-muted-foreground">
-            {assetGrant.error ? <><p role="alert">Media preview unavailable: {assetGrant.error}</p><button type="button" className="mt-2 underline" onClick={assetGrant.retry}>Retry</button></> : "Loading media preview…"}
-          </div>
-        );
+        if (!assetUrl)
+          return (
+            <div className="p-4 text-xs text-muted-foreground">
+              {assetGrant.error ? (
+                <>
+                  <p role="alert">
+                    Media preview unavailable: {assetGrant.error}
+                  </p>
+                  <button
+                    type="button"
+                    className="mt-2 underline"
+                    onClick={assetGrant.retry}
+                  >
+                    Retry
+                  </button>
+                </>
+              ) : (
+                "Loading media preview…"
+              )}
+            </div>
+          );
         return (
           <div className="flex h-full min-h-0 flex-col items-center justify-center bg-background p-4 overflow-auto">
             {isImage && (
@@ -653,7 +674,7 @@ export const EditorPane = memo(
           theme={themeExt}
           extensions={extensions}
           height="100%"
-          className="losos-code-editor flex-1 min-h-0 overflow-hidden"
+          className="bubble-code-editor flex-1 min-h-0 overflow-hidden"
           basicSetup={{
             lineNumbers: true,
             highlightActiveLineGutter: true,

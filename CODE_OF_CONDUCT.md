@@ -1,12 +1,12 @@
 # Code of conduct
 
-LosOS is a small open-source project and we want it to stay a place people enjoy contributing to.
+Bubble is a small open-source project and we want it to stay a place people enjoy contributing to.
 
 ## The rules, briefly
 
 - **Be respectful.** Disagreement is fine; rudeness, condescension, and personal attacks are not.
 - **Assume good faith.** Most miscommunication isn't malicious - clarify before escalating.
-- **Stay on topic.** Issues, PRs, and discussions are about LosOS. Take off-topic conversations elsewhere.
+- **Stay on topic.** Issues, PRs, and discussions are about Bubble. Take off-topic conversations elsewhere.
 - **No harassment.** Targeted insults, slurs, sustained disruption, sexualized comments, doxxing, or threats are not tolerated - anywhere, against anyone.
 - **No spam.** That includes promotional links, irrelevant cross-posting, and AI-generated noise that doesn't engage with the actual conversation.
 
@@ -14,7 +14,7 @@ This applies to everything inside the project: issues, PRs, discussions, commits
 
 ## Enforcement
 
-If you see a violation - or experience one - contact the maintainer privately via [GitHub](https://github.com/nirmitpatel9714-hue) with subject `[LosOS conduct]`. Include links and context.
+If you see a violation - or experience one - contact the maintainer privately via [GitHub](https://github.com/nirmitpatel9714-hue) with subject `[Bubble conduct]`. Include links and context.
 
 Maintainers may, at their discretion:
 

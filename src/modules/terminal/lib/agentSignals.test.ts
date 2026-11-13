@@ -34,7 +34,7 @@ describe("agent signal fan-out", () => {
 
     expect(native.listen).toHaveBeenCalledTimes(1);
     expect(native.listen).toHaveBeenCalledWith(
-      "losos:agent-signal",
+      "bubble:agent-signal",
       expect.any(Function),
     );
 

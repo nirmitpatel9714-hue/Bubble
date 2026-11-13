@@ -1,4 +1,4 @@
-import { LosOSGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@losos/ghostty-core/adapted";
 
 declare const WASM_BASE64: string;
 declare const OPEN: number;
@@ -16,7 +16,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // later, after the script has gone idle, which is what a user's open window does.
 (async () => {
   const bytes = Uint8Array.from(atob(WASM_BASE64), (c) => c.charCodeAt(0));
-  const core = await LosOSGhostty.loadBytes(
+  const core = await BubbleGhostty.loadBytes(
     bytes.buffer,
     RECLAIM ? {} : { reclaim: null },
   );

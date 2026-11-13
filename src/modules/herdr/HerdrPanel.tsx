@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { requestAgentScan } from "@/modules/agents";
 import { AgentIcon } from "@/modules/agents/lib/agentIcon";
 import { displayAgent } from "@/modules/agents/lib/format";
 import {
@@ -15,9 +16,9 @@ import {
   ArrowDown01Icon,
   ArrowUp01Icon,
   CheckmarkCircle02Icon,
-  DashboardSquare01Icon,
   Loading03Icon,
   Notification03Icon,
+  Refresh01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { invoke } from "@tauri-apps/api/core";
@@ -28,7 +29,6 @@ type Props = {
   onActivateLocal: () => void;
   /** False while the sidebar is collapsed; suppresses read-marking. */
   visible: boolean;
-  onOpenDashboard: () => void;
 };
 
 function relativeTime(ts: number): string {
@@ -195,12 +195,7 @@ function NotificationRow({
   );
 }
 
-export function HerdrPanel({
-  onActivate,
-  onActivateLocal,
-  visible,
-  onOpenDashboard,
-}: Props) {
+export function HerdrPanel({ onActivate, onActivateLocal, visible }: Props) {
   const [hooks, setHooks] = useState<Record<string, boolean>>({});
   const [installing, setInstalling] = useState<string | null>(null);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -291,15 +286,11 @@ export function HerdrPanel({
           ) : null}
           <button
             type="button"
-            onClick={onOpenDashboard}
-            title="Open agent dashboard"
+            onClick={requestAgentScan}
+            title="Refresh agents"
             className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
-            <HugeiconsIcon
-              icon={DashboardSquare01Icon}
-              size={14}
-              strokeWidth={1.75}
-            />
+            <HugeiconsIcon icon={Refresh01Icon} size={13} strokeWidth={2} />
           </button>
           {notifications.length > 0 ? (
             <button
@@ -317,7 +308,7 @@ export function HerdrPanel({
         <div className="mx-2 rounded-lg border border-dashed border-border/60 px-3 py-6 text-center text-[11px] leading-relaxed text-muted-foreground">
           No agent activity yet.
           <br />
-          Launch a coding agent or chat with LosOS to track it here.
+          Launch a coding agent or chat with Bubble to track it here.
         </div>
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto p-1">

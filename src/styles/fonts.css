@@ -50,19 +50,19 @@
 }
 
 @font-face {
-  font-family: 'LosOS Terminal Symbols';
+  font-family: 'Bubble Terminal Symbols';
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url('../assets/fonts/losos-terminal-symbols.woff2') format('woff2');
+  src: url('../assets/fonts/bubble-terminal-symbols.woff2') format('woff2');
   unicode-range: U+E000-F8FF;
 }
 
 @font-face {
-  font-family: 'LosOS Terminal Symbols MDI';
+  font-family: 'Bubble Terminal Symbols MDI';
   font-style: normal;
   font-weight: 400;
   font-display: block;
-  src: url('../assets/fonts/losos-terminal-symbols-mdi.woff2') format('woff2');
+  src: url('../assets/fonts/bubble-terminal-symbols-mdi.woff2') format('woff2');
   unicode-range: U+F0000-FFFFD;
 }

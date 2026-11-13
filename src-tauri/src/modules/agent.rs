@@ -28,7 +28,7 @@ struct EventSpec {
     timeout: Option<u32>,
     /// Observe-only events that never need to delay the agent.
     background: bool,
-    /// Installed when true; a LosOS group for an unwanted event is removed.
+    /// Installed when true; a Bubble group for an unwanted event is removed.
     wanted: bool,
 }
 
@@ -76,7 +76,7 @@ struct AgentSpec {
 }
 
 /// Longer than the longest decision wait the CLI accepts plus its socket
-/// slack, so LosOS always answers before the agent gives up on the hook.
+/// slack, so Bubble always answers before the agent gives up on the hook.
 const DECISION_HOOK_TIMEOUT: u32 = losos_control_protocol::hook::MAX_DECISION_SECS + 60;
 
 const AGENTS: &[AgentSpec] = &[
@@ -250,7 +250,7 @@ fn pi_extension() -> String {
     out
 }
 
-/// Hook commands that older LosOS versions wrote (OSC markers, a CONOUT$
+/// Hook commands that older Bubble versions wrote (OSC markers, a CONOUT$
 /// helper); recognised so an install migrates them.
 const LEGACY_MARKERS: [&str; 3] = ["notify;LosOS;", "losos;notify", "__losos_notify"];
 
@@ -269,8 +269,8 @@ fn shell_for(style: Style, windows: bool) -> Dialect {
     }
 }
 
-/// Runs the CLI LosOS exposes through `LOSOS_CLI`, and prints an empty JSON
-/// object where there is none (outside LosOS, or a stale path) because some
+/// Runs the CLI Bubble exposes through `LOSOS_CLI`, and prints an empty JSON
+/// object where there is none (outside Bubble, or a stale path) because some
 /// agents reject an empty stdout. No user data is interpolated.
 fn hook_command(dialect: Dialect, agent: &str, event: &str) -> String {
     match dialect {
@@ -333,7 +333,7 @@ fn command_is_ours(command: &str) -> bool {
         || (command.contains("LOSOS_CLI") && command.contains(" hook "))
 }
 
-/// A matcher group is ours when it exists only to run LosOS commands, so a
+/// A matcher group is ours when it exists only to run Bubble commands, so a
 /// group the user added their own commands to is never taken apart.
 fn group_is_ours(group: &Value) -> bool {
     let Some(hooks) = group.get("hooks").and_then(Value::as_array) else {
@@ -428,7 +428,7 @@ fn pi_after(existing: Option<&str>, action: Action, path: &Path) -> Result<Optio
         existing.is_some_and(|text| !text.trim().is_empty() && !text.contains(PI_EXTENSION_FAMILY));
     match action {
         Action::Install if foreign => Err(format!(
-            "{} is not managed by LosOS; refusing to overwrite",
+            "{} is not managed by Bubble; refusing to overwrite",
             path.display()
         )),
         Action::Install => Ok(Some(pi_extension())),
@@ -632,7 +632,7 @@ pub async fn agent_hooks_status(agent: String) -> bool {
         .unwrap_or(false)
 }
 
-/// True when every hook LosOS installs is present and current.
+/// True when every hook Bubble installs is present and current.
 fn hooks_status(agent: &str) -> bool {
     plan(agent, Action::Install).is_ok_and(|plan| !plan.changed)
 }
@@ -1058,7 +1058,7 @@ mod tests {
                     { "hooks": [ { "type": "command", "command": "[ -n \"$LOSOS_TERMINAL\" ] && printf '{\"terminalSequence\":\"\\u001b]777;notify;LosOS;attention\\u0007\"}' || true" } ] }
                 ],
                 "Stop": [
-                    { "hooks": [ { "type": "command", "command": "\"C:\\\\LosOS\\\\losos.exe\" __losos_notify claude finished" } ] },
+                    { "hooks": [ { "type": "command", "command": "\"C:\\\\Bubble\\\\losos.exe\" __losos_notify claude finished" } ] },
                     { "hooks": [ { "type": "command", "command": "mine" } ] }
                 ]
             }

@@ -34,7 +34,6 @@ function baseContext(
     openNewEditor: noop,
     openNewPreview: noop,
     openGitGraph: noop,
-    openAgentsDashboard: noop,
     toggleSourceControl: noop,
     closeActiveTabOrPane: noop,
     splitPaneRight: noop,
@@ -95,11 +94,11 @@ describe("createCommandItems", () => {
     );
   });
 
-  it("marks the active space as the current one", () => {
+  it("marks the active workspace as the current one", () => {
     const reason = reasonById(
       { spaces: [{ id: "sp1", name: "One" }], activeSpaceId: "sp1" },
       "spaces.switch.sp1",
     );
-    expect(reason).toBe("Current space");
+    expect(reason).toBe("Current workspace");
   });
 });
