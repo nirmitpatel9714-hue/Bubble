@@ -244,7 +244,7 @@ pub async fn ai_http_stream(
 ) -> Result<(), String> {
     let metadata = request
         .headers()
-        .get("x-losos-ai-request")
+        .get("x-bubble-ai-request")
         .and_then(|value| value.to_str().ok())
         .filter(|value| value.len() <= 64 * 1024)
         .ok_or("missing or oversized AI request metadata")?;

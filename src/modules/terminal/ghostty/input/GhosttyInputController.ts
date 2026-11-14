@@ -3,7 +3,7 @@ import type { TerminalMouse } from "@/modules/terminal/ghostty/input/TerminalMou
 import { TerminalInputProxy } from "@/modules/terminal/ghostty/input/TerminalInputProxy";
 import { TerminalNativeSelection } from "@/modules/terminal/ghostty/input/TerminalNativeSelection";
 import { readTerminalClipboard } from "@/modules/terminal/lib/terminalClipboard";
-import { Key, KeyAction, type KeyEvent } from "@losos/ghostty-core/protocol";
+import { Key, KeyAction, type KeyEvent } from "@bubble/ghostty-core/protocol";
 import type { GhosttyTerminalModelApi } from "../GhosttyTerminalModel";
 import {
   buildKeyEvent,

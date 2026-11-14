@@ -28,7 +28,7 @@ case "$1" in
   empty) PROMPT_COMMAND=() ;;
   single) PROMPT_COMMAND=('first') ;;
   sparse) PROMPT_COMMAND=([0]='first' [3]='second') ;;
-  registered) PROMPT_COMMAND=('first' '_losos_precmd' 'second') ;;
+  registered) PROMPT_COMMAND=('first' '_bubble_precmd' 'second') ;;
 esac
 `;
     // From bash 5.1 every element of an array runs; before that only element 0.
@@ -42,20 +42,20 @@ case "$(declare -p PROMPT_COMMAND)" in
   'declare -a'*)
     if [ -n "$elements" ]; then
       actual=$(for hook in "\${PROMPT_COMMAND[@]}"; do eval "$hook"; done)
-      test "\${PROMPT_COMMAND[\${#PROMPT_COMMAND[@]}-1]}" = _losos_finish_prompt || exit 11
-      test "\${PROMPT_COMMAND[0]}" = _losos_precmd -o "$1" = registered || exit 12
+      test "\${PROMPT_COMMAND[\${#PROMPT_COMMAND[@]}-1]}" = _bubble_finish_prompt || exit 11
+      test "\${PROMPT_COMMAND[0]}" = _bubble_precmd -o "$1" = registered || exit 12
     else
       actual=$(eval "\${PROMPT_COMMAND[0]}")
     fi
     ;;
   *)
     test "$1" = scalar || exit 13
-    test "$PROMPT_COMMAND" = "_losos_precmd;first;second"$'\\n'"_losos_finish_prompt" || exit 14
+    test "$PROMPT_COMMAND" = "_bubble_precmd;first;second"$'\\n'"_bubble_finish_prompt" || exit 14
     actual=$(eval "$PROMPT_COMMAND")
     ;;
 esac
 all="\${PROMPT_COMMAND[*]}"
-stripped="\${all//_losos_precmd/}"
+stripped="\${all//_bubble_precmd/}"
 want=13
 # Before 5.1 a hook parked in element 1 never ran, so element 0 gets its own.
 if [ "$1" = registered ] && [ -z "$elements" ]; then want=26; fi

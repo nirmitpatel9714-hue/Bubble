@@ -69,7 +69,7 @@ API keys are stored via `secrets_*` commands (`src-tauri/src/modules/secrets.rs`
 - Windows: Credential Manager via `keyring`
 - Linux: a JSON file in the app's local data dir with mode `0600` (atomic write to `.tmp` then rename)
 
-Service constant: `losos-ai`. Keys never touch disk outside the keychain/Linux secrets file, never go in `localStorage`, and never appear in logs.
+Service constant: `bubble-ai`. Keys never touch disk outside the keychain/Linux secrets file, never go in `localStorage`, and never appear in logs.
 
 ## OSC trust gating
 

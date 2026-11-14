@@ -89,7 +89,7 @@ export function AgentLauncherPanel({ onBack, onLaunch }: Props) {
     void setAgentLaunchCommands(normalizeAgentLaunchCommands(next)).catch(
       (error) => {
         persistedRef.current = previous;
-        console.error("[losos] failed to save agent launch commands:", error);
+        console.error("[bubble] failed to save agent launch commands:", error);
       },
     );
   };
@@ -110,7 +110,7 @@ export function AgentLauncherPanel({ onBack, onLaunch }: Props) {
           agent.id === id ? { ...agent, command: result.command } : agent,
         );
         void setCustomCodingAgents(updated).catch((error) => {
-          console.error("[losos] failed to save custom agent command:", error);
+          console.error("[bubble] failed to save custom agent command:", error);
         });
       }
     } else {

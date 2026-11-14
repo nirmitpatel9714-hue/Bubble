@@ -101,7 +101,7 @@ export function useExplorerFileDrop({
         else unlisten = fn;
       })
       .catch((err) =>
-        console.error("[losos] explorer drop listen failed:", err),
+        console.error("[bubble] explorer drop listen failed:", err),
       );
 
     return () => {

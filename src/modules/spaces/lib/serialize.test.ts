@@ -143,9 +143,9 @@ describe("hydrateTabs", () => {
     ).toEqual([]);
   });
 
-  it("round-trips the tiled flag", () => {
+  it("round-trips the tiled flag and width", () => {
     const serialized = serializeTabs([
-      term({ id: 1, tiled: true }),
+      term({ id: 1, tiled: true, tiledWidth: 500 }),
       term({ id: 2 }),
       {
         id: 3,
@@ -159,9 +159,11 @@ describe("hydrateTabs", () => {
       },
     ]);
     expect(serialized[0].tiled).toBe(true);
+    expect(serialized[0].tiledWidth).toBe(500);
     expect(serialized[1]).not.toHaveProperty("tiled");
     const restored = hydrateTabs(serialized, "s1", counter());
     expect(restored.map((t) => t.tiled)).toEqual([true, undefined, true]);
+    expect(restored[0].tiledWidth).toBe(500);
   });
 
   it("hydrates editor/preview/markdown as cold with derived titles", () => {

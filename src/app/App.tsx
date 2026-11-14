@@ -4,7 +4,6 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { consumeLaunchFiles, getLaunchDir } from "@/lib/launchDir";
 import { IS_MAC } from "@/lib/platform";
@@ -48,21 +47,21 @@ import {
 } from "@/modules/editor";
 import { FileExplorer, type FileExplorerHandle } from "@/modules/explorer";
 import type { GitHistorySearchHandle } from "@/modules/git-history";
-import { HerdrPanel } from "@/modules/herdr";
 import {
   Header,
   type SearchInlineHandle,
   type SearchTarget,
 } from "@/modules/header";
+import { HerdrPanel } from "@/modules/herdr";
 import { setLspNavigator } from "@/modules/lsp";
 import type { PreviewPaneHandle } from "@/modules/preview";
 import { openSettingsWindow } from "@/modules/settings/openSettingsWindow";
 import { usePreferencesStore } from "@/modules/settings/preferences";
 import { setShowHidden } from "@/modules/settings/store";
 import {
+  LeaderHud,
   type ShortcutHandlers,
   type ShortcutId,
-  LeaderHud,
   shouldDisableAskSelection,
   shouldDisablePaneSwapShortcut,
   tabDigit,
@@ -88,8 +87,8 @@ import {
 } from "@/modules/spaces";
 import { StatusBar } from "@/modules/statusbar";
 import {
-  TabSwitcherHud,
   type CloseTabsPlan,
+  TabSwitcherHud,
   useTabSwitcher,
   useTabs,
   useWindowTitle,
@@ -112,12 +111,13 @@ import {
   whenSessionReady,
   writeToSession,
 } from "@/modules/terminal";
-import type { TerminalSearchController } from "@/modules/terminal/search/TerminalSearchController";
 import { bindTerminalWindowFocus } from "@/modules/terminal/ghostty/renderScheduling";
 import { subscribeWindowPresentation } from "@/modules/terminal/ghostty/windowPresentation";
+import type { TerminalSearchController } from "@/modules/terminal/search/TerminalSearchController";
 import {
   LivePageResizeBridge,
   ThemeProvider,
+  UserCssBridge,
   useThemeFileEditing,
   WindowActivityBridge,
   WindowVibrancyBridge,
@@ -141,24 +141,25 @@ import {
   useRef,
   useState,
 } from "react";
+import { toast } from "sonner";
 import { CloseDialogs } from "./components/CloseDialogs";
 import {
   TOGGLE_BLOCK_INPUT_EVENT,
   WorkspaceInputBar,
 } from "./components/WorkspaceInputBar";
 import { WorkspaceSurface } from "./components/WorkspaceSurface";
-import { useAppCloseGuard } from "./hooks/useAppCloseGuard";
 import {
   hasOpenPathTab,
   renamedPath,
   spacesEmptiedByTabs,
 } from "./hooks/tabCloseGuards";
+import { useAppCloseGuard } from "./hooks/useAppCloseGuard";
 import { useTabCloseGuards } from "./hooks/useTabCloseGuards";
 import { useWorkspaceSwitcher } from "./hooks/useWorkspaceSwitcher";
 
-// Real-application benchmark driver (scripts/app-lab). `__LOSOS_BENCH__` is the literal `false`
+// Real-application benchmark driver (scripts/app-lab). `__BUBBLE_BENCH__` is the literal `false`
 // in a normal build, so this is `null` and neither the import nor its chunk is emitted.
-const BenchBridge = __LOSOS_BENCH__
+const BenchBridge = __BUBBLE_BENCH__
   ? lazy(() => import("@/bench/BenchBridge"))
   : null;
 
@@ -197,6 +198,7 @@ export default function App() {
     closeTabs,
     updateTab,
     setTabTiled,
+    setTabTiledWidth,
     selectByIndex,
     setLeafCwd,
     focusPane,
@@ -647,7 +649,7 @@ export default function App() {
             agent: request.agent,
           }).catch((error) => {
             console.warn(
-              `[losos] could not enable ${request.agent} notifications:`,
+              `[bubble] could not enable ${request.agent} notifications:`,
               error,
             );
           })
@@ -658,7 +660,7 @@ export default function App() {
           await Promise.all([whenSessionReady(leafId), hooksReady]);
           if (!writeToSession(leafId, `${command.command}\r`)) {
             console.error(
-              `[losos] agent terminal ${leafId} closed before launch`,
+              `[bubble] agent terminal ${leafId} closed before launch`,
             );
           }
         })();
@@ -906,6 +908,29 @@ export default function App() {
     setTabTiled(activeTab.id, !activeTab.tiled);
   }, [activeTab, setTabTiled]);
 
+  const resizeActiveTiledTab = useCallback(
+    (delta: number) => {
+      if (!activeTab || !activeTab.tiled) return;
+      const el = document.querySelector<HTMLElement>(
+        `[data-tiled-tab="${activeTab.id}"]`,
+      );
+      const currentWidth =
+        activeTab.tiledWidth ?? el?.getBoundingClientRect().width ?? 640;
+      const minWidth = 280;
+      const maxWidth = Math.max(minWidth, window.innerWidth - 60);
+      const newWidth = Math.round(
+        Math.max(minWidth, Math.min(maxWidth, currentWidth + delta)),
+      );
+      setTabTiledWidth(activeTab.id, newWidth);
+    },
+    [activeTab, setTabTiledWidth],
+  );
+
+  const resetActiveTiledTabWidth = useCallback(() => {
+    if (!activeTab || !activeTab.tiled) return;
+    setTabTiledWidth(activeTab.id, undefined);
+  }, [activeTab, setTabTiledWidth]);
+
   // Focus an agent's tab, switching to its space first so the header and tab
   // strip don't end up showing a different space than the focused pane.
   const activateAgentTarget = useCallback(
@@ -939,6 +964,9 @@ export default function App() {
           activeSpaceId ?? DEFAULT_SPACE_ID,
         ),
       "tiling.toggle": toggleTiling,
+      "tiling.grow": () => resizeActiveTiledTab(80),
+      "tiling.shrink": () => resizeActiveTiledTab(-80),
+      "tiling.resetWidth": resetActiveTiledTabWidth,
       "space.next": () => cycleSpace(1),
       "space.prev": () => cycleSpace(-1),
       "space.overview": () => setSwitcherOpen(true),
@@ -1032,6 +1060,14 @@ export default function App() {
           ? leafIds(activeTab.paneTree).length
           : null;
       if (shouldDisablePaneSwapShortcut(id, terminalPaneCount)) return true;
+      if (
+        (id === "tiling.grow" ||
+          id === "tiling.shrink" ||
+          id === "tiling.resetWidth") &&
+        !activeTab?.tiled
+      ) {
+        return true;
+      }
       if (
         id === "editor.undo" ||
         id === "editor.redo" ||
@@ -1438,6 +1474,7 @@ export default function App() {
 
   const shell = (
     <ThemeProvider>
+      <UserCssBridge />
       <TooltipProvider>
         {BenchBridge && (
           <Suspense fallback={null}>
@@ -1583,6 +1620,7 @@ export default function App() {
                         activeId={activeId}
                         activeTab={activeTab}
                         onActivateTab={setActiveId}
+                        onResizeTab={setTabTiledWidth}
                         registerTerminalHandle={registerTerminalHandle}
                         onSearchReady={handleSearchReady}
                         onCwd={handleTerminalCwd}

@@ -1,4 +1,4 @@
-import { Key, KeyAction, Mods } from "@losos/ghostty-core/protocol";
+import { Key, KeyAction, Mods } from "@bubble/ghostty-core/protocol";
 import { describe, expect, it } from "vitest";
 import {
   buildKeyEvent,

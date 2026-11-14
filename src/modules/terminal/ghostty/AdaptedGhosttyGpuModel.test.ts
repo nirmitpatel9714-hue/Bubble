@@ -3,7 +3,7 @@ import {
   GPU_CELL_BYTES,
   BubbleGhostty,
   decodeGpuCell,
-} from "@losos/ghostty-core/adapted";
+} from "@bubble/ghostty-core/adapted";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { AdaptedGhosttyTerminalModel } from "./AdaptedGhosttyTerminalModel";
 import { linkUriAt } from "./core/ViewportLinkResolver";

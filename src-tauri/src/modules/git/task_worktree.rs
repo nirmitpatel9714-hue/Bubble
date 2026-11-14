@@ -93,13 +93,13 @@ fn new_id() -> Result<String> {
 
 pub fn environment(task: &TaskRecord) -> BTreeMap<String, String> {
     let mut env = BTreeMap::from([
-        ("LOSOS_TASK".into(), task.name.clone()),
-        ("LOSOS_WORKSPACE_PATH".into(), task.path.clone()),
-        ("LOSOS_ROOT_PATH".into(), task.root.clone()),
-        ("LOSOS_PORT".into(), task.port.to_string()),
+        ("BUBBLE_TASK".into(), task.name.clone()),
+        ("BUBBLE_WORKSPACE_PATH".into(), task.path.clone()),
+        ("BUBBLE_ROOT_PATH".into(), task.root.clone()),
+        ("BUBBLE_PORT".into(), task.port.to_string()),
     ]);
     for n in 1..=9 {
-        env.insert(format!("LOSOS_PORT_{n}"), (task.port + n).to_string());
+        env.insert(format!("BUBBLE_PORT_{n}"), (task.port + n).to_string());
     }
     env
 }
@@ -248,7 +248,7 @@ fn materialize(
         let target = std::fs::canonicalize(&task.path)?;
         if let Some(snapshot) = snapshot {
             let restored = open_worktree(registry, &task.path, &repo.workspace)?;
-            let hooks = super::plumbing::git_dir(&restored)?.join("losos-empty-hooks");
+            let hooks = super::plumbing::git_dir(&restored)?.join("bubble-empty-hooks");
             std::fs::create_dir_all(&hooks)?;
             let mut args = checkpoint::plumbing_config(&hooks);
             args.extend(os_args([
@@ -715,7 +715,7 @@ pub fn restore(
         ));
     }
     if let Some(reference) = reference {
-        let prefix = format!("refs/losos/tasks/{id}/archive/");
+        let prefix = format!("refs/bubble/tasks/{id}/archive/");
         let suffix = reference
             .strip_prefix(&prefix)
             .ok_or_else(|| GitError::InvalidRef(reference.into()))?;

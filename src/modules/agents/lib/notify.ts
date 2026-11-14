@@ -28,7 +28,7 @@ export async function osNotify(
     sendNotification({ title, body });
     return "requested";
   } catch (e) {
-    console.warn("[losos] os notification failed:", e);
+    console.warn("[bubble] os notification failed:", e);
     return "failed";
   }
 }

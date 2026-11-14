@@ -64,7 +64,7 @@ export function connectAgentEvents(
         return decisionConnections === 1 ? setDecisionsReady(true) : undefined;
       })
       .catch((error) => {
-        console.error("[losos] could not enable agent decisions:", error);
+        console.error("[bubble] could not enable agent decisions:", error);
       });
   }
   return () => {
@@ -75,7 +75,7 @@ export function connectAgentEvents(
     decisionConnections -= 1;
     if (decisionConnections > 0) return;
     void setDecisionsReady(false).catch((error) => {
-      console.error("[losos] could not withdraw agent decisions:", error);
+      console.error("[bubble] could not withdraw agent decisions:", error);
     });
   };
 }

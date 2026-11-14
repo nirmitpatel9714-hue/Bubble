@@ -9,7 +9,7 @@ export type Todo = {
   status: TodoStatus;
 };
 
-const STORE_PATH = "losos-ai-todos.json";
+const STORE_PATH = "bubble-ai-todos.json";
 const todosKey = (sessionId: string) => `todos:${sessionId}`;
 
 const store = new LazyStore(STORE_PATH, { defaults: {}, autoSave: 200 });

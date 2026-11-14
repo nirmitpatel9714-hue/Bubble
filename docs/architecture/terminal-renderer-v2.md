@@ -16,7 +16,7 @@ were linearly filtered: the Windows text blur.
 
 ## Bridge (Zig → GPU)
 
-Zig: `packages/ghostty-core/adapted/wasm/src/losos.zig`; TS:
+Zig: `packages/ghostty-core/adapted/wasm/src/bubble.zig`; TS:
 `packages/ghostty-core/lib/adapted/` (`gpuCells.ts`) and
 `GhosttyTerminalModelApi.consumeGpuFrame()`. Tests: `AdaptedGhosttyGpu.test.ts`,
 `AdaptedGhosttyGpuModel.test.ts` (incl. a randomized cell-by-cell equivalence
@@ -97,7 +97,7 @@ frame), and pane rectangles are rounded edge by edge relative to it.
 
 Grayscale antialiasing carries no contrast curve by default, so the WebGL and WebGPU
 renderers draw identical glyph pixels at every ratio (`scripts/terminal-visual`
-`parity` at 1, 1.25, 1.5 and 2). `localStorage["losos:terminal-text-contrast"]`
+`parity` at 1, 1.25, 1.5 and 2). `localStorage["bubble:terminal-text-contrast"]`
 (`on` or a strength, `off` to clear) turns on DirectWrite-style contrast
 (`DWrite_EnhanceContrast` scaled by foreground lightness, blended toward
 `DWrite_ApplyAlphaCorrection` with Windows Terminal's 1.8 gamma ratios, 0.5 / 0.5

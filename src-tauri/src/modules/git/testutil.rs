@@ -14,7 +14,7 @@ static ENV: Once = Once::new();
 fn pin_environment() {
     ENV.call_once(|| {
         let empty =
-            std::env::temp_dir().join(format!("losos-test-gitconfig-{}", std::process::id()));
+            std::env::temp_dir().join(format!("bubble-test-gitconfig-{}", std::process::id()));
         std::fs::write(&empty, "").expect("write empty git config");
         std::env::set_var("GIT_CONFIG_GLOBAL", &empty);
         std::env::set_var("GIT_CONFIG_NOSYSTEM", "1");

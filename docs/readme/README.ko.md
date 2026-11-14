@@ -2,12 +2,13 @@
   <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
   <h1>Bubble</h1>
   <p><strong>가볍고 터미널 중심인 AI 네이티브 개발 워크스페이스.</strong></p>
-  <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
+  <p><a href="https://github.com/nirmitpatel9714-hue/Bubble">GitHub</a></p>
 
   <p>
-    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/LosOS?label=version&color=blue" alt="버전" />
-    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/LosOS/total?label=downloads&color=blue" alt="다운로드" />
-    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="플랫폼" />
+    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/Bubble?label=version&color=blue" alt="버전" />
+    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/Bubble/total?label=downloads&color=blue" alt="다운로드" />
+    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="플랫폼" />
+
   </p>
 </div>
 
@@ -88,7 +89,7 @@ Bubble는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터
 
 ## 설치
 
-최신 설치 프로그램은 [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) 페이지에 있습니다. Bubble는 이 페이지에서 자동 업데이트됩니다.
+최신 설치 프로그램은 [Releases](https://github.com/nirmitpatel9714-hue/Bubble/releases/latest) 페이지에 있습니다. Bubble는 이 페이지에서 자동 업데이트됩니다.
 
 ### Windows 참고 사항
 
@@ -97,8 +98,8 @@ Bubble는 Tauri 2 + Rust와 React 19로 만든 가볍고 오픈 소스이며 터
 
 ### Linux 참고 사항
 
-- **Arch / AUR:** `yay -S losos-bin` 또는 `paru`. 최신 릴리스를 추적합니다.
-- **NixOS / Nix:** 공식 flake를 사용하세요. NixOS 외부에서는 `nix profile install github:nirmitpatel9714-hue/LosOS`를 실행합니다. NixOS에서는 flake를 가져오고 `inputs.losos.packages.${pkgs.system}.losos`를 `environment.systemPackages`에 추가합니다. 더 간단한 설정에는 `nixosModules.losos`도 있습니다.
+- **Arch / AUR:** `yay -S bubble-bin` 또는 `paru`. 최신 릴리스를 추적합니다.
+- **NixOS / Nix:** 공식 flake를 사용하세요. NixOS 외부에서는 `nix profile install github:nirmitpatel9714-hue/Bubble`를 실행합니다. NixOS에서는 flake를 가져오고 `inputs.bubble.packages.${pkgs.system}.bubble`를 `environment.systemPackages`에 추가합니다. 더 간단한 설정에는 `nixosModules.bubble`도 있습니다.
 - **AppImage:** FUSE가 필요합니다. 없다면 `./Bubble_*.AppImage --appimage-extract-and-run`을 실행하세요. Wayland 렌더링 문제가 있으면 `WEBKIT_DISABLE_DMABUF_RENDERER=1`을 시도하세요. `.deb` / `.rpm` 패키지는 시스템 GTK 스택을 사용해 보통 더 부드럽습니다.
 
 ## AI 설정

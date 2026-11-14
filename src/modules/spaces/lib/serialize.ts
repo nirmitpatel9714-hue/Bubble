@@ -25,7 +25,7 @@ export type SerializedTab = (
   | { kind: "editor"; path: string }
   | { kind: "preview"; url: string }
   | { kind: "markdown"; path: string }
-) & { tiled?: boolean };
+) & { tiled?: boolean; tiledWidth?: number };
 
 function basename(path: string): string {
   const parts = path.split(/[\\/]/).filter(Boolean);
@@ -70,7 +70,14 @@ export function isSerializableTab(tab: Tab): boolean {
 
 function serializeTab(tab: Tab): SerializedTab | null {
   if (!isSerializableTab(tab)) return null;
-  const tiled = tab.tiled ? { tiled: true as const } : {};
+  const tiled = tab.tiled
+    ? {
+        tiled: true as const,
+        ...(typeof tab.tiledWidth === "number" && {
+          tiledWidth: tab.tiledWidth,
+        }),
+      }
+    : {};
   switch (tab.kind) {
     case "terminal":
       return {
@@ -149,7 +156,14 @@ function hydrateTab(
   spaceId: string,
   allocId: () => number,
 ): Tab | null {
-  const tiled = s.tiled ? { tiled: true as const } : {};
+  const tiled = s.tiled
+    ? {
+        tiled: true as const,
+        ...(typeof s.tiledWidth === "number" && {
+          tiledWidth: s.tiledWidth,
+        }),
+      }
+    : {};
   switch (s.kind) {
     case "terminal": {
       const { tree, activeLeafId, firstLeafCwd } = hydrateTree(s.tree, allocId);

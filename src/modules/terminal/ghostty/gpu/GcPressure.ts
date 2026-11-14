@@ -144,11 +144,11 @@ export class GcPressureMirror {
 }
 
 /**
- * `localStorage["losos:terminal-gc-mirror"]`: `off`, or
+ * `localStorage["bubble:terminal-gc-mirror"]`: `off`, or
  * `<bytesPerFrame>[:<batchBytes>]`, for experiments;
  * unset means the defaults above.
  */
-const GC_MIRROR_STORAGE_KEY = "losos:terminal-gc-mirror";
+const GC_MIRROR_STORAGE_KEY = "bubble:terminal-gc-mirror";
 export function gcPressureOptionsFromStorage(): GcPressureOptions {
   try {
     const value =

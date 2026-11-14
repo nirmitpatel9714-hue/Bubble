@@ -144,7 +144,7 @@ export function ensureAgentActivityListener(): Promise<void> {
       try {
         handler(e.payload);
       } catch (error) {
-        console.error("[losos] agent signal handler failed:", error);
+        console.error("[bubble] agent signal handler failed:", error);
       }
     }
   }).then(

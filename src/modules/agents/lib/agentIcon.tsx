@@ -51,7 +51,7 @@ export function AgentIcon({
   if (agent.toLowerCase() === "pi") {
     return <PiIcon size={size} className={className} />;
   }
-  if (agent.toLowerCase().includes("losos")) {
+  if (agent.toLowerCase().includes("bubble")) {
     return (
       <img
         src="/logo.png"

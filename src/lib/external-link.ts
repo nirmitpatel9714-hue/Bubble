@@ -15,7 +15,7 @@ export function openExternalUrl(
 
   return openUrl(href)
     .catch((error) => {
-      console.error("[losos] failed to open external link:", error);
+      console.error("[bubble] failed to open external link:", error);
     })
     .finally(() => onSettled?.());
 }

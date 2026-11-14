@@ -381,7 +381,7 @@ pub(super) fn spawn_with(
     let spawn_error =
         |what: &str, e: std::io::Error| format!("could not start PTY {what} thread: {e}");
     thread::Builder::new()
-        .name("losos-pty-writer".into())
+        .name("bubble-pty-writer".into())
         .stack_size(WRITER_STACK)
         .spawn(move || {
             while let Some(message) = input_rx.blocking_recv() {
@@ -399,7 +399,7 @@ pub(super) fn spawn_with(
     let spawn_at = Instant::now();
     let output_r = output.clone();
     let reader_thread = thread::Builder::new()
-        .name("losos-pty-reader".into())
+        .name("bubble-pty-reader".into())
         .stack_size(READER_STACK)
         .spawn(move || {
             let mut buf = [0u8; READ_BUF];
@@ -485,7 +485,7 @@ pub(super) fn spawn_with(
     #[cfg(windows)]
     let master_e = session.master.clone();
     thread::Builder::new()
-        .name("losos-pty-waiter".into())
+        .name("bubble-pty-waiter".into())
         .stack_size(WAITER_STACK)
         .spawn(move || {
             let code = match child.wait() {
@@ -699,7 +699,7 @@ mod tests {
             let session = spawn_with(host, PtySize::default(), || {
                 let mut command = CommandBuilder::new("wsl.exe");
                 command.env("PATH", directory.path());
-                command.env("LOSOS_WSL_LOGIN_SHELL", shell);
+                command.env("BUBBLE_WSL_LOGIN_SHELL", shell);
                 Ok(command)
             })
             .unwrap();

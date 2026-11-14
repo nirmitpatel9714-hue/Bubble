@@ -19,19 +19,19 @@ it.skipIf(process.platform === "win32")(
         "-c",
         `
 source() { :; }
-export LOSOS_BLOCKS=1
+export BUBBLE_BLOCKS=1
 PS1='test> '
 . "$1" >/dev/null
 eval "$PROMPT_COMMAND" >/dev/null
 if (( BASH_VERSINFO[0] > 4 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4 )); then
-  test "$LOSOS_BLOCKS" = 1 || exit 10
+  test "$BUBBLE_BLOCKS" = 1 || exit 10
   case "$PS0" in *'133;C'*) ;; *) exit 11 ;; esac
 else
-  test -z "$LOSOS_BLOCKS" || exit 12
-  case "$PS1" in *'test> '*'losos_blocks=0'*) ;; *) exit 13 ;; esac
+  test -z "$BUBBLE_BLOCKS" || exit 12
+  case "$PS1" in *'test> '*'bubble_blocks=0'*) ;; *) exit 13 ;; esac
 fi
 `,
-        "losos-test",
+        "bubble-test",
         script,
       ],
       {

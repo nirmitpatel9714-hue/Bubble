@@ -1,22 +1,22 @@
 [package]
-name = "losos-cli"
+name = "bubble-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
 
 [lib]
-name = "losos_cli"
+name = "bubble_cli"
 path = "src/lib.rs"
 
 [[bin]]
-name = "losos-cli"
+name = "bubble-cli"
 path = "src/main.rs"
 
 [dependencies]
 dirs = "7"
 serde_json = "1"
-losos-control-protocol = { path = "../losos-control-protocol" }
+bubble-control-protocol = { path = "../bubble-control-protocol" }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

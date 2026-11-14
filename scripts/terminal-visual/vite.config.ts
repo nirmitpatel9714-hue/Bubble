@@ -5,13 +5,13 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
-const source = process.env.LOSOS_VISUAL_SOURCE_ROOT ?? path.resolve(root, "../..");
-const outDir = process.env.LOSOS_VISUAL_OUT;
+const source = process.env.BUBBLE_VISUAL_SOURCE_ROOT ?? path.resolve(root, "../..");
+const outDir = process.env.BUBBLE_VISUAL_OUT;
 
 // Receives raw RGBA readbacks from the page so they can be compared offline.
 function saveEndpoint(): Plugin {
   return {
-    name: "losos-visual-save",
+    name: "bubble-visual-save",
     configureServer(server) {
       server.middlewares.use("/__save", (request, response) => {
         if (!outDir || request.method !== "POST") {
@@ -36,11 +36,11 @@ export default defineConfig({
   root,
   cacheDir: path.join(
     os.tmpdir(),
-    `losos-visual-vite-${process.env.LOSOS_VISUAL_PORT ?? 5199}`,
+    `bubble-visual-vite-${process.env.BUBBLE_VISUAL_PORT ?? 5199}`,
   ),
   plugins: [saveEndpoint()],
   server: {
-    port: Number(process.env.LOSOS_VISUAL_PORT ?? 5199),
+    port: Number(process.env.BUBBLE_VISUAL_PORT ?? 5199),
     strictPort: true,
     fs: { allow: [root, source, path.resolve(root, "../..")] },
   },
@@ -48,16 +48,16 @@ export default defineConfig({
     alias: [
       { find: "@", replacement: path.join(source, "src") },
       {
-        find: "@losos/ghostty-core/adapted",
+        find: "@bubble/ghostty-core/adapted",
         replacement: path.join(source, "packages/ghostty-core/lib/adapted/index.ts"),
       },
       {
-        find: "@losos/ghostty-core/protocol",
+        find: "@bubble/ghostty-core/protocol",
         replacement: path.join(source, "packages/ghostty-core/lib/protocol.ts"),
       },
     ],
   },
   // Product code gates app-lab hooks on this build-time constant (see the app's vite.config.ts).
-  define: { __LOSOS_BENCH__: "false" },
+  define: { __BUBBLE_BENCH__: "false" },
   build: { target: "es2022" },
 });

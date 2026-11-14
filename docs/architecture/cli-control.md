@@ -4,35 +4,35 @@ This guide elaborates on `BUBBLE.md`. If anything here conflicts with `BUBBLE.md
 
 ## Current surface
 
-Bubble bundles a small Rust client internally named `losos-cli`. Native terminal panes expose it as the public `losos` command:
+Bubble bundles a small Rust client internally named `bubble-cli`. Native terminal panes expose it as the public `bubble` command:
 
 ```text
-losos <file> [--line <n>] [--no-focus] [--json]
-losos open <file> [--line <n>] [--no-focus] [--json]
-losos ping [--json]
-losos capabilities [--json]
-losos identify [--json]
-losos hook <agent> <event>
+bubble <file> [--line <n>] [--no-focus] [--json]
+bubble open <file> [--line <n>] [--no-focus] [--json]
+bubble ping [--json]
+bubble capabilities [--json]
+bubble identify [--json]
+bubble hook <agent> <event>
 ```
 
 The app must already be running. A command launched inside a Bubble pane targets that pane's space, even if another space or tab has UI focus. An external client without pane context falls back to the active UI context.
 
-`losos hook` is the entry point agent hooks call. It reads the hook JSON from stdin and delivers it with `LOSOS_PANE_ID`. It does nothing outside a Bubble pane, never exits non-zero, and prints `{}` unless it is returning a permission decision. `LOSOS_HOOK_TIMEOUT` (seconds, default 600, at most 900) bounds how long it waits for a decision, `LOSOS_HOOK_WAIT=0` disables waiting, and `LOSOS_HOOK_DEBUG=1` prints why a delivery failed to stderr.
+`bubble hook` is the entry point agent hooks call. It reads the hook JSON from stdin and delivers it with `BUBBLE_PANE_ID`. It does nothing outside a Bubble pane, never exits non-zero, and prints `{}` unless it is returning a permission decision. `BUBBLE_HOOK_TIMEOUT` (seconds, default 600, at most 900) bounds how long it waits for a decision, `BUBBLE_HOOK_WAIT=0` disables waiting, and `BUBBLE_HOOK_DEBUG=1` prints why a delivery failed to stderr.
 
 ## Components
 
-- `src-tauri/crates/losos-control-protocol` contains dependency-light request, response, error, descriptor, and method types shared by the app and CLI.
-- `src-tauri/crates/losos-cli` contains the standalone console client. It intentionally avoids Clap, Tokio, reqwest, and Tauri.
+- `src-tauri/crates/bubble-control-protocol` contains dependency-light request, response, error, descriptor, and method types shared by the app and CLI.
+- `src-tauri/crates/bubble-cli` contains the standalone console client. It intentionally avoids Clap, Tokio, reqwest, and Tauri.
 - `src-tauri/src/modules/control.rs` owns endpoint discovery, authentication, message limits, concurrency limits, timeouts, path canonicalization, and request routing.
 - `src/modules/control/` maps a caller pane to its tab and space, then performs the small set of UI-only actions.
-- `losos-control-protocol::hook` holds the hook method types, the per-agent payload adapters, payload trimming and decision rendering. `src-tauri/src/modules/agent_events.rs` serves the method, and `src/modules/control/agents.ts` is the frontend API.
+- `bubble-control-protocol::hook` holds the hook method types, the per-agent payload adapters, payload trimming and decision rendering. `src-tauri/src/modules/agent_events.rs` serves the method, and `src/modules/control/agents.ts` is the frontend API.
 - `scripts/build-cli.mjs` builds the target-specific helper expected by Tauri's `externalBin` bundler.
 
 Rust handles `ping`, `capabilities`, authentication, and file validation directly. Actions that must mutate React state are emitted to the main webview and completed through `control_respond`. This keeps OS validation in Rust without duplicating the tab model outside React.
 
 ## Transport and authentication
 
-The app binds an ephemeral loopback TCP port and writes a discovery descriptor to the user cache directory under `losos/control.json`. The descriptor contains the protocol version, address, process id, app version, and a random 256-bit token.
+The app binds an ephemeral loopback TCP port and writes a discovery descriptor to the user cache directory under `bubble/control.json`. The descriptor contains the protocol version, address, process id, app version, and a random 256-bit token.
 
 Security properties:
 
@@ -49,19 +49,19 @@ Security properties:
 - File paths are canonicalized and required to reference a regular file inside an authorized workspace before the editor is opened.
 - The descriptor is removed only when it still belongs to the exiting process, so an older instance cannot delete a newer instance's endpoint.
 
-The token is injected into Bubble-spawned native shells together with `LOSOS_PANE_ID`. Child coding agents inherit the caller context intentionally, which gives them the same local UI-control capability as the terminal that launched them. Tokens must never be logged or added to command output.
+The token is injected into Bubble-spawned native shells together with `BUBBLE_PANE_ID`. Child coding agents inherit the caller context intentionally, which gives them the same local UI-control capability as the terminal that launched them. Tokens must never be logged or added to command output.
 
 ## Command discovery inside a PTY
 
-The packaged helper is named `losos-cli` because a macOS app bundle places sidecars beside the GUI executable, which is already named `losos`. At app startup Bubble creates a user-private, per-process `bin/losos` hard link to the packaged helper, falling back to a symlink on Unix or a copy on Windows. That directory is prepended to the PTY `PATH`.
+The packaged helper is named `bubble-cli` because a macOS app bundle places sidecars beside the GUI executable, which is already named `bubble`. At app startup Bubble creates a user-private, per-process `bin/bubble` hard link to the packaged helper, falling back to a symlink on Unix or a copy on Windows. That directory is prepended to the PTY `PATH`.
 
-Existing Bash, Zsh, Fish, and PowerShell integration also defines an interactive `losos` function that executes `$LOSOS_CLI`. The real PATH entry is still required because non-interactive child shells do not reliably inherit shell functions.
+Existing Bash, Zsh, Fish, and PowerShell integration also defines an interactive `bubble` function that executes `$BUBBLE_CLI`. The real PATH entry is still required because non-interactive child shells do not reliably inherit shell functions.
 
 Launcher directories for exited processes are removed at the next control-server startup. Live process ids are preserved regardless of directory age.
 
 ## Packaging and size
 
-`tauri.conf.json` declares `binaries/losos-cli` as an external binary. Tauri selects the file with the current target-triple suffix and signs or packages it with the app. The release workflow passes its explicit Rust target to `scripts/build-cli.mjs`, which prevents an x86_64 macOS release from accidentally bundling an arm64 helper from the host.
+`tauri.conf.json` declares `binaries/bubble-cli` as an external binary. Tauri selects the file with the current target-triple suffix and signs or packages it with the app. The release workflow passes its explicit Rust target to `scripts/build-cli.mjs`, which prevents an x86_64 macOS release from accidentally bundling an arm64 helper from the host.
 
 The release profile uses one codegen unit, fat LTO, size optimization, abort-on-panic, and stripping. Always measure the actual target artifacts after changing dependencies.
 
@@ -77,7 +77,7 @@ These limits are explicit so unsupported paths fail as unavailable instead of si
 
 ## Extending the protocol
 
-1. Add the method constant and typed parameters to `losos-control-protocol`.
+1. Add the method constant and typed parameters to `bubble-control-protocol`.
 2. Validate authentication, protocol version, bounds, and OS-facing inputs in Rust.
 3. Handle the method in Rust when it does not require React state. Route only UI-bound work to the frontend.
 4. Resolve the explicit caller pane before falling back to active UI state.

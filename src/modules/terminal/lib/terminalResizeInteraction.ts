@@ -11,7 +11,7 @@ type ResizeInteractionState = {
   readonly listeners: Set<InteractionListener>;
 };
 
-const GLOBAL_STATE_KEY = "__LOSOS_TERMINAL_RESIZE_INTERACTION__";
+const GLOBAL_STATE_KEY = "__BUBBLE_TERMINAL_RESIZE_INTERACTION__";
 const globalScope = globalThis as typeof globalThis & {
   [GLOBAL_STATE_KEY]?: ResizeInteractionState;
 };

@@ -43,12 +43,12 @@ export function useThemeFileEditing({ tabsRef, openFileTab }: Params) {
                 return;
               const parsed = parseThemeFile(res.content);
               if (!parsed.ok) {
-                console.warn("[losos] theme not applied:", parsed.error);
+                console.warn("[bubble] theme not applied:", parsed.error);
                 return;
               }
               await saveCustomTheme(parsed.theme);
             } catch (e) {
-              console.warn("[losos] theme ingest failed:", e);
+              console.warn("[bubble] theme ingest failed:", e);
             }
           })();
         },

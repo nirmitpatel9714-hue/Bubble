@@ -1,4 +1,4 @@
-const DB_NAME = "losos-bg-images";
+const DB_NAME = "bubble-bg-images";
 const STORE = "images";
 const VERSION = 1;
 

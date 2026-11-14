@@ -279,7 +279,7 @@ export const git = {
       workspace: currentWorkspaceEnv(),
     }),
 
-  // ---- checkpoints (refs/losos/checkpoints/<task>/<turn>)
+  // ---- checkpoints (refs/bubble/checkpoints/<task>/<turn>)
   checkpointCreate: (worktree: string, taskId: string, turn: number) =>
     invoke<CheckpointCreated>("git_checkpoint_create", {
       worktree,

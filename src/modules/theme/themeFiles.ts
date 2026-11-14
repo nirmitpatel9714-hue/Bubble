@@ -6,7 +6,7 @@ import type { Theme } from "./types";
 import { validateTheme, type ValidationResult } from "./validateTheme";
 
 const THEME_FILE_EXT = ".bubble-theme";
-const LEGACY_THEME_FILE_EXT = ".losos-theme";
+const LEGACY_THEME_FILE_EXT = ".bubble-theme";
 const THEME_EDIT_EVENT = "bubble://theme-edit";
 
 export type ThemeEditRequest =
@@ -134,13 +134,13 @@ export async function handOffThemeEdit(
   try {
     await emitRequest(req);
   } catch (error) {
-    console.error("[losos] theme edit request failed:", error);
+    console.error("[bubble] theme edit request failed:", error);
     return false;
   }
   try {
     await closeWindow();
   } catch (error) {
-    console.error("[losos] could not close settings window:", error);
+    console.error("[bubble] could not close settings window:", error);
   }
   return true;
 }

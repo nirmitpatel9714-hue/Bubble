@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#0d0d10"/>
+  <rect x="24" y="24" width="1232" height="672" rx="12" fill="#121216" stroke="#2a2a31"/>
+  <rect x="24" y="24" width="1232" height="56" rx="12" fill="#17171c"/>
+  <text x="56" y="60" font-family="Segoe UI, sans-serif" font-size="20" fill="#e8e8ea">Bubble</text>
+  <rect x="48" y="112" width="220" height="560" rx="10" fill="#0f0f13" stroke="#22222a"/>
+  <text x="72" y="150" font-family="Segoe UI, sans-serif" font-size="14" fill="#8a8a94">Workspaces</text>
+  <rect x="292" y="112" width="940" height="560" rx="10" fill="#0b0b0e" stroke="#22222a"/>
+  <text x="640" y="400" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="26" fill="#e8e8ea">Workspaces &amp; tabs</text>
+  <text x="640" y="440" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="15" fill="#7a7a85">Placeholder — replace with a real screenshot</text>
+</svg>

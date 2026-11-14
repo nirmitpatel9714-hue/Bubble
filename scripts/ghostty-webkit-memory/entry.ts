@@ -1,4 +1,4 @@
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 
 declare const WASM_BASE64: string;
 declare const OPEN: number;

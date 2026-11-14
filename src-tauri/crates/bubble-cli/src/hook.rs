@@ -7,12 +7,12 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-use losos_control_protocol::hook::{
+use bubble_control_protocol::hook::{
     decision_output, is_decision_event, trim_payload, AgentName, HookParams, HookResult,
     DEFAULT_DECISION_SECS, MAX_DECISION_SECS, MAX_PAYLOAD_BYTES, MAX_STDIN_BYTES,
     NO_DECISION_OUTPUT,
 };
-use losos_control_protocol::{
+use bubble_control_protocol::{
     CallerContext, ControlDescriptor, ControlRequest, ControlResponse, METHOD_HOOK,
     PROTOCOL_VERSION,
 };
@@ -52,10 +52,10 @@ impl HookEnvironment {
     /// `None` when this process is not inside a Bubble pane, which makes the
     /// hook inert in every other terminal.
     pub fn from_lookup(get: impl Fn(&str) -> Option<String>) -> Option<Self> {
-        let pane_id = get("LOSOS_PANE_ID")?.trim().parse::<u32>().ok()?;
-        let address = get("LOSOS_CONTROL_ADDR").filter(|value| !value.is_empty())?;
-        let token = get("LOSOS_CONTROL_TOKEN").filter(|value| !value.is_empty())?;
-        let decision_secs = get("LOSOS_HOOK_TIMEOUT")
+        let pane_id = get("BUBBLE_PANE_ID")?.trim().parse::<u32>().ok()?;
+        let address = get("BUBBLE_CONTROL_ADDR").filter(|value| !value.is_empty())?;
+        let token = get("BUBBLE_CONTROL_TOKEN").filter(|value| !value.is_empty())?;
+        let decision_secs = get("BUBBLE_HOOK_TIMEOUT")
             .and_then(|value| value.trim().parse::<u32>().ok())
             .map_or(DEFAULT_DECISION_SECS, |secs| {
                 secs.clamp(1, MAX_DECISION_SECS)
@@ -65,8 +65,8 @@ impl HookEnvironment {
             address,
             token,
             decision_secs,
-            wait_enabled: get("LOSOS_HOOK_WAIT").as_deref() != Some("0"),
-            debug: get("LOSOS_HOOK_DEBUG").is_some_and(|value| !value.is_empty() && value != "0"),
+            wait_enabled: get("BUBBLE_HOOK_WAIT").as_deref() != Some("0"),
+            debug: get("BUBBLE_HOOK_DEBUG").is_some_and(|value| !value.is_empty() && value != "0"),
         })
     }
 }
@@ -93,7 +93,7 @@ pub fn run(
 ) {
     let output = deliver(args, environment, stdin).unwrap_or_else(|reason| {
         if environment.is_some_and(|environment| environment.debug) {
-            eprintln!("losos hook: {reason}");
+            eprintln!("bubble hook: {reason}");
         }
         NO_DECISION_OUTPUT.to_string()
     });
@@ -219,7 +219,7 @@ fn read_payload(mut stdin: Box<dyn Read + Send>) -> Value {
     let (done, finished) = mpsc::channel::<()>();
     let shared = Arc::clone(&buffer);
     let spawned = thread::Builder::new()
-        .name("losos-hook-stdin".into())
+        .name("bubble-hook-stdin".into())
         .spawn(move || {
             let mut chunk = [0u8; 16 * 1024];
             loop {
@@ -275,11 +275,11 @@ mod tests {
     }
 
     #[test]
-    fn the_environment_requires_every_losos_variable() {
+    fn the_environment_requires_every_bubble_variable() {
         let full: &[(&str, &str)] = &[
-            ("LOSOS_PANE_ID", "7"),
-            ("LOSOS_CONTROL_ADDR", "127.0.0.1:4000"),
-            ("LOSOS_CONTROL_TOKEN", "tok"),
+            ("BUBBLE_PANE_ID", "7"),
+            ("BUBBLE_CONTROL_ADDR", "127.0.0.1:4000"),
+            ("BUBBLE_CONTROL_TOKEN", "tok"),
         ];
         let environment = HookEnvironment::from_lookup(lookup(full)).unwrap();
         assert_eq!(environment.pane_id, 7);
@@ -299,9 +299,9 @@ mod tests {
         }
         assert_eq!(
             HookEnvironment::from_lookup(lookup(&[
-                ("LOSOS_PANE_ID", "x"),
-                ("LOSOS_CONTROL_ADDR", "a"),
-                ("LOSOS_CONTROL_TOKEN", "t"),
+                ("BUBBLE_PANE_ID", "x"),
+                ("BUBBLE_CONTROL_ADDR", "a"),
+                ("BUBBLE_CONTROL_TOKEN", "t"),
             ])),
             None
         );
@@ -312,12 +312,12 @@ mod tests {
         let with = |timeout: &'static str, wait: &'static str| {
             let pairs: &'static [(&'static str, &'static str)] = Box::leak(
                 vec![
-                    ("LOSOS_PANE_ID", "1"),
-                    ("LOSOS_CONTROL_ADDR", "a"),
-                    ("LOSOS_CONTROL_TOKEN", "t"),
-                    ("LOSOS_HOOK_TIMEOUT", timeout),
-                    ("LOSOS_HOOK_WAIT", wait),
-                    ("LOSOS_HOOK_DEBUG", "1"),
+                    ("BUBBLE_PANE_ID", "1"),
+                    ("BUBBLE_CONTROL_ADDR", "a"),
+                    ("BUBBLE_CONTROL_TOKEN", "t"),
+                    ("BUBBLE_HOOK_TIMEOUT", timeout),
+                    ("BUBBLE_HOOK_WAIT", wait),
+                    ("BUBBLE_HOOK_DEBUG", "1"),
                 ]
                 .into(),
             );
@@ -345,7 +345,7 @@ mod tests {
     }
 
     #[test]
-    fn outside_losos_the_hook_prints_an_empty_object_and_does_nothing() {
+    fn outside_bubble_the_hook_prints_an_empty_object_and_does_nothing() {
         let mut out = Vec::new();
         run(
             &args(&["claude", "Stop"]),

@@ -150,7 +150,7 @@ changes that matter to Bubble:
 - DECXCPR (`CSI ? 6 n`, answered `CSI ? row;col;1 R`) and `CSI 19 t`
   (`CSI 9;rows;cols t`) were added to upstream's device-status and size-report
   enums. The bridge's exhaustive switches required matching replies in
-  `losos.zig`; no other bridge behavior changed.
+  `bubble.zig`; no other bridge behavior changed.
 
 Linear memory is unchanged from the previous pin: 20 blank 120x40 models use
 10.4375 MiB, and the block-enabled stress workload plateaus at 68.1875 MiB for
@@ -159,7 +159,7 @@ both variants with zero plateau growth. Artifacts grew by 4,099 (SIMD) and 4,172
 saving. Native canvas reuse and row-staging measurements are recorded separately
 in `docs/architecture/ghostty-resource-efficiency.md`.
 
-The GPU cell-record format (`LOSOS_SOAK_FORMAT=gpu`, `LOSOS_PROFILE_FORMAT=gpu`)
+The GPU cell-record format (`BUBBLE_SOAK_FORMAT=gpu`, `BUBBLE_PROFILE_FORMAT=gpu`)
 keeps the blank allocation and plateaus 786,432 bytes lower (67.4375 MiB) with
 zero plateau growth. The format added about 16 KiB to each artifact.
 
@@ -193,9 +193,9 @@ From `packages/ghostty-core/adapted/wasm` (add `-Dwasm-stack-kib=N` to change th
 
 ```sh
 zig build -Dtarget=wasm32-freestanding -Doptimize=ReleaseFast
-cp zig-out/bin/losos-ghostty-vt.wasm ../ghostty-vt.wasm
+cp zig-out/bin/bubble-ghostty-vt.wasm ../ghostty-vt.wasm
 zig build -Dtarget=wasm32-freestanding -Doptimize=ReleaseFast -Dwasm-simd=false
-cp zig-out/bin/losos-ghostty-vt.wasm ../ghostty-vt-scalar.wasm
+cp zig-out/bin/bubble-ghostty-vt.wasm ../ghostty-vt-scalar.wasm
 shasum -a 256 ../ghostty-vt.wasm ../ghostty-vt-scalar.wasm
 ```
 

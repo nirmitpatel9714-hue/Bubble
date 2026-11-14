@@ -125,7 +125,7 @@ export function useTerminalFileDrop(): TerminalPathDropTarget {
         if (disposed) fn();
         else unlisten = fn;
       })
-      .catch((err) => console.error("[losos] drag-drop listen failed:", err));
+      .catch((err) => console.error("[bubble] drag-drop listen failed:", err));
 
     return () => {
       disposed = true;

@@ -1,3 +1,3 @@
 fn main() -> std::process::ExitCode {
-    losos_cli::main_entry()
+    bubble_cli::main_entry()
 }

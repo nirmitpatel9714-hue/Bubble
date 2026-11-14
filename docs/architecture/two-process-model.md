@@ -38,7 +38,7 @@ Long-lived interactive terminal sessions.
 - `pty_has_foreground_process` / `pty_has_foreground_job` - detect whether a command is running
 - `pty_shell_name` / `pty_list_shells` - shell detection and enumeration
 
-Output streams over the `losos-pty` custom URI scheme (one held `poll` request per window), not through `pty_open`; see `pty-transport-v2.md`.
+Output streams over the `bubble-pty` custom URI scheme (one held `poll` request per window), not through `pty_open`; see `pty-transport-v2.md`.
 
 ### File system (`src-tauri/src/modules/fs/`)
 
@@ -108,7 +108,7 @@ Three distinct surfaces:
 
 ### Secrets (`src-tauri/src/modules/secrets.rs`)
 
-- `secrets_get` / `secrets_set` / `secrets_delete` / `secrets_get_all` - OS keychain access, service `losos-ai`
+- `secrets_get` / `secrets_set` / `secrets_delete` / `secrets_get_all` - OS keychain access, service `bubble-ai`
 
 ### Agent hooks (`src-tauri/src/modules/agent.rs`)
 

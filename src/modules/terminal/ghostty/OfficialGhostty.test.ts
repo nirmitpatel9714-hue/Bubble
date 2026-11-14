@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import {
   GhosttyOptimizeMode,
   GhosttyRenderStateDirty,
   OFFICIAL_GHOSTTY_COMMIT,
   OFFICIAL_GHOSTTY_WASM_SHA256,
   OfficialGhostty,
-} from "@losos/ghostty-core/official";
+} from "@bubble/ghostty-core/official";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 let ghostty: OfficialGhostty;

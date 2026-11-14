@@ -2,12 +2,13 @@
   <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
   <h1>Bubble</h1>
   <p><strong>Ruang kerja pengembangan ringan, berfokus pada terminal, dan berteknologi AI.</strong></p>
-  <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
+  <p><a href="https://github.com/nirmitpatel9714-hue/Bubble">GitHub</a></p>
 
   <p>
-    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/LosOS?label=version&color=blue" alt="versi" />
-    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/LosOS/total?label=downloads&color=blue" alt="unduhan" />
-    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="platform" />
+    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/Bubble?label=version&color=blue" alt="versi" />
+    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/Bubble/total?label=downloads&color=blue" alt="unduhan" />
+    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="platform" />
+
   </p>
 </div>
 
@@ -88,7 +89,7 @@ Bubble adalah lingkungan pengembangan (ADE) ringan, sumber terbuka, berfokus pad
 
 ## Instalasi
 
-Penginstal terbaru tersedia di halaman [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble melakukan pembaruan otomatis dari sana.
+Penginstal terbaru tersedia di halaman [Releases](https://github.com/nirmitpatel9714-hue/Bubble/releases/latest). Bubble melakukan pembaruan otomatis dari sana.
 
 ### Catatan Windows
 
@@ -97,8 +98,8 @@ Penginstal terbaru tersedia di halaman [Releases](https://github.com/nirmitpatel
 
 ### Catatan Linux
 
-- **Arch / AUR:** `yay -S losos-bin` atau `paru`. Paket mengikuti rilis terbaru.
-- **NixOS / Nix:** gunakan flake resmi. Di luar NixOS, jalankan `nix profile install github:nirmitpatel9714-hue/LosOS`. Di NixOS, impor flake dan tambahkan `inputs.losos.packages.${pkgs.system}.losos` ke `environment.systemPackages`. `nixosModules.losos` juga tersedia untuk pengaturan yang lebih sederhana.
+- **Arch / AUR:** `yay -S bubble-bin` atau `paru`. Paket mengikuti rilis terbaru.
+- **NixOS / Nix:** gunakan flake resmi. Di luar NixOS, jalankan `nix profile install github:nirmitpatel9714-hue/Bubble`. Di NixOS, impor flake dan tambahkan `inputs.bubble.packages.${pkgs.system}.bubble` ke `environment.systemPackages`. `nixosModules.bubble` juga tersedia untuk pengaturan yang lebih sederhana.
 - **AppImage:** memerlukan FUSE. Tanpanya, jalankan `./Bubble_*.AppImage --appimage-extract-and-run`. Jika ada masalah perenderan di Wayland, coba `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Paket `.deb` / `.rpm` menggunakan stack GTK sistem dan biasanya lebih lancar.
 
 ## Konfigurasi AI

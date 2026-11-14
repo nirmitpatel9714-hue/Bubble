@@ -27,6 +27,10 @@ const ALLOWED: Record<string, { allows: string[]; why: string }> = {
     allows: ["3D transform", "filter blur"],
     why: "user background image; layer only when blurred or animated (surfaceOwnsLayer)",
   },
+  "modules/shortcuts/LeaderHud.tsx": {
+    allows: ["backdrop filter"],
+    why: "leader HUD pill, mounted only while leader chord is pending",
+  },
   "components/ui/dialog.tsx": {
     allows: ["backdrop filter"],
     why: "modal scrim, mounted only while open",

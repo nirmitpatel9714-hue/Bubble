@@ -9,20 +9,20 @@ import Inspect from "vite-plugin-inspect";
 const host = process.env.TAURI_DEV_HOST;
 const rootDir = import.meta.dirname;
 
-// The app-lab driver (`LOSOS_BENCH=1`) may only be built for the lab's own identifier
-// (scripts/app-lab/run.py sets LOSOS_BENCH_IDENTIFIER): a stray `LOSOS_BENCH=1 pnpm build` or
+// The app-lab driver (`BUBBLE_BENCH=1`) may only be built for the lab's own identifier
+// (scripts/app-lab/run.py sets BUBBLE_BENCH_IDENTIFIER): a stray `BUBBLE_BENCH=1 pnpm build` or
 // `tauri build` would otherwise ship the driver under the product identifier. The Rust side
 // refuses to start a bench binary under it too (modules/bench.rs); this fails the build early.
-if (process.env.LOSOS_BENCH === "1") {
+if (process.env.BUBBLE_BENCH === "1") {
   const product = (
     JSON.parse(
       readFileSync(path.join(rootDir, "src-tauri/tauri.conf.json"), "utf8"),
     ) as { identifier: string }
   ).identifier;
-  const identifier = process.env.LOSOS_BENCH_IDENTIFIER;
+  const identifier = process.env.BUBBLE_BENCH_IDENTIFIER;
   if (!identifier || identifier === product) {
     throw new Error(
-      `LOSOS_BENCH=1 builds the app-lab driver and needs its own LOSOS_BENCH_IDENTIFIER ` +
+      `BUBBLE_BENCH=1 builds the app-lab driver and needs its own BUBBLE_BENCH_IDENTIFIER ` +
         `(not the product identifier ${product}); run scripts/app-lab/run.py instead`,
     );
   }
@@ -211,11 +211,11 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => ({
       },
     },
   },
-  // Real-application benchmark driver (src/bench, scripts/app-lab). `LOSOS_BENCH=1` compiles
-  // it in; otherwise this is the literal `false` and every `if (__LOSOS_BENCH__)` branch,
+  // Real-application benchmark driver (src/bench, scripts/app-lab). `BUBBLE_BENCH=1` compiles
+  // it in; otherwise this is the literal `false` and every `if (__BUBBLE_BENCH__)` branch,
   // including its dynamic imports, is removed, so no bench code or chunk is emitted.
   define: {
-    __LOSOS_BENCH__: JSON.stringify(process.env.LOSOS_BENCH === "1"),
+    __BUBBLE_BENCH__: JSON.stringify(process.env.BUBBLE_BENCH === "1"),
   },
   clearScreen: false,
   server: {

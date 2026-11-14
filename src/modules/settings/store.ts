@@ -1,4 +1,13 @@
 import {
+  AGENT_LAUNCHERS,
+  type AgentLaunchCommands,
+  type AgentLauncherId,
+  type CustomCodingAgent,
+  DEFAULT_AGENT_LAUNCH_COMMANDS,
+  normalizeAgentLaunchCommands,
+  normalizeCustomCodingAgents,
+} from "@/modules/agents/lib/launcher";
+import {
   type AutocompleteProviderId,
   type CustomEndpoint,
   DEFAULT_AUTOCOMPLETE_MODEL,
@@ -14,15 +23,6 @@ import {
   type SttProvider,
   WHISPERCPP_DEFAULT_BASE_URL,
 } from "@/modules/ai/config";
-import {
-  AGENT_LAUNCHERS,
-  type AgentLaunchCommands,
-  type AgentLauncherId,
-  type CustomCodingAgent,
-  DEFAULT_AGENT_LAUNCH_COMMANDS,
-  normalizeAgentLaunchCommands,
-  normalizeCustomCodingAgents,
-} from "@/modules/agents/lib/launcher";
 import type { KeyBinding, ShortcutId } from "@/modules/shortcuts/shortcuts";
 import {
   coerceMacOptionAsAlt,
@@ -38,7 +38,7 @@ import { LazyStore } from "@tauri-apps/plugin-store";
 
 export type ThemePref = "system" | "light" | "dark";
 
-export const DEFAULT_THEME_ID = "losos-default";
+export const DEFAULT_THEME_ID = "bubble-default";
 
 export type BackgroundKind = "none" | "image";
 
@@ -139,6 +139,10 @@ export type Preferences = {
   backgroundOpacity: number;
   backgroundBlur: number;
   windowVibrancy: boolean;
+  /** User-authored CSS injected into every window. */
+  customCss: string;
+  /** Sharp-cornered terminal and pane styling. */
+  terminalCss: boolean;
   defaultModelId: ModelId;
   editorTheme: EditorThemePref;
   editorFontSize: number;
@@ -194,7 +198,7 @@ export type Preferences = {
   customCodingAgents: CustomCodingAgent[];
   defaultWorkspaceEnv: string;
   shortcuts: Record<ShortcutId, KeyBinding[]>;
-  /** Pressed before every application chord. Default: Ctrl+Space. */
+  /** Pressed before every application chord. Default: Ctrl+B. */
   leaderKey: KeyBinding;
   editorAutoSave: boolean;
   editorAutoSaveDelay: number;
@@ -232,7 +236,7 @@ export type LspCustomServer = {
   rootMarkers: string[];
 };
 
-const STORE_PATH = "losos-settings.json";
+const STORE_PATH = "bubble-settings.json";
 const KEY_THEME = "theme";
 const KEY_THEME_ID = "themeId";
 const KEY_BG_KIND = "backgroundKind";
@@ -240,6 +244,8 @@ const KEY_BG_IMAGE_ID = "backgroundImageId";
 const KEY_BG_OPACITY = "backgroundOpacity";
 const KEY_BG_BLUR = "backgroundBlur";
 const KEY_WINDOW_VIBRANCY = "windowVibrancy";
+const KEY_CUSTOM_CSS = "customCss";
+const KEY_TERMINAL_CSS = "terminalCss";
 const KEY_DEFAULT_MODEL = "defaultModelId";
 const KEY_EDITOR_THEME = "editorTheme";
 const KEY_EDITOR_FONT_SIZE = "editorFontSize";
@@ -332,7 +338,7 @@ export const TERMINAL_SCROLLBACK_PRESETS = [
   500, 1000, 2000, 5000, 10_000, 25_000,
 ] as const;
 
-export const DEFAULT_LEADER_KEY: KeyBinding = { ctrl: true, key: " " };
+export const DEFAULT_LEADER_KEY: KeyBinding = { ctrl: true, key: "b" };
 
 /** The leader must be Ctrl-based: no Alt and no Super. */
 export function normalizeLeaderKey(value: unknown): KeyBinding {
@@ -370,6 +376,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // whole frame every present. An explicitly stored choice (either value)
   // always wins; only an absent key falls back to this.
   windowVibrancy: false,
+  customCss: "",
+  terminalCss: false,
   restoreWindowState: true,
   autocompleteEnabled: false,
   autocompleteTrigger: "auto",
@@ -487,6 +495,9 @@ export async function loadPreferences(): Promise<Preferences> {
       DEFAULT_PREFERENCES.restoreWindowState,
     windowVibrancy:
       get<boolean>(KEY_WINDOW_VIBRANCY) ?? DEFAULT_PREFERENCES.windowVibrancy,
+    customCss: get<string>(KEY_CUSTOM_CSS) ?? DEFAULT_PREFERENCES.customCss,
+    terminalCss:
+      get<boolean>(KEY_TERMINAL_CSS) ?? DEFAULT_PREFERENCES.terminalCss,
     autocompleteEnabled:
       get<boolean>(KEY_AUTOCOMPLETE_ENABLED) ??
       DEFAULT_PREFERENCES.autocompleteEnabled,
@@ -740,6 +751,14 @@ export async function setRestoreWindowState(value: boolean): Promise<void> {
 
 export async function setWindowVibrancy(value: boolean): Promise<void> {
   await writePref(KEY_WINDOW_VIBRANCY, value);
+}
+
+export async function setCustomCss(value: string): Promise<void> {
+  await writePref(KEY_CUSTOM_CSS, value);
+}
+
+export async function setTerminalCss(value: boolean): Promise<void> {
+  await writePref(KEY_TERMINAL_CSS, value);
 }
 
 export async function setAutocompleteTrigger(
@@ -1077,6 +1096,8 @@ export async function onPreferencesChange(
     [KEY_BG_OPACITY]: "backgroundOpacity",
     [KEY_BG_BLUR]: "backgroundBlur",
     [KEY_WINDOW_VIBRANCY]: "windowVibrancy",
+    [KEY_CUSTOM_CSS]: "customCss",
+    [KEY_TERMINAL_CSS]: "terminalCss",
     [KEY_DEFAULT_MODEL]: "defaultModelId",
     [KEY_EDITOR_THEME]: "editorTheme",
     [KEY_EDITOR_FONT_SIZE]: "editorFontSize",

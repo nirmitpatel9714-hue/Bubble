@@ -1,15 +1,15 @@
 [package]
-name = "losos"
+name = "bubble"
 version = "0.9.0"
 description = "Bubble — an open-source AI-native terminal emulator"
 authors = ["Bubble contributors"]
 license = "Apache-2.0"
 edition = "2021"
-default-run = "losos"
+default-run = "bubble"
 
 [workspace]
-members = ["crates/losos-cli", "crates/losos-control-protocol"]
-default-members = [".", "crates/losos-cli", "crates/losos-control-protocol"]
+members = ["crates/bubble-cli", "crates/bubble-control-protocol"]
+default-members = [".", "crates/bubble-cli", "crates/bubble-control-protocol"]
 resolver = "2"
 
 [workspace.package]
@@ -28,7 +28,7 @@ bench = []
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "losos_lib"
+name = "bubble_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -47,7 +47,7 @@ getrandom = "0.4"
 percent-encoding = "2"
 http-range = "0.1"
 memchr = "2"
-losos-control-protocol = { path = "crates/losos-control-protocol" }
+bubble-control-protocol = { path = "crates/bubble-control-protocol" }
 portable-pty = "0.9"
 dirs = "7"
 log = "0.4"
@@ -79,7 +79,7 @@ tempfile = "3"
 which = "8.0.4"
 
 [dev-dependencies]
-losos-cli = { path = "crates/losos-cli" }
+bubble-cli = { path = "crates/bubble-cli" }
 proptest = "1"
 tokio = { version = "1", features = ["macros", "rt", "test-util", "time"] }
 tempfile = "3"

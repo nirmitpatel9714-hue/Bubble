@@ -103,7 +103,7 @@ function connect(): void {
       .catch((error: unknown) => {
         if (!disposed)
           console.warn(
-            "[losos] Native window presentation tracking unavailable:",
+            "[bubble] Native window presentation tracking unavailable:",
             error,
           );
       });

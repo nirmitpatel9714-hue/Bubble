@@ -625,7 +625,7 @@ impl Hub {
         self.shared.started.call_once(|| {
             let shared = self.shared.clone();
             std::thread::Builder::new()
-                .name("losos-pty-hub".into())
+                .name("bubble-pty-hub".into())
                 .stack_size(256 * 1024)
                 .spawn(move || run(shared))
                 .expect("spawn pty hub thread");

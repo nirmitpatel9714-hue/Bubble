@@ -3,7 +3,7 @@ import { subscribeWindowPresentation } from "@/modules/terminal/ghostty/windowPr
 import { invoke } from "@tauri-apps/api/core";
 import { usePreferencesStore } from "@/modules/settings/preferences";
 import { terminalRendererReport } from "@/modules/terminal/backend/selection";
-import { supportsWasmSimd } from "@losos/ghostty-core/adapted";
+import { supportsWasmSimd } from "@bubble/ghostty-core/adapted";
 import { ghosttyCoreRuntimeDiagnostics } from "@/modules/terminal/ghostty/GhosttyCoreRuntime";
 import { webGpuTerminalRuntimeDiagnostics } from "@/modules/terminal/ghostty/gpu/WebGpuTerminalRuntime";
 import { webGlTerminalRuntimeDiagnostics } from "@/modules/terminal/ghostty/webgl/WebGlTerminalRuntime";
@@ -50,9 +50,9 @@ export async function terminalDebugSnapshot() {
 
 export function installTerminalDiagnostics(): void {
   Object.assign(window, {
-    __lososTerm: terminalDebugStats,
-    __lososTermSnapshot: terminalDebugSnapshot,
-    __lososTermTrace: recordTerminalResources,
+    __bubbleTerm: terminalDebugStats,
+    __bubbleTermSnapshot: terminalDebugSnapshot,
+    __bubbleTermTrace: recordTerminalResources,
   });
 }
 

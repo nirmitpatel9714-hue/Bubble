@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { beforeAll, describe, expect, it } from "vitest";
 import { AdaptedGhosttyTerminalModel } from "../AdaptedGhosttyTerminalModel";
 import type { GhosttyGpuFrame } from "../GhosttyTerminalModel";

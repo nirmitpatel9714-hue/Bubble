@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import type { GhosttyTerminalModelApi } from "@/modules/terminal/ghostty/GhosttyTerminalModel";
-import { Key, Mods } from "@losos/ghostty-core";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { Key, Mods } from "@bubble/ghostty-core";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FakeElement, FakeTextArea } from "./fakeTextArea";
 import { GhosttyInputController } from "./GhosttyInputController";

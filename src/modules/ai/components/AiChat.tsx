@@ -35,7 +35,7 @@ import {
   HashtagIcon,
   TerminalIcon,
 } from "@hugeicons/core-free-icons";
-import { SLASH_COMMANDS, LOSOS_CMD_RE } from "../lib/slashCommands";
+import { SLASH_COMMANDS, BUBBLE_CMD_RE } from "../lib/slashCommands";
 import { Spinner } from "@/components/ui/spinner";
 import { useChatStore } from "../store/chatStore";
 import { sendMessage } from "../store/chatRuntime";
@@ -374,7 +374,7 @@ const RenderedMessage = memo(function RenderedMessage({
       .map((p) => p.text)
       .join("\n");
 
-    const cmdMatch = rawText.match(LOSOS_CMD_RE);
+    const cmdMatch = rawText.match(BUBBLE_CMD_RE);
     const commandName = cmdMatch?.[1] ?? null;
     const withoutCmd = cmdMatch ? rawText.slice(cmdMatch[0].length) : rawText;
     const stripped = stripUserContextBlocks(withoutCmd);

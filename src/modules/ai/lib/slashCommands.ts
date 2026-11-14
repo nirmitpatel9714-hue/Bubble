@@ -69,8 +69,8 @@ export const SLASH_COMMANDS: Record<string, SlashCommandMeta> = {
   },
 };
 
-export const LOSOS_CMD_RE =
-  /^<losos-command\s+name="([a-z0-9-]+)"(?:\s+state="([a-z]+)")?\s*\/>(?:\n+|$)/;
+export const BUBBLE_CMD_RE =
+  /^<bubble-command\s+name="([a-z0-9-]+)"(?:\s+state="([a-z]+)")?\s*\/>(?:\n+|$)/;
 
 export function tryRunSlashCommand(input: string): SlashOutcome {
   const trimmed = input.trim();

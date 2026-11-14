@@ -1,5 +1,5 @@
 import { smoothHooks } from "@/bench/smoothHooks";
-import type { GhosttyTerminalEvent } from "@losos/ghostty-core/protocol";
+import type { GhosttyTerminalEvent } from "@bubble/ghostty-core/protocol";
 
 /**
  * How long a pane keeps showing its previous frame after a resize cleared the prompt, waiting
@@ -8,6 +8,14 @@ import type { GhosttyTerminalEvent } from "@losos/ghostty-core/protocol";
  * stale frame for longer than this.
  */
 export const RESIZE_PROMPT_HOLD_MS = 70;
+
+/**
+ * Windows shells answer SIGWINCH through ConPTY, which can take longer than the
+ * default hold to repaint (a prompt with git status, the PowerShell host, or a
+ * busy ConPTY). Holding a little longer keeps the old prompt on screen until the
+ * redraw lands instead of flashing the cleared frame.
+ */
+export const WINDOWS_RESIZE_PROMPT_HOLD_MS = 250;
 
 /**
  * Ghostty clears a redrawable prompt (OSC 133 `A` with `redraw` left on, which zsh, fish and
@@ -54,7 +62,7 @@ export class ResizePromptHold {
   resized(alternateScreen: boolean): void {
     if (this.holding || !this.atPrompt || alternateScreen) return;
     this.erasedPrompt = true;
-    if (__LOSOS_BENCH__) {
+    if (__BUBBLE_BENCH__) {
       smoothHooks()?.cleared(this.benchId, true, performance.now());
       smoothHooks()?.hold(this.benchId, true, performance.now());
     }
@@ -97,12 +105,12 @@ export class ResizePromptHold {
     this.clearTimer();
     if (redrawn && this.erasedPrompt) {
       this.erasedPrompt = false;
-      if (__LOSOS_BENCH__)
+      if (__BUBBLE_BENCH__)
         smoothHooks()?.cleared(this.benchId, false, performance.now());
     }
     if (!this.holding) return;
     this.holding = false;
-    if (__LOSOS_BENCH__)
+    if (__BUBBLE_BENCH__)
       smoothHooks()?.hold(this.benchId, false, performance.now());
     this.release();
   }

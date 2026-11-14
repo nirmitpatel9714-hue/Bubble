@@ -6,15 +6,15 @@ describe("GhosttySemanticEventRouter", () => {
     const onCwd = vi.fn();
     const router = new GhosttySemanticEventRouter({ onCwd });
 
-    router.handle({ type: "pwd", uri: "file://localhost/Users/losos" });
+    router.handle({ type: "pwd", uri: "file://localhost/Users/bubble" });
     router.handle({ type: "prompt-end" });
     router.handle({ type: "pwd", uri: "file://attacker/tmp/ignored" });
     router.handle({ type: "end-of-command", exitCode: 0 });
-    router.handle({ type: "pwd", uri: "file://localhost/Users/losos/src" });
+    router.handle({ type: "pwd", uri: "file://localhost/Users/bubble/src" });
 
     expect(onCwd).toHaveBeenCalledTimes(2);
-    expect(onCwd).toHaveBeenNthCalledWith(1, "/Users/losos");
-    expect(onCwd).toHaveBeenNthCalledWith(2, "/Users/losos/src");
+    expect(onCwd).toHaveBeenNthCalledWith(1, "/Users/bubble");
+    expect(onCwd).toHaveBeenNthCalledWith(2, "/Users/bubble/src");
   });
 
   it("tracks command execution separately from prompt input", () => {
@@ -68,7 +68,7 @@ describe("GhosttySemanticEventRouter", () => {
     const onPromptEnd = vi.fn();
     const router = new GhosttySemanticEventRouter({ onPromptEnd });
     router.handle({ type: "prompt-end" });
-    // Bash before 4.4 marks its prompts with losos_blocks=0 and has no PS0.
+    // Bash before 4.4 marks its prompts with bubble_blocks=0 and has no PS0.
     router.handle({ type: "prompt-end", blockInput: false });
     expect(onPromptEnd.mock.calls).toEqual([[true], [false]]);
   });

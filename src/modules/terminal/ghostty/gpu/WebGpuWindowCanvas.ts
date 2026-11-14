@@ -267,7 +267,7 @@ export class WebGpuWindowCanvas {
     return {
       setBounds: (bounds) => {
         if (!this.panes.has(pane) || cssRectsEqual(state.css, bounds)) return;
-        if (__LOSOS_BENCH__ && pane.benchId !== undefined)
+        if (__BUBBLE_BENCH__ && pane.benchId !== undefined)
           smoothHooks()?.rect(pane.benchId, performance.now());
         state.css = bounds;
         this.layoutStale = true;
@@ -327,10 +327,10 @@ export class WebGpuWindowCanvas {
    * and recomputes every pane's device rectangle. Reads no DOM.
    */
   beginFrame(): WindowFrameStart {
-    const benchStart = __LOSOS_BENCH__ ? performance.now() : 0;
+    const benchStart = __BUBBLE_BENCH__ ? performance.now() : 0;
     const reallocated = this.backing.commit();
     if (reallocated) {
-      if (__LOSOS_BENCH__) {
+      if (__BUBBLE_BENCH__) {
         const now = performance.now();
         smoothHooks()?.realloc(
           now,
@@ -361,7 +361,7 @@ export class WebGpuWindowCanvas {
               )
             : null;
         if (deviceRectsEqual(next, state.rect)) {
-          if (__LOSOS_BENCH__ && pane.benchId !== undefined)
+          if (__BUBBLE_BENCH__ && pane.benchId !== undefined)
             smoothHooks()?.unchanged(pane.benchId);
           continue;
         }
@@ -426,7 +426,7 @@ export class WebGpuWindowCanvas {
       }
     }
     pass.end();
-    if (__LOSOS_BENCH__) {
+    if (__BUBBLE_BENCH__) {
       const now = performance.now();
       for (const [pane] of drawable)
         if (pane.benchId !== undefined) smoothHooks()?.drawn(pane.benchId, now);

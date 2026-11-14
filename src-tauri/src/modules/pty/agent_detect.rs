@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use losos_control_protocol::hook::clean_text;
+use bubble_control_protocol::hook::clean_text;
 use memchr::memchr2;
 
 const ESC: u8 = 0x1b;
@@ -30,9 +30,9 @@ const DEFAULT_AGENTS: &[&str] = &["claude", "codex", "gemini", "pi", "opencode",
 /// Extensions a launcher shim or native binary carries on Windows.
 const LAUNCHER_EXTENSIONS: &[&str] = &[".exe", ".cmd", ".bat", ".ps1", ".com"];
 
-// OSC 777 marker older agent hooks emit. Legacy 3-field `notify;LosOS;<event>`
-// (Claude) or 4-field `notify;LosOS;<agent>;<event>` (Codex/Gemini/Pi).
-const LOSOS_MARKER: &[u8] = b"notify;LosOS;";
+// OSC 777 marker older agent hooks emit. Legacy 3-field `notify;Bubble;<event>`
+// (Claude) or 4-field `notify;Bubble;<agent>;<event>` (Codex/Gemini/Pi).
+const BUBBLE_MARKER: &[u8] = b"notify;Bubble;";
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum State {
@@ -441,7 +441,7 @@ impl AgentDetector {
     }
 
     fn handle_osc777<F: FnMut(Signal)>(&mut self, pt: &[u8], emit: &mut F) {
-        if let Some(tail) = pt.strip_prefix(LOSOS_MARKER) {
+        if let Some(tail) = pt.strip_prefix(BUBBLE_MARKER) {
             // PTY output is untrusted: only self-arm for known agents.
             let (agent, event) = match tail.iter().position(|&c| c == b';') {
                 Some(i) => {
@@ -826,29 +826,29 @@ mod tests {
     }
 
     #[test]
-    fn losos_marker_drives_status() {
+    fn bubble_marker_drives_status() {
         let mut d = AgentDetector::new();
         run(&mut d, &osc("133;C;claude"));
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;attention")),
+            run(&mut d, &osc("777;notify;Bubble;attention")),
             vec![Transition::Attention]
         );
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;working")),
+            run(&mut d, &osc("777;notify;Bubble;working")),
             vec![Transition::Working]
         );
-        assert!(run(&mut d, &osc("777;notify;LosOS;working")).is_empty());
+        assert!(run(&mut d, &osc("777;notify;Bubble;working")).is_empty());
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;finished")),
+            run(&mut d, &osc("777;notify;Bubble;finished")),
             vec![Transition::Finished]
         );
     }
 
     #[test]
-    fn losos_marker_auto_arms_without_preexec() {
+    fn bubble_marker_auto_arms_without_preexec() {
         let mut d = AgentDetector::new();
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;attention")),
+            run(&mut d, &osc("777;notify;Bubble;attention")),
             vec![started("claude"), Transition::Attention]
         );
     }
@@ -858,12 +858,12 @@ mod tests {
         // Fresh arm already implies Working, so `working` emits only Started.
         let mut d = AgentDetector::new();
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;codex;working")),
+            run(&mut d, &osc("777;notify;Bubble;codex;working")),
             vec![started("codex")]
         );
         let mut g = AgentDetector::new();
         assert_eq!(
-            run(&mut g, &osc("777;notify;LosOS;gemini;finished")),
+            run(&mut g, &osc("777;notify;Bubble;gemini;finished")),
             vec![started("gemini"), Transition::Finished]
         );
     }
@@ -872,11 +872,11 @@ mod tests {
     fn pi_marker_self_arms_and_drives_status() {
         let mut d = AgentDetector::new();
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;pi;working")),
+            run(&mut d, &osc("777;notify;Bubble;pi;working")),
             vec![started("pi")]
         );
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;pi;finished")),
+            run(&mut d, &osc("777;notify;Bubble;pi;finished")),
             vec![Transition::Finished]
         );
     }
@@ -884,10 +884,10 @@ mod tests {
     #[test]
     fn four_field_marker_ignores_unknown_agent() {
         let mut d = AgentDetector::new();
-        assert!(run(&mut d, &osc("777;notify;LosOS;evil;attention")).is_empty());
+        assert!(run(&mut d, &osc("777;notify;Bubble;evil;attention")).is_empty());
         // A known agent in the same chunk still works.
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;codex;attention")),
+            run(&mut d, &osc("777;notify;Bubble;codex;attention")),
             vec![started("codex"), Transition::Attention]
         );
     }
@@ -897,15 +897,15 @@ mod tests {
         let mut d = AgentDetector::new();
         run(&mut d, &osc("133;C;gemini"));
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;gemini;attention")),
+            run(&mut d, &osc("777;notify;Bubble;gemini;attention")),
             vec![Transition::Attention]
         );
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;gemini;working")),
+            run(&mut d, &osc("777;notify;Bubble;gemini;working")),
             vec![Transition::Working]
         );
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;gemini;finished")),
+            run(&mut d, &osc("777;notify;Bubble;gemini;finished")),
             vec![Transition::Finished]
         );
     }
@@ -979,7 +979,7 @@ mod tests {
         run(&mut d, &osc("133;C;claude"));
         assert_eq!(run(&mut d, &osc("9;done")), vec![Transition::Attention]);
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;working")),
+            run(&mut d, &osc("777;notify;Bubble;working")),
             vec![Transition::Working]
         );
         assert_eq!(
@@ -993,7 +993,7 @@ mod tests {
         let mut d = timed();
         run(&mut d, &osc("133;C;codex"));
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;codex;finished")),
+            run(&mut d, &osc("777;notify;Bubble;codex;finished")),
             vec![Transition::Finished]
         );
         assert!(run(&mut d, &osc("9;Agent turn complete")).is_empty());
@@ -1020,7 +1020,7 @@ mod tests {
         run(&mut d, &osc("133;C;claude"));
         let big = vec![b'a'; 1024 * 1024];
         assert!(run(&mut d, &big).is_empty());
-        let marker = osc("777;notify;LosOS;attention");
+        let marker = osc("777;notify;Bubble;attention");
         // Every split point of the marker, embedded in plain text.
         for split in 1..marker.len() {
             let mut d = AgentDetector::new();
@@ -1042,7 +1042,7 @@ mod tests {
         assert!(run(&mut d, &osc(&too_long)).is_empty());
         // The decoder resynchronises on the next sequence.
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;attention")),
+            run(&mut d, &osc("777;notify;Bubble;attention")),
             vec![Transition::Attention]
         );
     }
@@ -1096,7 +1096,7 @@ mod tests {
         seq.extend_from_slice(&[ESC, ST_FINAL]);
         assert!(run(&mut d, &seq).is_empty());
         assert_eq!(
-            run(&mut d, &osc("777;notify;LosOS;attention")),
+            run(&mut d, &osc("777;notify;Bubble;attention")),
             vec![Transition::Attention]
         );
     }
@@ -1233,7 +1233,7 @@ mod tests {
         );
         advance(NOTIFY_DUPLICATE);
         assert!(notifications(&mut d, &osc("777;precmd")).is_empty());
-        assert!(notifications(&mut d, &osc("777;notify;LosOS;codex;finished")).is_empty());
+        assert!(notifications(&mut d, &osc("777;notify;Bubble;codex;finished")).is_empty());
     }
 
     #[test]
@@ -1387,7 +1387,7 @@ mod tests {
         run(&mut d, &osc("133;C;codex"));
         hooked(&link, HookIntent::Working);
         assert!(run_all(&mut d, &osc("9;Agent turn complete")).is_empty());
-        assert!(run_all(&mut d, &osc("777;notify;LosOS;codex;finished")).is_empty());
+        assert!(run_all(&mut d, &osc("777;notify;Bubble;codex;finished")).is_empty());
         assert!(run_all(&mut d, b"\x07").is_empty());
         // Process lifecycle still comes from OSC 133.
         assert_eq!(run(&mut d, &osc("133;D;0")), vec![Transition::Exited]);

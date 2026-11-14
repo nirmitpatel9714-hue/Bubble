@@ -167,7 +167,7 @@ pub fn run() {
     #[cfg(windows)]
     {
         let args: Vec<String> = std::env::args().collect();
-        if args.get(1).map(String::as_str) == Some("__losos_notify") {
+        if args.get(1).map(String::as_str) == Some("__bubble_notify") {
             if let (Some(agent), Some(event)) = (args.get(2), args.get(3)) {
                 agent::emit_conout_marker(agent, event);
             }
@@ -215,7 +215,7 @@ pub fn run() {
         )
         .plugin(tauri_plugin_opener::init())
         // One async scheme multiplexes every terminal's output; see pty/hub.rs.
-        .register_asynchronous_uri_scheme_protocol("losos-pty", pty::stream_protocol)
+        .register_asynchronous_uri_scheme_protocol("bubble-pty", pty::stream_protocol)
         .register_asynchronous_uri_scheme_protocol("asset", fs::assets::serve)
         .on_page_load(|webview, payload| {
             if matches!(payload.event(), tauri::webview::PageLoadEvent::Started) {

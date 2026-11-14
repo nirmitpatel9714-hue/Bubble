@@ -36,6 +36,8 @@ type TabBase = {
   cold?: boolean;
   /** Participates in the niri-style tiled column strip for its workspace. */
   tiled?: boolean;
+  /** Custom pixel width for this tab when tiled in niri layout. */
+  tiledWidth?: number;
 };
 
 export type TerminalTab = TabBase & {
@@ -146,6 +148,8 @@ export type TabPatch = Partial<{
   /** Empty string resets a terminal tab to its cwd-derived name. */
   customTitle: string;
   overrideLanguage: string | null;
+  tiled: boolean;
+  tiledWidth?: number;
 }>;
 
 export type GitDiffOpenInput = {
@@ -803,8 +807,8 @@ export function useTabs(initial?: Partial<TerminalTab>) {
   useEffect(() => {
     if (!import.meta.env?.DEV || typeof window === "undefined") return;
     (
-      window as unknown as { __lososNewBlockTab?: (cwd?: string) => number }
-    ).__lososNewBlockTab = newBlockTab;
+      window as unknown as { __bubbleNewBlockTab?: (cwd?: string) => number }
+    ).__bubbleNewBlockTab = newBlockTab;
   }, [newBlockTab]);
 
   const newAgentGroupTab = useCallback(
@@ -1278,6 +1282,15 @@ export function useTabs(initial?: Partial<TerminalTab>) {
     [setTabs],
   );
 
+  const setTabTiledWidth = useCallback(
+    (id: number, tiledWidth: number | undefined) => {
+      setTabs((curr) =>
+        curr.map((tab) => (tab.id === id ? { ...tab, tiledWidth } : tab)),
+      );
+    },
+    [setTabs],
+  );
+
   const selectByIndex = useCallback(
     (idx: number, spaceId?: string) => {
       const t = spaceId ? pickTabBySpaceIndex(tabs, idx, spaceId) : tabs[idx];
@@ -1531,6 +1544,7 @@ export function useTabs(initial?: Partial<TerminalTab>) {
     closeTabs,
     updateTab,
     setTabTiled,
+    setTabTiledWidth,
     selectByIndex,
     setLeafCwd,
     focusPane,

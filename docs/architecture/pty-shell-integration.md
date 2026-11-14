@@ -6,7 +6,7 @@ This guide elaborates on `BUBBLE.md`. If anything here conflicts with `BUBBLE.md
 
 Block sessions keep direct terminal input until OSC 133 confirms prompt input.
 Bare shells therefore remain usable. Bash before 4.4 lacks PS0 and emits
-`OSC 133;B;losos_blocks=0`, retaining its native prompt instead of activating
+`OSC 133;B;bubble_blocks=0`, retaining its native prompt instead of activating
 Bubble's shared command bar. Shell command labels stay bounded; block rerun uses
 the complete command submitted through Bubble, never a truncated OSC label.
 
@@ -21,7 +21,7 @@ pub struct PtyState {
 
 IDs start at 1 and monotonically increase; they are never reused so the frontend can treat `0` as unset.
 
-`pty_open` spawns a session on a blocking thread, registers it with the PTY hub under the calling webview's label, inserts it into the map, and returns the id. Output and exit codes travel over the multiplexed `losos-pty` stream (see `pty-transport-v2.md`), not per-PTY channels. `pty_write` accepts raw bytes with an `x-pty-id` header and queues them to the session's writer thread, so a full input pipe cannot block other IPC and write order and I/O errors are preserved.
+`pty_open` spawns a session on a blocking thread, registers it with the PTY hub under the calling webview's label, inserts it into the map, and returns the id. Output and exit codes travel over the multiplexed `bubble-pty` stream (see `pty-transport-v2.md`), not per-PTY channels. `pty_write` accepts raw bytes with an `x-pty-id` header and queues them to the session's writer thread, so a full input pipe cannot block other IPC and write order and I/O errors are preserved.
 
 ## Reader / writer / waiter threads, and the hub
 
@@ -69,7 +69,7 @@ Integration scripts live in `src-tauri/src/modules/pty/scripts/`:
 
 - `zshenv.zsh`, `zprofile.zsh`, `zlogin.zsh`, `zshrc.zsh` for zsh
 - `bashrc.bash` for bash
-- `init.fish` for fish, installed to `~/.config/fish/conf.d/losos.fish`
+- `init.fish` for fish, installed to `~/.config/fish/conf.d/bubble.fish`
 
 Zsh is launched with `ZDOTDIR` pointing at a temp directory that sources our scripts and then the user's real configs, each with `ZDOTDIR` switched to the user's own directory while it runs. `ZDOTDIR` is the user's own at the prompt, in hooks and while ordinary commands run; only a command line that starts a zsh (`exec zsh`, nested `zsh`, `env X=1 zsh`, `$SHELL`) gets the integration directory exported for that command, so that shell is integrated again. The prompt end marker is also emitted from `zle-line-init`, which runs after the line editor drew whatever powerlevel10k or starship built. Bash uses `--rcfile` with a wrapper that sources the user's `~/.bashrc` after Bubble's. Fish uses `conf.d` so no user file is replaced.
 

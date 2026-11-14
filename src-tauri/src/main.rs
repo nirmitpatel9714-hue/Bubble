@@ -14,5 +14,5 @@ fn main() {
         }
     }
 
-    losos_lib::run()
+    bubble_lib::run()
 }

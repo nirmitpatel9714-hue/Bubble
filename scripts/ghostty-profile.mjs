@@ -3,11 +3,11 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-const temporary = await mkdtemp(join(tmpdir(), "losos-core-profile-"));
+const temporary = await mkdtemp(join(tmpdir(), "bubble-core-profile-"));
 const directories = [resolve("packages/ghostty-core/adapted")];
-if (process.env.LOSOS_PROFILE_BASELINE)
-  directories.unshift(resolve(process.env.LOSOS_PROFILE_BASELINE));
-if (process.env.LOSOS_PROFILE_REVERSE === "1") directories.reverse();
+if (process.env.BUBBLE_PROFILE_BASELINE)
+  directories.unshift(resolve(process.env.BUBBLE_PROFILE_BASELINE));
+if (process.env.BUBBLE_PROFILE_REVERSE === "1") directories.reverse();
 let report;
 const results = [];
 try {
@@ -29,9 +29,9 @@ try {
           shell: process.platform === "win32",
           env: {
             ...process.env,
-            LOSOS_PROFILE_CORE_DIR: directory,
-            LOSOS_PROFILE_ARTIFACT: artifact,
-            LOSOS_PROFILE_REPORT: path,
+            BUBBLE_PROFILE_CORE_DIR: directory,
+            BUBBLE_PROFILE_ARTIFACT: artifact,
+            BUBBLE_PROFILE_REPORT: path,
           },
         },
       );
@@ -50,8 +50,8 @@ try {
     results,
   };
   const output = `${JSON.stringify(report, null, 2)}\n`;
-  if (process.env.LOSOS_PROFILE_REPORT)
-    await writeFile(process.env.LOSOS_PROFILE_REPORT, output);
+  if (process.env.BUBBLE_PROFILE_REPORT)
+    await writeFile(process.env.BUBBLE_PROFILE_REPORT, output);
   else console.info(output);
 } finally {
   await rm(temporary, { recursive: true, force: true });

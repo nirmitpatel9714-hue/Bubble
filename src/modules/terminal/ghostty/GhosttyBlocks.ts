@@ -1,4 +1,4 @@
-import type { GhosttyTerminalEvent } from "@losos/ghostty-core/protocol";
+import type { GhosttyTerminalEvent } from "@bubble/ghostty-core/protocol";
 import type {
   BlockContext,
   BlockMatch,

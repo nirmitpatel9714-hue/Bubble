@@ -9,7 +9,7 @@ import {
   type Viewport,
 } from "./miniWindowGeometry";
 
-const STORE_KEY = "losos-ui-mini-window-geom";
+const STORE_KEY = "bubble-ui-mini-window-geom";
 
 const viewport = (): Viewport => ({
   vw: window.innerWidth,

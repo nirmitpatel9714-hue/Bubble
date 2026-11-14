@@ -3,7 +3,7 @@
 //! git argument list; `git check-ref-format` stays the authority for branch
 //! names (see `plumbing::check_branch_name`).
 
-pub const CHECKPOINT_PREFIX: &str = "refs/losos/checkpoints/";
+pub const CHECKPOINT_PREFIX: &str = "refs/bubble/checkpoints/";
 const MAX_REF_BYTES: usize = 255;
 
 /// Characters git forbids anywhere in a ref name, plus whitespace and control
@@ -230,11 +230,11 @@ mod tests {
     #[test]
     fn checkpoint_refs_round_trip() {
         let name = checkpoint_ref("task-1", 7);
-        assert_eq!(name, "refs/losos/checkpoints/task-1/7");
+        assert_eq!(name, "refs/bubble/checkpoints/task-1/7");
         assert_eq!(parse_checkpoint_ref(&name), Some(("task-1", 7)));
         assert_eq!(
             checkpoint_task_prefix("task-1"),
-            "refs/losos/checkpoints/task-1/"
+            "refs/bubble/checkpoints/task-1/"
         );
     }
 
@@ -242,14 +242,14 @@ mod tests {
     fn foreign_or_malformed_checkpoint_refs_do_not_parse() {
         for bad in [
             "refs/heads/main",
-            "refs/losos/checkpoints/",
-            "refs/losos/checkpoints/task",
-            "refs/losos/checkpoints/task/",
-            "refs/losos/checkpoints/task/x",
-            "refs/losos/checkpoints/task/-1",
-            "refs/losos/checkpoints/../7",
-            "refs/losos/checkpoints/a/b/7",
-            "refs/losos/checkpoints/task/99999999999",
+            "refs/bubble/checkpoints/",
+            "refs/bubble/checkpoints/task",
+            "refs/bubble/checkpoints/task/",
+            "refs/bubble/checkpoints/task/x",
+            "refs/bubble/checkpoints/task/-1",
+            "refs/bubble/checkpoints/../7",
+            "refs/bubble/checkpoints/a/b/7",
+            "refs/bubble/checkpoints/task/99999999999",
         ] {
             assert_eq!(parse_checkpoint_ref(bad), None, "{bad}");
         }

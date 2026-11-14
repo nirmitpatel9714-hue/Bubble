@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { beforeAll, describe, expect, it } from "vitest";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 
 const bytes = (text: string) => new TextEncoder().encode(text);
 

@@ -2,7 +2,7 @@ import { emit, listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { Theme } from "./types";
 
-const STORE_PATH = "losos-custom-themes.json";
+const STORE_PATH = "bubble-custom-themes.json";
 const KEY = "themes";
 const CHANGED_EVENT = "bubble://custom-themes-changed";
 

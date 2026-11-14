@@ -1,5 +1,5 @@
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
-import type { GhosttyTerminalConfig } from "@losos/ghostty-core/protocol";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
+import type { GhosttyTerminalConfig } from "@bubble/ghostty-core/protocol";
 import { AdaptedGhosttyTerminalModel } from "./AdaptedGhosttyTerminalModel";
 import {
   allocateScrollbackBytes,

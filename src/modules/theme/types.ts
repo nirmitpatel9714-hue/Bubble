@@ -65,4 +65,4 @@ export type Theme = {
   };
 };
 
-export const DEFAULT_THEME_ID = "losos-default";
+export const DEFAULT_THEME_ID = "bubble-default";

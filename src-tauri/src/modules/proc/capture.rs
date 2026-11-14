@@ -119,7 +119,7 @@ fn feed_stdin(child: &SharedChild, input: Vec<u8>) -> io::Result<()> {
         return Err(io::Error::other("no stdin pipe"));
     };
     thread::Builder::new()
-        .name("losos-cap-in".into())
+        .name("bubble-cap-in".into())
         .stack_size(READER_STACK)
         .spawn(move || {
             let _ = stdin.write_all(&input);
@@ -148,13 +148,13 @@ pub fn run_with_input(
         .take_stderr()
         .ok_or_else(|| fail(io::Error::other("no stderr pipe")))?;
     let stdout_reader = spawn_reader(
-        "losos-cap-out",
+        "bubble-cap-out",
         stdout,
         limits.stdout,
         limits.stop_on_stdout_cap.then(|| child.clone()),
     )
     .map_err(fail)?;
-    let stderr_reader = spawn_reader("losos-cap-err", stderr, limits.stderr, None).map_err(fail)?;
+    let stderr_reader = spawn_reader("bubble-cap-err", stderr, limits.stderr, None).map_err(fail)?;
     if let Some(input) = input {
         feed_stdin(&child, input).map_err(fail)?;
     }

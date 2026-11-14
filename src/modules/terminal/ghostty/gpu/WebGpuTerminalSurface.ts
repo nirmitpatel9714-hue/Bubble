@@ -295,7 +295,7 @@ export class WebGpuTerminalSurface
       if (!entry) return;
       noteTerminalHostResize(this);
       const bounds = this.boundsFromEntry(entry);
-      if (__LOSOS_BENCH__) this.benchWant(bounds);
+      if (__BUBBLE_BENCH__) this.benchWant(bounds);
       this.queueFit(bounds);
     });
     this.unsubscribeDamage = options.model.subscribeDamage(() => {
@@ -656,7 +656,7 @@ export class WebGpuTerminalSurface
       return false;
     }
 
-    if (__LOSOS_BENCH__) {
+    if (__BUBBLE_BENCH__) {
       const now = performance.now();
       if (model.promptErased?.()) smoothHooks()?.blank(this.benchId, now);
       smoothHooks()?.shown(this.benchId, now, frame.cols, frame.rows);
@@ -970,7 +970,7 @@ export class WebGpuTerminalSurface
 
   /** App lab only: the grid this host size asks for, for the smoothness probe. */
   private benchWant(bounds: TerminalFitBounds): void {
-    if (!__LOSOS_BENCH__) return;
+    if (!__BUBBLE_BENCH__) return;
     const fit = fitTerminalViewport(
       bounds.width,
       bounds.height,
@@ -1087,9 +1087,9 @@ export class WebGpuTerminalSurface
       this.deferredGridResizeCount += 1;
       return;
     }
-    const benchStart = __LOSOS_BENCH__ ? performance.now() : 0;
+    const benchStart = __BUBBLE_BENCH__ ? performance.now() : 0;
     const outcome = this.resizeSync.request(cols, rows);
-    if (__LOSOS_BENCH__) {
+    if (__BUBBLE_BENCH__) {
       const now = performance.now();
       smoothHooks()?.have(
         this.benchId,
@@ -1376,7 +1376,7 @@ export class WebGpuTerminalSurface
       contrast: this.contrast,
     };
     const shiftY = this.gridShift(state, cursor);
-    if (__LOSOS_BENCH__ && this.nativeCursorVisible) {
+    if (__BUBBLE_BENCH__ && this.nativeCursorVisible) {
       // The cursor the application asked for, whatever phase its blink is in.
       const rect = cursorRect(cursor, cursor.style, this.metrics);
       const bottom = rect.y + rect.height - shiftY;

@@ -34,7 +34,7 @@ describe("git api argument shapes", () => {
   });
 
   it("sends the scope as a tagged object", async () => {
-    const scope = sinceCheckpointScope("refs/losos/checkpoints/t/1");
+    const scope = sinceCheckpointScope("refs/bubble/checkpoints/t/1");
     await git.diffSummary("/r", scope);
     expect(mocks.invoke).toHaveBeenLastCalledWith("git_diff_summary", {
       repoRoot: "/r",
@@ -167,10 +167,10 @@ describe("git api argument shapes", () => {
       turn: 3,
       workspace,
     });
-    await git.checkpointRestore("/wt", "refs/losos/checkpoints/task-1/2");
+    await git.checkpointRestore("/wt", "refs/bubble/checkpoints/task-1/2");
     expect(mocks.invoke).toHaveBeenLastCalledWith("git_checkpoint_restore", {
       worktree: "/wt",
-      reference: "refs/losos/checkpoints/task-1/2",
+      reference: "refs/bubble/checkpoints/task-1/2",
       force: false,
       workspace,
     });

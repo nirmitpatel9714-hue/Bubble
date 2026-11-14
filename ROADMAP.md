@@ -2,7 +2,7 @@
 
 Bubble direction, what's shipped, what's coming, and what's deliberately out of scope.
 
-This file is updated as direction evolves. For day-to-day work, see [GitHub Issues](https://github.com/nirmitpatel9714-hue/LosOS/issues) and the Projects board.
+This file is updated as direction evolves. For day-to-day work, see [GitHub Issues](https://github.com/nirmitpatel9714-hue/Bubble/issues) and the Projects board.
 
 ## What Bubble is
 
@@ -151,7 +151,7 @@ Categories that will not be built into Bubble. Individual feature requests in th
 
 ## Decision authority
 
-Direction and scope decisions are made by [@losos](https://github.com/nirmitpatel9714-hue). Trusted reviewers (informal, no fixed roles yet) provide input on security, performance, and platform-specific areas.
+Direction and scope decisions are made by [@bubble](https://github.com/nirmitpatel9714-hue). Trusted reviewers (informal, no fixed roles yet) provide input on security, performance, and platform-specific areas.
 
 If a PR is closed and you disagree, raise it in a new issue. Happy to discuss, not happy to be ambushed in a PR comment thread.
 

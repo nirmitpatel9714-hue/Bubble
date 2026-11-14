@@ -3,7 +3,7 @@ import {
   BubbleGhostty,
   type BubbleGhosttyRenderState,
   type BubbleGhosttyTerminal,
-} from "@losos/ghostty-core/adapted";
+} from "@bubble/ghostty-core/adapted";
 import { afterAll, beforeAll, bench, describe } from "vitest";
 
 const artifacts = ["ghostty-vt.wasm", "ghostty-vt-scalar.wasm"];
@@ -31,7 +31,7 @@ const inkTicks = INK_SPINNER.map((spinner) => {
     "",
     "\x1b[32m●\x1b[0m Read(\x1b[4msrc/modules/terminal/ghostty/AdaptedGhostty.bench.ts\x1b[0m)",
     "  \x1b[2m⎿ Read 214 lines\x1b[0m",
-    "\x1b[32m●\x1b[0m Update(packages/ghostty-core/adapted/wasm/src/losos.zig)",
+    "\x1b[32m●\x1b[0m Update(packages/ghostty-core/adapted/wasm/src/bubble.zig)",
     "  \x1b[2m⎿ Updated with 118 additions and 12 removals\x1b[0m",
     "     \x1b[31m- const old = 1;\x1b[0m",
     "     \x1b[32m+ const next = 2; // 日本語のコメント\x1b[0m",

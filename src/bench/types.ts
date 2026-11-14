@@ -19,7 +19,7 @@ export type BenchAppApi = {
   readBuffer: (leafId: number, maxLines?: number) => string | null;
 };
 
-/** One scenario, as written by scripts/app-lab/run.py into LOSOS_BENCH_SCENARIO. */
+/** One scenario, as written by scripts/app-lab/run.py into BUBBLE_BENCH_SCENARIO. */
 export type BenchScenario = {
   name:
     | "tabs"

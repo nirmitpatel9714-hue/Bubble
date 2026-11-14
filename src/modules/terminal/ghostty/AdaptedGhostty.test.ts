@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { Key, KeyAction, Mods } from "@losos/ghostty-core";
+import { Key, KeyAction, Mods } from "@bubble/ghostty-core";
 import {
   ADAPTED_GHOSTTY_COMMIT,
   ADAPTED_GHOSTTY_WASM_SHA256,
   ADAPTED_GHOSTTY_SCALAR_WASM_SHA256,
   ADAPTED_RESTTY_COMMIT,
   BubbleGhostty,
-} from "@losos/ghostty-core/adapted";
+} from "@bubble/ghostty-core/adapted";
 import { beforeAll, describe, expect, it } from "vitest";
 
 describe.each([
@@ -93,7 +93,7 @@ describe.each([
       try {
         terminal.write(
           new TextEncoder().encode(
-            "\x1b]133;B;losos_blocks=0\x07\x1b]133;B\x07",
+            "\x1b]133;B;bubble_blocks=0\x07\x1b]133;B\x07",
           ),
         );
         expect(terminal.drainEvents()).toEqual([
@@ -221,7 +221,7 @@ describe.each([
         palette.set([1, 2, 3], 3);
         terminal.setPalette(palette);
 
-        const uri = "https://losos.dev/docs";
+        const uri = "https://bubble.dev/docs";
         terminal.write(
           new TextEncoder().encode(
             `\x1b[31mR\x1b[0m\x1b[1mB\x1b[0m e\u0301 \x1b]8;;${uri}\x1b\\L\x1b]8;;\x1b\\`,
@@ -392,7 +392,7 @@ describe.each([
         terminal.write(
           new TextEncoder().encode(
             "\x1b]2;Bubble title\x07" +
-              "\x1b]7;file://localhost/Users/losos\x1b\\" +
+              "\x1b]7;file://localhost/Users/bubble\x1b\\" +
               "\x1b]133;A\x07" +
               "\x1b]133;B\x07" +
               "\x1b]133;C\x07" +
@@ -404,7 +404,7 @@ describe.each([
 
         expect(terminal.drainEvents()).toEqual([
           { type: "title", title: "Bubble title" },
-          { type: "pwd", uri: "file://localhost/Users/losos" },
+          { type: "pwd", uri: "file://localhost/Users/bubble" },
           { type: "prompt-start" },
           { type: "prompt-end" },
           { type: "end-of-input" },
@@ -672,7 +672,7 @@ describe.each([
 
     it("keeps clean-row grapheme and hyperlink storage valid across partial frames", () => {
       const terminal = ghostty.createTerminal(24, 4);
-      const uri = "https://losos.dev/agent";
+      const uri = "https://bubble.dev/agent";
       try {
         terminal.write(
           new TextEncoder().encode(
@@ -697,7 +697,7 @@ describe.each([
     it("interns persistent hyperlinks across dirty-row updates and storage growth", () => {
       const terminal = ghostty.createTerminal(40, 4);
       const encoder = new TextEncoder();
-      const uri = "https://losos.dev/persistent";
+      const uri = "https://bubble.dev/persistent";
       try {
         terminal.write(
           encoder.encode(`\x1b]8;;${uri}\x1b\\link\x1b]8;;\x1b\\`),
@@ -712,7 +712,7 @@ describe.each([
           expect(terminal.hyperlinkAt(state, 0)).toBe(uri);
         }
         for (let index = 0; index < 100; index += 1) {
-          const other = `https://losos.dev/${index}/${"path/".repeat(index)}`;
+          const other = `https://bubble.dev/${index}/${"path/".repeat(index)}`;
           terminal.write(
             encoder.encode(`\x1b[3;1H\x1b]8;;${other}\x1b\\new\x1b]8;;\x1b\\`),
           );

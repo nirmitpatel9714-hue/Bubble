@@ -165,7 +165,7 @@ mod tests {
     fn native_memory_reads_refuse_protected_targets_even_when_the_checked_path_matches() {
         let dir = tempfile::tempdir().unwrap();
         let root = std::fs::canonicalize(dir.path()).unwrap();
-        for name in [".env", ".cache/losos/control.json"] {
+        for name in [".env", ".cache/bubble/control.json"] {
             let target = root.join(name);
             std::fs::create_dir_all(target.parent().unwrap()).unwrap();
             std::fs::write(&target, "SYNTHETIC_CREDENTIAL").unwrap();

@@ -4,7 +4,7 @@ Bubble runs shells, reads/writes files, and talks to AI providers, so security b
 
 ## Reporting
 
-Open a private security advisory at [github.com/nirmitpatel9714-hue/LosOS/security/advisories/new](https://github.com/nirmitpatel9714-hue/LosOS/security/advisories/new). Include:
+Open a private security advisory at [github.com/nirmitpatel9714-hue/Bubble/security/advisories/new](https://github.com/nirmitpatel9714-hue/Bubble/security/advisories/new). Include:
 
 - What the issue is and what it lets an attacker do
 - Steps to reproduce (a small PoC is great)
@@ -16,7 +16,7 @@ Please **don't** open a public GitHub issue for security reports.
 
 ## Supported versions
 
-Until `1.0.0`, only the latest minor gets security fixes. See the current version in `package.json` or on the [Releases page](https://github.com/nirmitpatel9714-hue/LosOS/releases). 
+Until `1.0.0`, only the latest minor gets security fixes. See the current version in `package.json` or on the [Releases page](https://github.com/nirmitpatel9714-hue/Bubble/releases). 
 
 ## What's in scope
 

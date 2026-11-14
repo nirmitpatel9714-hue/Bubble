@@ -10,10 +10,10 @@ import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 const original = fetch;
 const nativeFetch = createProxyFetch({ allowPrivateNetwork: true });
-declare const __LOSOS_IPC_BASE_URL__: string;
-declare const __LOSOS_IPC_TREE__: string;
-const base = __LOSOS_IPC_BASE_URL__;
-const tree = __LOSOS_IPC_TREE__;
+declare const __BUBBLE_IPC_BASE_URL__: string;
+declare const __BUBBLE_IPC_TREE__: string;
+const base = __BUBBLE_IPC_BASE_URL__;
+const tree = __BUBBLE_IPC_TREE__;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type Json = Record<string, unknown>;

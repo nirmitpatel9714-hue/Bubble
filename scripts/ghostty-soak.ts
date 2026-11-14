@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { afterAll, expect, it } from "vitest";
 import {
   fillStackCanary,
@@ -12,22 +12,22 @@ import {
 
 const reports: unknown[] = [];
 const stackReports: unknown[] = [];
-const blockTracking = process.env.LOSOS_SOAK_BLOCKS === "1";
-// LOSOS_SOAK_FORMAT=gpu exercises the GPU cell-record format instead of the
+const blockTracking = process.env.BUBBLE_SOAK_BLOCKS === "1";
+// BUBBLE_SOAK_FORMAT=gpu exercises the GPU cell-record format instead of the
 // structure-of-arrays format (the default).
-const gpuFormat = process.env.LOSOS_SOAK_FORMAT === "gpu";
+const gpuFormat = process.env.BUBBLE_SOAK_FORMAT === "gpu";
 const epochs = 64;
 const updatesPerEpoch = 2_048;
 const fixtures = Array.from({ length: 256 }, (_, index) => new TextEncoder().encode(
   `${blockTracking && index % 32 === 0 ? "\x1b]133;C;agent batch\x07" : ""}\x1b[38;5;${index}magent ${index} λ 日本語 🙂 \x1b]8;;https://example.test/source/${index}\x1b\\source\x1b]8;;\x1b\\\x1b[0m\r\n${blockTracking && index % 32 === 31 ? "\x1b]133;D;0\x07" : ""}`,
 ));
 
-const artifacts = process.env.LOSOS_SOAK_ARTIFACT
-  ? [process.env.LOSOS_SOAK_ARTIFACT]
+const artifacts = process.env.BUBBLE_SOAK_ARTIFACT
+  ? [process.env.BUBBLE_SOAK_ARTIFACT]
   : ["ghostty-vt.wasm", "ghostty-vt-scalar.wasm"];
 for (const artifact of artifacts) {
   it(`${artifact}: five models plateau under streaming, reflow, and presentation recycling`, async () => {
-    const bytes = await readFile(resolve(process.env.LOSOS_SOAK_CORE_DIR ?? "packages/ghostty-core/adapted", artifact));
+    const bytes = await readFile(resolve(process.env.BUBBLE_SOAK_CORE_DIR ?? "packages/ghostty-core/adapted", artifact));
     const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const models = Array.from({ length: 5 }, () => core.createTerminal(120, 40, {
       maxScrollbackBytes: 8 * 1024 * 1024,
@@ -84,7 +84,7 @@ for (const artifact of artifacts) {
 
 for (const artifact of artifacts) {
   it(`${artifact}: adversarial input and deep nesting stay within half of the WebAssembly stack`, async () => {
-    const bytes = await readFile(resolve(process.env.LOSOS_SOAK_CORE_DIR ?? "packages/ghostty-core/adapted", artifact));
+    const bytes = await readFile(resolve(process.env.BUBBLE_SOAK_CORE_DIR ?? "packages/ghostty-core/adapted", artifact));
     const layout = readWasmLayout(bytes);
     const core = await BubbleGhostty.loadBytes(Uint8Array.from(bytes).buffer);
     const instance = core.instantiate();
@@ -110,7 +110,7 @@ for (const artifact of artifacts) {
 }
 
 afterAll(async () => {
-  const path = process.env.LOSOS_SOAK_REPORT;
+  const path = process.env.BUBBLE_SOAK_REPORT;
   if (path) await writeFile(path, `${JSON.stringify({
     scope: "Node WASM core only; excludes Tauri IPC, WebKit, GPU, and application energy",
     recordedAt: new Date().toISOString(), node: process.version, platform: process.platform,

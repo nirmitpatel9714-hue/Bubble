@@ -3,8 +3,8 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use losos_lib::modules::fs::to_canon;
-use losos_lib::modules::workspace::{WorkspaceEnv, WorkspaceRegistry};
+use bubble_lib::modules::fs::to_canon;
+use bubble_lib::modules::workspace::{WorkspaceEnv, WorkspaceRegistry};
 use tempfile::TempDir;
 
 pub struct GitRepoFixture {
@@ -23,7 +23,7 @@ impl GitRepoFixture {
 
         run_git_in(&canonical, &["init", "-q"]);
         run_git_in(&canonical, &["symbolic-ref", "HEAD", "refs/heads/main"]);
-        run_git_in(&canonical, &["config", "user.email", "test@losos.local"]);
+        run_git_in(&canonical, &["config", "user.email", "test@bubble.local"]);
         run_git_in(&canonical, &["config", "user.name", "Bubble Test"]);
         run_git_in(&canonical, &["config", "commit.gpgsign", "false"]);
         run_git_in(&canonical, &["config", "core.autocrlf", "false"]);

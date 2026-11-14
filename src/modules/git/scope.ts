@@ -7,7 +7,7 @@ function shortRev(rev: string): string {
 }
 
 function checkpointRefLabel(name: string): string {
-  const match = /^refs\/losos\/checkpoints\/[^/]+\/(\d+)$/.exec(name);
+  const match = /^refs\/bubble\/checkpoints\/[^/]+\/(\d+)$/.exec(name);
   return match ? `turn ${match[1]}` : shortRev(name);
 }
 
@@ -120,7 +120,7 @@ export function supportsHunkActions(scope: GitDiffScope): {
 
 /** The ref a checkpoint lives at, matching the backend's naming. */
 export function checkpointRef(taskId: string, turn: number): string {
-  return `refs/losos/checkpoints/${taskId}/${turn}`;
+  return `refs/bubble/checkpoints/${taskId}/${turn}`;
 }
 
 /** "Last agent turn": the previous checkpoint against the working tree. */
