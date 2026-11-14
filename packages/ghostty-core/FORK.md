@@ -40,7 +40,7 @@ To verify the source patch against a clean checkout:
 ```sh
 git -C /path/to/ghostty checkout 5714ed07a1012573261b7b7e3ed2add9c1504496
 git -C /path/to/ghostty apply --check \
-  /path/to/losos/packages/ghostty-core/patches/ghostty-wasm-api.patch
+  /path/to/bubble/packages/ghostty-core/patches/ghostty-wasm-api.patch
 ```
 
 This fork retains the upstream MIT license. Bubble imports only the low-level WASM bridge and input encoder. Rendering, scheduling, PTY transport, and GPU resource ownership live outside this package.

@@ -93,7 +93,7 @@ export function AgentsSection() {
       ? addedAgents.filter((agent) => agent !== id)
       : [...addedAgents, id];
     void setAddedAgents(next).catch((error) => {
-      console.error("[losos] failed to save added agents:", error);
+      console.error("[bubble] failed to save added agents:", error);
     });
   };
 
@@ -103,7 +103,7 @@ export function AgentsSection() {
       ? customCodingAgents.map((a) => (a.id === agent.id ? agent : a))
       : [...customCodingAgents, agent];
     void setCustomCodingAgents(next).catch((error) => {
-      console.error("[losos] failed to save custom coding agents:", error);
+      console.error("[bubble] failed to save custom coding agents:", error);
     });
     setEditingCustomAgent(null);
   };
@@ -112,7 +112,7 @@ export function AgentsSection() {
     void setCustomCodingAgents(
       customCodingAgents.filter((agent) => agent.id !== id),
     ).catch((error) => {
-      console.error("[losos] failed to remove custom coding agent:", error);
+      console.error("[bubble] failed to remove custom coding agent:", error);
     });
   };
 

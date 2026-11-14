@@ -1,9 +1,9 @@
-# losos-shell-integration (zshrc)
+# bubble-shell-integration (zshrc)
 #
 # Emits OSC 7 (cwd) + OSC 133 A/B/C/D (prompt-start / prompt-end / pre-exec /
 # command-done-with-exit-code) so the host can detect command boundaries and
 # track cwd without re-parsing the prompt. `status` is a read-only special in
-# zsh, so we shadow $? into `_losos_ret`.
+# zsh, so we shadow $? into `_bubble_ret`.
 #
 # Our own code runs under `emulate -L zsh` so user options (KSH_ARRAYS, NO_UNSET,
 # ...) cannot break it; the user's files are sourced outside of it.
@@ -11,54 +11,54 @@
 {
   # Bubble's directory is still ZDOTDIR here (see zshenv.zsh). /etc/zshrc on
   # macOS derives HISTFILE from it, so move that to the user's directory.
-  _losos_zdotdir="${ZDOTDIR-}"
-  _losos_user_zdotdir="${LOSOS_USER_ZDOTDIR:-${HOME-}}"
-  if [[ -n "${HISTFILE-}" && "${HISTFILE-}" == "$_losos_zdotdir"/* ]]; then
-    HISTFILE="$_losos_user_zdotdir/${HISTFILE:t}"
+  _bubble_zdotdir="${ZDOTDIR-}"
+  _bubble_user_zdotdir="${BUBBLE_USER_ZDOTDIR:-${HOME-}}"
+  if [[ -n "${HISTFILE-}" && "${HISTFILE-}" == "$_bubble_zdotdir"/* ]]; then
+    HISTFILE="$_bubble_user_zdotdir/${HISTFILE:t}"
   fi
-  ZDOTDIR="$_losos_user_zdotdir"
-  [ -f "$_losos_user_zdotdir/.zshrc" ] && source "$_losos_user_zdotdir/.zshrc"
+  ZDOTDIR="$_bubble_user_zdotdir"
+  [ -f "$_bubble_user_zdotdir/.zshrc" ] && source "$_bubble_user_zdotdir/.zshrc"
 }
 
-_losos_zshrc_setup() {
+_bubble_zshrc_setup() {
   emulate -L zsh
 
-  if [[ -n "${LOSOS_CLI-}" && -x "${LOSOS_CLI-}" ]]; then
-    losos() {
-      command "$LOSOS_CLI" "$@"
+  if [[ -n "${BUBBLE_CLI-}" && -x "${BUBBLE_CLI-}" ]]; then
+    bubble() {
+      command "$BUBBLE_CLI" "$@"
     }
   fi
 
   # Re-source guard within a single shell (e.g. user runs `source $ZDOTDIR/.zshrc`).
   # This is NOT exported, so each nested zsh installs its own hooks — desired,
   # since every interactive shell needs its own prompt integration.
-  if [[ -n "${__LOSOS_HOOKS_LOADED-}" ]]; then
+  if [[ -n "${__BUBBLE_HOOKS_LOADED-}" ]]; then
     # Sourced again while a command runs: leave ZDOTDIR as it was found.
-    if [[ -n "$_losos_zdotdir" ]]; then export ZDOTDIR="$_losos_zdotdir"; else unset ZDOTDIR; fi
+    if [[ -n "$_bubble_zdotdir" ]]; then export ZDOTDIR="$_bubble_zdotdir"; else unset ZDOTDIR; fi
     return 0
   fi
-  __LOSOS_HOOKS_LOADED=1
+  __BUBBLE_HOOKS_LOADED=1
   autoload -Uz add-zsh-hook 2>/dev/null
 
   # ZDOTDIR has two faces. While a command runs it is exported as Bubble's
   # directory, so a shell that command starts (exec zsh, a nested zsh, zsh -l)
   # reads the integration scripts again; at the prompt, in hooks and in widgets
   # it is the user's own value (or unset), so code that reads $ZDOTDIR lazily
-  # finds their files. LOSOS_USER_ZDOTDIR carries the user's value to children.
-  _losos_zd_integration="$_losos_zdotdir"
-  if [[ -n "${LOSOS_USER_ZDOTDIR-}" || "${ZDOTDIR-}" != "$_losos_user_zdotdir" ]]; then
-    _losos_zd_has_user=1
-    _losos_zd_user="${ZDOTDIR:-$_losos_user_zdotdir}"
-    export LOSOS_USER_ZDOTDIR="$_losos_zd_user"
+  # finds their files. BUBBLE_USER_ZDOTDIR carries the user's value to children.
+  _bubble_zd_integration="$_bubble_zdotdir"
+  if [[ -n "${BUBBLE_USER_ZDOTDIR-}" || "${ZDOTDIR-}" != "$_bubble_user_zdotdir" ]]; then
+    _bubble_zd_has_user=1
+    _bubble_zd_user="${ZDOTDIR:-$_bubble_user_zdotdir}"
+    export BUBBLE_USER_ZDOTDIR="$_bubble_zd_user"
   else
-    _losos_zd_has_user=
-    unset LOSOS_USER_ZDOTDIR
+    _bubble_zd_has_user=
+    unset BUBBLE_USER_ZDOTDIR
   fi
 
-  _losos_zdotdir_prompt() {
+  _bubble_zdotdir_prompt() {
     emulate -L zsh
-    if [[ -n "$_losos_zd_has_user" ]]; then
-      ZDOTDIR="$_losos_zd_user"
+    if [[ -n "$_bubble_zd_has_user" ]]; then
+      ZDOTDIR="$_bubble_zd_user"
     else
       unset ZDOTDIR
     fi
@@ -68,7 +68,7 @@ _losos_zshrc_setup() {
   # segment, after the usual wrappers, is zsh, a path to it, or $SHELL when that
   # is zsh. Pure zsh word splitting, no forks; indirect launches (a function, a
   # script, tmux) are not seen and start without the integration.
-  _losos_starts_zsh() {
+  _bubble_starts_zsh() {
     emulate -L zsh
     # Runs before every command, so a pasted script must not cost anything: only
     # a bounded prefix is looked at, and only when a word that could start a zsh
@@ -135,17 +135,17 @@ _losos_zshrc_setup() {
   # expands to their file. Only a command line that starts a zsh exports
   # Bubble's directory, so that shell reads the integration; the next precmd
   # puts the user's value back.
-  _losos_zdotdir_command() {
+  _bubble_zdotdir_command() {
     emulate -L zsh
-    _losos_starts_zsh "${3-$1}" || return 0
-    export ZDOTDIR="$_losos_zd_integration"
+    _bubble_starts_zsh "${3-$1}" || return 0
+    export ZDOTDIR="$_bubble_zd_integration"
   }
 
   # URL-encode $1 byte-wise into REPLY so multi-byte paths stay valid in the
   # `file://` URI emitted via OSC 7. `no_multibyte` forces ${s[i]} to index
   # bytes (not code points), and LC_ALL=C keeps the [a-zA-Z0-9...] class
   # single-byte. No command substitution: a fork per prompt is pure latency.
-  _losos_urlencode() {
+  _bubble_urlencode() {
     emulate -L zsh
     setopt localoptions no_multibyte
     local LC_ALL=C s="$1" i byte
@@ -159,11 +159,11 @@ _losos_zshrc_setup() {
     done
   }
 
-  _losos_report_cwd() {
+  _bubble_report_cwd() {
     emulate -L zsh
     local REPLY
     if [[ "$PWD" == *[^a-zA-Z0-9/._~-]* ]]; then
-      _losos_urlencode "$PWD"
+      _bubble_urlencode "$PWD"
     else
       REPLY="$PWD"
     fi
@@ -173,37 +173,37 @@ _losos_zshrc_setup() {
   # Prompt-end marker. Embedded in PS1 when nothing in the prompt carries one
   # already, so redraws (resize, reset-prompt) repeat it; the line-init hook
   # below covers prompts a framework builds itself.
-  _losos_prompt_has_end() {
+  _bubble_prompt_has_end() {
     emulate -L zsh
     [[ "${PS1-}" == *$'\e]133;B'* ]]
   }
 
-  _losos_precmd() {
-    local _losos_ret=$?
+  _bubble_precmd() {
+    local _bubble_ret=$?
     emulate -L zsh
-    printf '\e]133;D;%s\e\\' "$_losos_ret"
-    _losos_report_cwd
+    printf '\e]133;D;%s\e\\' "$_bubble_ret"
+    _bubble_report_cwd
     # In block mode the host renders its own input bar, so suppress the shell
     # prompt entirely (keep only the OSC 133 B marker) and add a leading blank
     # line so frozen command blocks get vertical breathing room.
-    if [[ -n "${LOSOS_BLOCKS-}" ]]; then
+    if [[ -n "${BUBBLE_BLOCKS-}" ]]; then
       # Spacing reserved for the host-drawn block header lives in the prompt
       # (the grid is WebGL, not CSS). Later prompts get two blank rows: the
       # upper one is the previous block's end gap (above its divider), the lower
       # one is this command's header row. The very first prompt has no block
       # above it, so it gets a single row (header only) to avoid a tall top gap.
-      if [[ -n "${_losos_block_seen-}" ]]; then
-        _losos_block_ps1=$'\n\n%{\e]133;B\e\\%}'
+      if [[ -n "${_bubble_block_seen-}" ]]; then
+        _bubble_block_ps1=$'\n\n%{\e]133;B\e\\%}'
       else
-        _losos_block_ps1=$'\n%{\e]133;B\e\\%}'
+        _bubble_block_ps1=$'\n%{\e]133;B\e\\%}'
       fi
-      PS1="$_losos_block_ps1"
+      PS1="$_bubble_block_ps1"
       RPROMPT=''
-    elif ! _losos_prompt_has_end; then
+    elif ! _bubble_prompt_has_end; then
       PS1="${PS1-}"$'%{\e]133;B\e\\%}'
     fi
-    _losos_end_pending=1
-    _losos_ensure_line_init
+    _bubble_end_pending=1
+    _bubble_ensure_line_init
     printf '\e]133;A\e\\'
   }
 
@@ -211,22 +211,22 @@ _losos_zshrc_setup() {
   # the prompt framework (powerlevel10k, starship, ...) rebuilt in its own
   # precmd or redrew asynchronously. A second marker at the same spot is
   # harmless, a missing one holds the prompt back until the host's fallback.
-  _losos_line_init() {
+  _bubble_line_init() {
     emulate -L zsh
-    [[ -n "${_losos_end_pending-}" ]] || return 0
-    _losos_end_pending=
-    if [[ -n "${LOSOS_BLOCKS-}" && -n "${_losos_block_ps1-}" && "${PS1-}" != "$_losos_block_ps1" ]]; then
+    [[ -n "${_bubble_end_pending-}" ]] || return 0
+    _bubble_end_pending=
+    if [[ -n "${BUBBLE_BLOCKS-}" && -n "${_bubble_block_ps1-}" && "${PS1-}" != "$_bubble_block_ps1" ]]; then
       # A framework rebuilt the prompt after our precmd (powerlevel10k runs
       # last): the host draws the input bar, so take the shell prompt back.
-      PS1="$_losos_block_ps1"
+      PS1="$_bubble_block_ps1"
       RPROMPT=''
       zle reset-prompt
     fi
-    _losos_prompt_has_end || printf '\e]133;B\e\\'
+    _bubble_prompt_has_end || printf '\e]133;B\e\\'
     return 0
   }
 
-  _losos_ensure_line_init() {
+  _bubble_ensure_line_init() {
     emulate -L zsh
     if [[ "$ZSH_VERSION" == (5.<3->*|<6->.*) ]]; then
       # The dispatcher widget is shared with every plugin that hooks line-init,
@@ -234,38 +234,38 @@ _losos_zshrc_setup() {
       local -a hooks
       if [[ "${widgets[zle-line-init]-}" == user:azhw:zle-line-init ]] \
          && zstyle -g hooks zle-line-init widgets \
-         && [[ -n "${(M)hooks[@]:#(<->:|)_losos_line_init}" ]]; then
+         && [[ -n "${(M)hooks[@]:#(<->:|)_bubble_line_init}" ]]; then
         return 0
       fi
       autoload -Uz add-zle-hook-widget
-      add-zle-hook-widget line-init _losos_line_init
+      add-zle-hook-widget line-init _bubble_line_init
     else
       # zsh < 5.3 has no hook widgets: chain the existing widget by hand.
-      [[ "${widgets[zle-line-init]-}" == user:_losos_line_init_chain ]] && return 0
-      (( $+widgets[zle-line-init] )) && zle -A zle-line-init _losos_line_init_prev
-      _losos_line_init_chain() {
-        (( $+widgets[_losos_line_init_prev] )) && zle _losos_line_init_prev "$@"
-        _losos_line_init
+      [[ "${widgets[zle-line-init]-}" == user:_bubble_line_init_chain ]] && return 0
+      (( $+widgets[zle-line-init] )) && zle -A zle-line-init _bubble_line_init_prev
+      _bubble_line_init_chain() {
+        (( $+widgets[_bubble_line_init_prev] )) && zle _bubble_line_init_prev "$@"
+        _bubble_line_init
       }
-      zle -N zle-line-init _losos_line_init_chain
+      zle -N zle-line-init _bubble_line_init_chain
     fi
   }
 
-  _losos_preexec() {
+  _bubble_preexec() {
     emulate -L zsh
     # Mark that a real command ran, so the next prompt switches from one blank
     # row (first prompt, no block above) to two (end gap + header row).
-    [[ -n "${LOSOS_BLOCKS-}" ]] && _losos_block_seen=1
+    [[ -n "${BUBBLE_BLOCKS-}" ]] && _bubble_block_seen=1
     local cmd="${1//[[:cntrl:]]/ }"
     printf '\e]133;C;%s\e\\' "${cmd[1,256]}"
   }
 
   if (( $+functions[add-zsh-hook] )); then
-    add-zsh-hook precmd _losos_precmd
-    add-zsh-hook preexec _losos_preexec
-    add-zsh-hook precmd _losos_zdotdir_prompt
-    precmd_functions=(_losos_zdotdir_prompt ${precmd_functions:#_losos_zdotdir_prompt})
-    add-zsh-hook preexec _losos_zdotdir_command
+    add-zsh-hook precmd _bubble_precmd
+    add-zsh-hook preexec _bubble_preexec
+    add-zsh-hook precmd _bubble_zdotdir_prompt
+    precmd_functions=(_bubble_zdotdir_prompt ${precmd_functions:#_bubble_zdotdir_prompt})
+    add-zsh-hook preexec _bubble_zdotdir_command
   fi
 
   # With POWERLEVEL9K_TERM_SHELL_INTEGRATION powerlevel10k emits its own C and
@@ -289,11 +289,11 @@ _losos_zshrc_setup() {
   # Report the starting directory before the first prompt; the first precmd
   # emits the prompt markers. Then show the user their own ZDOTDIR, which is
   # also what zsh reads their .zlogin from.
-  _losos_report_cwd
-  _losos_zdotdir_prompt
+  _bubble_report_cwd
+  _bubble_zdotdir_prompt
 }
 
-_losos_zshrc_setup
-unset -f _losos_zshrc_setup
-unset _losos_zdotdir _losos_user_zdotdir
+_bubble_zshrc_setup
+unset -f _bubble_zshrc_setup
+unset _bubble_zdotdir _bubble_user_zdotdir
 :

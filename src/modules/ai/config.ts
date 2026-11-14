@@ -1,4 +1,4 @@
-export const KEYRING_SERVICE = "losos-ai";
+export const KEYRING_SERVICE = "bubble-ai";
 
 export type ProviderId =
   | "openai"

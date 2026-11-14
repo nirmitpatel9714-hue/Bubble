@@ -381,9 +381,9 @@ describe("checkShellCommand — home directory rm guard", () => {
 
 describe("application credentials", () => {
   it.each([
-    "/Users/me/Library/Caches/losos/control.json",
-    "/home/me/.cache/losos/control.json",
-    "C:/Users/me/AppData/Local/losos/control.json",
+    "/Users/me/Library/Caches/bubble/control.json",
+    "/home/me/.cache/bubble/control.json",
+    "C:/Users/me/AppData/Local/bubble/control.json",
   ])("refuses %s even inside a home grant", (path) => {
     expect(checkReadable(path).ok).toBe(false);
   });

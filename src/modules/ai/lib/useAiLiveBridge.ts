@@ -145,7 +145,7 @@ export function useAiLiveBridge(params: Params) {
           if (result !== "ready") {
             if (result === "timeout") {
               console.warn(
-                "[losos] Claude TUI did not appear in time; aborting prompt send",
+                "[bubble] Claude TUI did not appear in time; aborting prompt send",
               );
             }
             useManagedAgentsStore.getState().remove(leafId);

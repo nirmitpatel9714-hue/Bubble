@@ -1,4 +1,4 @@
-import { CellFlags } from "@losos/ghostty-core/protocol";
+import { CellFlags } from "@bubble/ghostty-core/protocol";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { hasIntrinsicColor, WebGlGlyphAtlas } from "./WebGlGlyphAtlas";
 

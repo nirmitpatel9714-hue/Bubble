@@ -49,7 +49,7 @@ The tool set is assembled in `src/modules/ai/tools/tools.ts` from `fs`, `edit`, 
 
 ## Sessions
 
-Conversations are organized into sessions. Persistence lives in `losos-ai-sessions.json` via `tauri-plugin-store` (`src/modules/ai/lib/sessions.ts`):
+Conversations are organized into sessions. Persistence lives in `bubble-ai-sessions.json` via `tauri-plugin-store` (`src/modules/ai/lib/sessions.ts`):
 
 - `sessions` key: list of session metadata
 - `activeId` key: active session id

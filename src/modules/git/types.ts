@@ -270,7 +270,7 @@ type WorktreeBranch =
   | { mode: "detach" };
 
 export type WorktreeAddRequest = {
-  /** Absolute location; omitted: `~/.losos/worktrees/<project>/<task>`. */
+  /** Absolute location; omitted: `~/.bubble/worktrees/<project>/<task>`. */
   path?: string | null;
   taskSlug?: string | null;
   branch: WorktreeBranch;

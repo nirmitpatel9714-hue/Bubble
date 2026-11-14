@@ -1,7 +1,7 @@
 # Ghostty final resource audit, September 7
 
 This audit starts from `a96a77d0ddeba3f11f8742b3149ddad8be05dc92` on PR
-[#1223](https://github.com/nirmitpatel9714-hue/LosOS/pull/1223). It covers terminal resource
+[#1223](https://github.com/nirmitpatel9714-hue/Bubble/pull/1223). It covers terminal resource
 ownership, startup cancellation, PTY backpressure and shutdown, presentation
 scheduling, GPU/atlas lifetime, hidden panes, blocks, accessibility, asset
 loading, upstream artifacts, and regression checks. It does not certify total
@@ -130,7 +130,7 @@ drain overhead remains a correctness tradeoff and a packaged throughput gate.
   1.43 MB / 1.5 MB, primary Ghostty JS 46.05 kB / 56 kB, lazy WebGL 14.08 kB /
   15 kB, both WASM variants 413.4 kB / 450 kB. No budget was raised.
 - All seven CI jobs pass on `c5ab994`, including macOS and Windows tests:
-  [exact-revision run](https://github.com/nirmitpatel9714-hue/LosOS/actions/runs/34135456841).
+  [exact-revision run](https://github.com/nirmitpatel9714-hue/Bubble/actions/runs/34135456841).
   CodeRabbit's follow-up found only local directory labels in the new profile
   JSON; those are now repository-relative.
 - The latest CodeRabbit comment requested an explicit platform-validation row;

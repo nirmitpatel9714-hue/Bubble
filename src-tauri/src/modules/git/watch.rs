@@ -767,7 +767,7 @@ impl GitWatchState {
             }));
         let worker_app = app.clone();
         if let Err(e) = std::thread::Builder::new()
-            .name("losos-git-watch".into())
+            .name("bubble-git-watch".into())
             .stack_size(512 * 1024)
             .spawn(move || run_worker(worker_app, rx))
         {

@@ -45,7 +45,7 @@ pub struct TaskSnapshot {
 }
 
 pub(crate) fn lock_operation(repo: &super::utils::ResolvedGitDirectory) -> Result<File> {
-    let path = super::plumbing::common_dir(repo)?.join("losos-tasks.lock");
+    let path = super::plumbing::common_dir(repo)?.join("bubble-tasks.lock");
     let file = OpenOptions::new()
         .read(true)
         .write(true)
@@ -70,7 +70,7 @@ pub(crate) struct Store {
 
 impl Store {
     pub fn open(home: &Path) -> Result<Self> {
-        let dir = home.join(".losos");
+        let dir = home.join(".bubble");
         std::fs::create_dir_all(&dir)?;
         let lock = OpenOptions::new()
             .read(true)

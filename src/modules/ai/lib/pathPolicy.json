@@ -48,10 +48,10 @@
     "/appdata/roaming/microsoft/credentials",
     "/appdata/local/microsoft/credentials",
     "/appdata/roaming/gcloud",
-    "/library/caches/losos",
-    "/.cache/losos",
-    "/appdata/local/losos",
-    "/appdata/local/app.losos",
-    "/.local/share/app.losos"
+    "/library/caches/bubble",
+    "/.cache/bubble",
+    "/appdata/local/bubble",
+    "/appdata/local/app.bubble",
+    "/.local/share/app.bubble"
   ]
 }

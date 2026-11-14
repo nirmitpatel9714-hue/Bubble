@@ -94,7 +94,7 @@ export class PtyOutputReceiver {
     this.cancelYield = null;
     this.queue.length = 0;
     this.setStatus("failed");
-    console.error("[losos] PTY output delivery paused:", error);
+    console.error("[bubble] PTY output delivery paused:", error);
   }
 
   diagnostics() {
@@ -203,7 +203,7 @@ export class PtyOutputReceiver {
     try {
       this.onProgress(this.processed);
     } catch (error) {
-      console.error("[losos] PTY progress report failed:", error);
+      console.error("[bubble] PTY progress report failed:", error);
     }
   }
 
@@ -225,7 +225,7 @@ export class PtyOutputReceiver {
     try {
       this.onStatus(status);
     } catch (error) {
-      console.error("[losos] PTY status notification failed:", error);
+      console.error("[bubble] PTY status notification failed:", error);
     }
   }
 }

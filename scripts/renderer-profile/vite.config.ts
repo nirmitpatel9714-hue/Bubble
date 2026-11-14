@@ -4,28 +4,28 @@ import { defineConfig } from "vite";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const source =
-  process.env.LOSOS_PROFILE_SOURCE_ROOT ?? path.resolve(root, "../..");
+  process.env.BUBBLE_PROFILE_SOURCE_ROOT ?? path.resolve(root, "../..");
 export default defineConfig({
   root,
   resolve: {
     alias: [
       { find: "@", replacement: path.join(source, "src") },
       {
-        find: "@losos/ghostty-core/adapted",
+        find: "@bubble/ghostty-core/adapted",
         replacement: path.join(
           source,
           "packages/ghostty-core/lib/adapted/index.ts",
         ),
       },
       {
-        find: "@losos/ghostty-core/protocol",
+        find: "@bubble/ghostty-core/protocol",
         replacement: path.join(source, "packages/ghostty-core/lib/protocol.ts"),
       },
     ],
   },
   build: {
     target: "es2022",
-    outDir: process.env.LOSOS_RENDERER_DIST ?? path.join(root, "dist"),
+    outDir: process.env.BUBBLE_RENDERER_DIST ?? path.join(root, "dist"),
     emptyOutDir: true,
   },
 });

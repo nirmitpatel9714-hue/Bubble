@@ -30,8 +30,8 @@ use super::ipc_body;
 /// A conversation larger than this is refused rather than held in memory.
 const MAX_CONVERSATION_BYTES: usize = 128 * 1024 * 1024;
 const MAX_OPTIONS_BYTES: usize = 1024;
-const LEGACY_BACKUP: &str = "losos-ai-sessions.before-message-files.json";
-const LEGACY_STORE: &str = "losos-ai-sessions.json";
+const LEGACY_BACKUP: &str = "bubble-ai-sessions.before-message-files.json";
+const LEGACY_STORE: &str = "bubble-ai-sessions.json";
 const LEGACY_KEY_PREFIX: &str = "messages:";
 
 #[derive(Default)]
@@ -537,7 +537,7 @@ pub async fn ai_session_load(
     Ok(Response::new(bytes.unwrap_or_default()))
 }
 
-/// Body: the conversation as raw JSON bytes. Header `x-losos-session`:
+/// Body: the conversation as raw JSON bytes. Header `x-bubble-session`:
 /// `{ "id", "migrate"?, "durable"? }`.
 #[tauri::command]
 pub async fn ai_session_save(
@@ -547,7 +547,7 @@ pub async fn ai_session_save(
 ) -> Result<(), String> {
     let options: SaveOptions = request
         .headers()
-        .get("x-losos-session")
+        .get("x-bubble-session")
         .and_then(|value| value.to_str().ok())
         .filter(|value| value.len() <= MAX_OPTIONS_BYTES)
         .ok_or("missing or oversized conversation options")

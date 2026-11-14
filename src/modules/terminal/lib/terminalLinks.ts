@@ -61,7 +61,7 @@ export async function activateTerminalLink(
   try {
     await runPlan(plan, context, deps);
   } catch (error) {
-    console.error("[losos] terminal link failed:", error);
+    console.error("[bubble] terminal link failed:", error);
     context.focus();
   }
 }

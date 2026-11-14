@@ -228,6 +228,20 @@
   overflow: hidden;
 }
 
+/* Terminal CSS: sharp corners. Toggled by Settings → CSS. Collapsing the radius
+ * tokens squares every pane, card and the terminal surface at once; colours are
+ * untouched because they still resolve from the active theme's custom props. */
+html[data-terminal-css="on"] {
+  --radius: 0px;
+  --pane-radius: 0px;
+}
+html[data-terminal-css="on"] .bubble-pane,
+html[data-terminal-css="on"] .bubble-bg-surface,
+html[data-terminal-css="on"] #root,
+html[data-terminal-css="on"] #settings-root {
+  border-radius: 0 !important;
+}
+
 /* Window vibrancy (macOS NSVisualEffectView / Windows Mica). Only the frame
  * goes translucent: panes keep `--background` so terminal and editor text
  * stays on a solid, readable surface and the terminal canvas still matches its

@@ -7,6 +7,7 @@ import { usePreferencesStore } from "@/modules/settings/preferences";
 import { WindowActivityBridge } from "@/modules/theme";
 import {
   AiScanIcon,
+  CodeIcon,
   InformationCircleIcon,
   KeyboardIcon,
   PaintBoardIcon,
@@ -19,6 +20,7 @@ import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { type JSX, useEffect, useState } from "react";
 import { AboutSection } from "./sections/AboutSection";
 import { AgentsSection } from "./sections/AgentsSection";
+import { CssSection } from "./sections/CssSection";
 import { EditorSection } from "./sections/EditorSection";
 import { GeneralSection } from "./sections/GeneralSection";
 import { ModelsSection } from "./sections/ModelsSection";
@@ -50,6 +52,12 @@ const TABS: {
     component: ThemesSection,
   },
   {
+    id: "css",
+    label: "CSS",
+    icon: CodeIcon,
+    component: CssSection,
+  },
+  {
     id: "shortcuts",
     label: "Shortcuts",
     icon: KeyboardIcon,
@@ -74,6 +82,7 @@ const VALID_TABS: SettingsTab[] = [
   "general",
   "editor",
   "themes",
+  "css",
   "shortcuts",
   "models",
   "agents",

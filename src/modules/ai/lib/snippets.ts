@@ -9,7 +9,7 @@ export type Snippet = {
   content: string;
 };
 
-const STORE_PATH = "losos-ai-snippets.json";
+const STORE_PATH = "bubble-ai-snippets.json";
 const KEY_LIST = "snippets";
 
 const store = new LazyStore(STORE_PATH, { defaults: {}, autoSave: 200 });

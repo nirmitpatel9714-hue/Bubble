@@ -4,12 +4,13 @@
 
   <p><strong>轻量、终端优先的 AI 原生开发工作区。</strong></p>
 
-  <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
+  <p><a href="https://github.com/nirmitpatel9714-hue/Bubble">GitHub</a></p>
 
   <p>
-    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/LosOS?label=version&color=blue" alt="版本" />
-    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/LosOS/total?label=downloads&color=blue" alt="下载量" />
-    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="平台" />
+    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/Bubble?label=version&color=blue" alt="版本" />
+    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/Bubble/total?label=downloads&color=blue" alt="下载量" />
+    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="平台" />
+
   </p>
 </div>
 
@@ -108,7 +109,7 @@ Bubble 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE）
 
 ## 安装
 
-最新安装程序位于 [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) 页面。Bubble 会从该页面自动更新。
+最新安装程序位于 [Releases](https://github.com/nirmitpatel9714-hue/Bubble/releases/latest) 页面。Bubble 会从该页面自动更新。
 
 ### Windows 说明
 
@@ -117,8 +118,8 @@ Bubble 是一个轻量、开源、终端优先的 AI 原生开发环境（ADE）
 
 ### Linux 说明
 
-- **Arch / AUR：** `yay -S losos-bin`（也可使用 `paru` 等）。它会跟随最新版本。
-- **NixOS / Nix：** 使用官方 flake。非 NixOS 运行 `nix profile install github:nirmitpatel9714-hue/LosOS`；NixOS 可导入 flake，并将 `inputs.losos.packages.${pkgs.system}.losos` 添加到 `environment.systemPackages`。也可以使用 `nixosModules.losos` 输出进行更简单的配置。
+- **Arch / AUR：** `yay -S bubble-bin`（也可使用 `paru` 等）。它会跟随最新版本。
+- **NixOS / Nix：** 使用官方 flake。非 NixOS 运行 `nix profile install github:nirmitpatel9714-hue/Bubble`；NixOS 可导入 flake，并将 `inputs.bubble.packages.${pkgs.system}.bubble` 添加到 `environment.systemPackages`。也可以使用 `nixosModules.bubble` 输出进行更简单的配置。
 - **AppImage：** 需要 FUSE。没有 FUSE 时运行 `./Bubble_*.AppImage --appimage-extract-and-run`。如果在 Wayland 上出现渲染问题，请尝试 `WEBKIT_DISABLE_DMABUF_RENDERER=1`。否则，`.deb` / `.rpm` 包会链接系统 GTK 栈，通常更流畅。
 
 ## 配置 AI

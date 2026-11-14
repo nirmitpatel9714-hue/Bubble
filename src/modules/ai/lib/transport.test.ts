@@ -71,7 +71,7 @@ describe("automatic project memory", () => {
     expect(await send("/repo-normal")).toBeNull();
   });
 
-  it("prefers BUBBLE.md over the legacy LOSOS.md", async () => {
+  it("prefers BUBBLE.md over the legacy BUBBLE.md", async () => {
     native.canonicalize.mockImplementation(async (path: string) => path);
     native.readProjectMemory.mockResolvedValue("current instructions");
     expect(await send("/repo-current")).toBe("current instructions");
@@ -83,7 +83,7 @@ describe("automatic project memory", () => {
     );
   });
 
-  it("falls back to the legacy LOSOS.md when BUBBLE.md is missing", async () => {
+  it("falls back to the legacy BUBBLE.md when BUBBLE.md is missing", async () => {
     native.canonicalize.mockImplementation(async (path: string) => {
       if (path.endsWith("/BUBBLE.md")) throw new Error("missing");
       return path;
@@ -92,7 +92,7 @@ describe("automatic project memory", () => {
     expect(await send("/repo-legacy")).toBe("legacy instructions");
     expect(native.readProjectMemory).toHaveBeenCalledWith(
       "/repo-legacy",
-      "/repo-legacy/LOSOS.md",
+      "/repo-legacy/BUBBLE.md",
       { kind: "local" },
     );
   });

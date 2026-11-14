@@ -2,12 +2,13 @@
   <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
   <h1>Bubble</h1>
   <p><strong>हल्का, टर्मिनल-केंद्रित और AI-नेटिव डेवलपमेंट वर्कस्पेस।</strong></p>
-  <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
+  <p><a href="https://github.com/nirmitpatel9714-hue/Bubble">GitHub</a></p>
 
   <p>
-    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/LosOS?label=version&color=blue" alt="संस्करण" />
-    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/LosOS/total?label=downloads&color=blue" alt="डाउनलोड" />
-    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="प्लेटफ़ॉर्म" />
+    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/Bubble?label=version&color=blue" alt="संस्करण" />
+    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/Bubble/total?label=downloads&color=blue" alt="डाउनलोड" />
+    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="प्लेटफ़ॉर्म" />
+
   </p>
 </div>
 
@@ -88,7 +89,7 @@ Bubble एक हल्का, ओपन-सोर्स, टर्मिनल-
 
 ## इंस्टॉल करें
 
-नवीनतम इंस्टॉलर [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest) पेज पर हैं। Bubble वहीं से अपने आप अपडेट होता है।
+नवीनतम इंस्टॉलर [Releases](https://github.com/nirmitpatel9714-hue/Bubble/releases/latest) पेज पर हैं। Bubble वहीं से अपने आप अपडेट होता है।
 
 ### Windows नोट्स
 
@@ -97,8 +98,8 @@ Bubble एक हल्का, ओपन-सोर्स, टर्मिनल-
 
 ### Linux नोट्स
 
-- **Arch / AUR:** `yay -S losos-bin` या `paru`। यह नवीनतम रिलीज़ का अनुसरण करता है।
-- **NixOS / Nix:** आधिकारिक flake का उपयोग करें। NixOS के बाहर `nix profile install github:nirmitpatel9714-hue/LosOS` चलाएँ। NixOS में flake आयात करें और `inputs.losos.packages.${pkgs.system}.losos` को `environment.systemPackages` में जोड़ें। आसान सेटअप के लिए `nixosModules.losos` भी उपलब्ध है।
+- **Arch / AUR:** `yay -S bubble-bin` या `paru`। यह नवीनतम रिलीज़ का अनुसरण करता है।
+- **NixOS / Nix:** आधिकारिक flake का उपयोग करें। NixOS के बाहर `nix profile install github:nirmitpatel9714-hue/Bubble` चलाएँ। NixOS में flake आयात करें और `inputs.bubble.packages.${pkgs.system}.bubble` को `environment.systemPackages` में जोड़ें। आसान सेटअप के लिए `nixosModules.bubble` भी उपलब्ध है।
 - **AppImage:** FUSE आवश्यक है। इसके बिना `./Bubble_*.AppImage --appimage-extract-and-run` चलाएँ। Wayland पर रेंडरिंग समस्या हो तो `WEBKIT_DISABLE_DMABUF_RENDERER=1` आज़माएँ। `.deb` / `.rpm` पैकेज सिस्टम GTK स्टैक से जुड़ते हैं और आम तौर पर अधिक सुचारु चलते हैं।
 
 ## AI कॉन्फ़िगर करें

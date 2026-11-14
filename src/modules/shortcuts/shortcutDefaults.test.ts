@@ -13,7 +13,6 @@ import {
 
 const LEADER_EXPECTED: Record<string, string[]> = {
   "terminal.clear": ["Leader+Shift+k"],
-  "commandPalette.open": ["Leader+k"],
   "commandPalette.files": ["Leader+p"],
   "commandPalette.content": ["Leader+Shift+f"],
   "settings.open": ["Leader+,"],
@@ -39,6 +38,9 @@ const LEADER_EXPECTED: Record<string, string[]> = {
   "tab.prev": ["Leader+h", "Leader+ArrowLeft", "Leader+Shift+Tab"],
   "tab.selectByIndex": ["Leader+1"],
   "tiling.toggle": ["Leader+t"],
+  "tiling.grow": ["Leader+Shift+=", "Leader+r"],
+  "tiling.shrink": ["Leader+Shift+-", "Leader+Shift+r"],
+  "tiling.resetWidth": ["Leader+Shift+0"],
   "space.next": ["Leader+]", "Leader+Shift+l"],
   "space.prev": ["Leader+[", "Leader+Shift+h"],
   "space.overview": ["Leader+Space"],
@@ -66,12 +68,14 @@ const MAC_NATIVE: Record<string, string[]> = {
   "editor.undo": ["Cmd+z"],
   "editor.redo": ["Cmd+y", "Shift+Cmd+z"],
   "editor.save": ["Cmd+s"],
+  "commandPalette.open": ["Ctrl+Space"],
 };
 
 const WIN_LINUX_NATIVE: Record<string, string[]> = {
   "editor.undo": ["Ctrl+z"],
   "editor.redo": ["Ctrl+y", "Ctrl+Shift+z"],
   "editor.save": ["Ctrl+s"],
+  "commandPalette.open": ["Ctrl+Space"],
 };
 
 const NATIVE_IDS = new Set<ShortcutId>([
@@ -79,6 +83,9 @@ const NATIVE_IDS = new Set<ShortcutId>([
   "editor.redo",
   "editor.save",
 ]);
+
+// Bindings that are pressed directly rather than after the leader.
+const DIRECT_IDS = new Set<ShortcutId>([...NATIVE_IDS, "commandPalette.open"]);
 
 const describeBinding = (b: KeyBinding): string =>
   [
@@ -127,7 +134,7 @@ describe.each([
 
   it("makes every application binding a leader chord", () => {
     for (const id of ids) {
-      if (NATIVE_IDS.has(id)) continue;
+      if (DIRECT_IDS.has(id)) continue;
       expect(table[id].length, id).toBeGreaterThan(0);
       for (const binding of table[id])
         expect(
@@ -148,7 +155,7 @@ describe.each([
 
   it("keeps Alt and Super out of every application chord", () => {
     for (const id of ids) {
-      if (NATIVE_IDS.has(id)) continue;
+      if (DIRECT_IDS.has(id)) continue;
       for (const binding of table[id].flatMap((b) => accepted(id, b))) {
         const text = `${id}: ${describeBinding(binding)}`;
         expect(!!binding.alt, text).toBe(false);
@@ -161,7 +168,7 @@ describe.each([
   it("never repeats a leader chord anywhere in the app", () => {
     const owners = new Map<string, string>();
     for (const id of ids) {
-      if (NATIVE_IDS.has(id)) continue;
+      if (DIRECT_IDS.has(id)) continue;
       for (const binding of table[id].flatMap((b) => accepted(id, b))) {
         const key = `${binding.shift ? "shift" : ""}|${binding.key.toLowerCase()}`;
         const other = owners.get(key);
@@ -176,7 +183,7 @@ describe.each([
 
   it("fires each leader chord for its own shortcut only", () => {
     for (const id of ids) {
-      if (NATIVE_IDS.has(id)) continue;
+      if (DIRECT_IDS.has(id)) continue;
       for (const binding of table[id].flatMap((b) => accepted(id, b))) {
         const matches = SHORTCUTS.filter((shortcut) =>
           table[shortcut.id].some((b) =>
@@ -197,7 +204,7 @@ describe.each([
 
   it("never matches a leader chord as a direct key press", () => {
     for (const id of ids) {
-      if (NATIVE_IDS.has(id)) continue;
+      if (DIRECT_IDS.has(id)) continue;
       for (const binding of table[id].flatMap((b) => accepted(id, b)))
         expect(
           matchBinding(eventOf(binding), binding, id),
@@ -215,6 +222,19 @@ describe.each([
         ).toBe(false);
       }
     }
+  });
+
+  it("binds the command palette to a direct Ctrl+Space chord on every platform", () => {
+    const [binding] = table["commandPalette.open"];
+    expect(describeBinding(binding)).toBe("Ctrl+Space");
+    expect(binding.leader).toBeUndefined();
+    expect(matchBinding(eventOf(binding), binding, "commandPalette.open")).toBe(
+      true,
+    );
+    // It is never a leader chord.
+    expect(
+      matchLeaderChord(eventOf(binding), { ...binding, leader: true }),
+    ).toBe(false);
   });
 
   it("rejects Ctrl, Alt and Super after the leader", () => {
@@ -255,7 +275,7 @@ describe.each([
 
   it("does not fire a letter chord for the letter another layout types", () => {
     for (const id of ids) {
-      if (NATIVE_IDS.has(id)) continue;
+      if (DIRECT_IDS.has(id)) continue;
       for (const binding of table[id]) {
         if (!/^[a-z]$/i.test(binding.key)) continue;
         for (const letter of "abcdefghijklmnopqrstuvwxyz".split("")) {

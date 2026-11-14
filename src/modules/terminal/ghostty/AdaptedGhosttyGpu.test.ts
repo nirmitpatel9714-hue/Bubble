@@ -19,7 +19,7 @@ import {
   type BubbleGhosttyGpuRenderState,
   type BubbleGhosttyRenderState,
   type BubbleGhosttyTerminal,
-} from "@losos/ghostty-core/adapted";
+} from "@bubble/ghostty-core/adapted";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const MAX_GLYPHS = 16 * 1024;

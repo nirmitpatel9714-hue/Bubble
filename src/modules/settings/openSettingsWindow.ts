@@ -4,6 +4,7 @@ export type SettingsTab =
   | "general"
   | "editor"
   | "themes"
+  | "css"
   | "shortcuts"
   | "models"
   | "agents"

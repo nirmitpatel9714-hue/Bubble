@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#0d0d10"/>
+  <rect x="24" y="24" width="1232" height="672" rx="12" fill="#0b0b0e" stroke="#2a2a31"/>
+  <rect x="24" y="24" width="1232" height="56" rx="12" fill="#17171c"/>
+  <text x="56" y="60" font-family="Segoe UI, sans-serif" font-size="20" fill="#e8e8ea">Bubble</text>
+  <rect x="340" y="150" width="600" height="420" rx="14" fill="#141419" stroke="#33333d"/>
+  <rect x="340" y="150" width="600" height="52" rx="14" fill="#1b1b22"/>
+  <text x="368" y="183" font-family="Segoe UI, sans-serif" font-size="15" fill="#8a8a94">Type a command…</text>
+  <text x="368" y="240" font-family="Segoe UI, sans-serif" font-size="15" fill="#e8e8ea">New terminal</text>
+  <text x="912" y="240" text-anchor="end" font-family="Segoe UI, sans-serif" font-size="12" fill="#7a7a85">Ctrl+B N</text>
+  <text x="368" y="284" font-family="Segoe UI, sans-serif" font-size="15" fill="#e8e8ea">Open settings</text>
+  <text x="912" y="284" text-anchor="end" font-family="Segoe UI, sans-serif" font-size="12" fill="#7a7a85">Ctrl+B ,</text>
+  <text x="640" y="640" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="15" fill="#7a7a85">Command palette — Ctrl+Space. Placeholder image.</text>
+</svg>

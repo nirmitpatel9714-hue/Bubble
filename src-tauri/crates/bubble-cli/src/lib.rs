@@ -7,7 +7,7 @@ use std::process::ExitCode;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use losos_control_protocol::{
+use bubble_control_protocol::{
     CallerContext, ControlDescriptor, ControlRequest, ControlResponse, OpenParams,
     MAX_MESSAGE_BYTES, METHOD_CAPABILITIES, METHOD_IDENTIFY, METHOD_OPEN, METHOD_PING,
     PROTOCOL_VERSION, SERVER_RESPONSE_ID,
@@ -84,7 +84,7 @@ pub fn main_entry() -> ExitCode {
                     })
                 );
             } else {
-                eprintln!("losos: {}", error.message);
+                eprintln!("bubble: {}", error.message);
             }
             ExitCode::from(error.exit)
         }
@@ -99,12 +99,12 @@ fn run(args: Vec<OsString>) -> Result<(), CliError> {
             Ok(())
         }
         Action::Version => {
-            println!("losos {}", env!("CARGO_PKG_VERSION"));
+            println!("bubble {}", env!("CARGO_PKG_VERSION"));
             Ok(())
         }
         Action::Request { method, params } => {
             let endpoint = load_endpoint()?;
-            let caller = env::var("LOSOS_PANE_ID")
+            let caller = env::var("BUBBLE_PANE_ID")
                 .ok()
                 .and_then(|value| value.parse::<u32>().ok());
             let request = ControlRequest {
@@ -118,7 +118,7 @@ fn run(args: Vec<OsString>) -> Result<(), CliError> {
             let response = send_request(&endpoint.address, &request, DEFAULT_TIMEOUTS)?;
             if !response.ok {
                 let error = response.error.unwrap_or_else(|| {
-                    losos_control_protocol::ControlError::new(
+                    bubble_control_protocol::ControlError::new(
                         "request_failed",
                         "Bubble rejected the request",
                     )
@@ -282,8 +282,8 @@ fn usage_error(message: impl Into<String>) -> CliError {
 }
 
 fn load_endpoint() -> Result<ControlDescriptor, CliError> {
-    let env_address = env::var("LOSOS_CONTROL_ADDR").ok();
-    let env_token = env::var("LOSOS_CONTROL_TOKEN").ok();
+    let env_address = env::var("BUBBLE_CONTROL_ADDR").ok();
+    let env_token = env::var("BUBBLE_CONTROL_TOKEN").ok();
     let (descriptor, require_live_process) = match (env_address, env_token) {
         (Some(address), Some(token)) => (
             ControlDescriptor {
@@ -297,7 +297,7 @@ fn load_endpoint() -> Result<ControlDescriptor, CliError> {
         ),
         (None, None) => {
             let path = dirs::cache_dir()
-                .map(|dir| dir.join("losos").join("control.json"))
+                .map(|dir| dir.join("bubble").join("control.json"))
                 .ok_or_else(|| {
                     CliError::new(
                         "app_unavailable",
@@ -324,7 +324,7 @@ fn load_endpoint() -> Result<ControlDescriptor, CliError> {
         _ => {
             return Err(CliError::new(
                 "invalid_environment",
-                "LOSOS_CONTROL_ADDR and LOSOS_CONTROL_TOKEN must be set together",
+                "BUBBLE_CONTROL_ADDR and BUBBLE_CONTROL_TOKEN must be set together",
                 EXIT_PROTOCOL,
             ));
         }
@@ -562,7 +562,7 @@ fn print_result(method: &str, result: Value, as_json: bool) {
 fn print_help() {
     println!(
         "Bubble command line interface\n\n\
-Usage:\n  losos <file> [--line <n>] [--no-focus] [--json]\n  losos open <file> [--line <n>] [--no-focus] [--json]\n  losos ping [--json]\n  losos capabilities [--json]\n  losos identify [--json]\n  losos hook <agent> <event>   (agent hook entry point; reads JSON on stdin)\n  losos --version\n\n\
+Usage:\n  bubble <file> [--line <n>] [--no-focus] [--json]\n  bubble open <file> [--line <n>] [--no-focus] [--json]\n  bubble ping [--json]\n  bubble capabilities [--json]\n  bubble identify [--json]\n  bubble hook <agent> <event>   (agent hook entry point; reads JSON on stdin)\n  bubble --version\n\n\
 The app must be running. Commands launched in a Bubble pane target that pane's space."
     );
 }

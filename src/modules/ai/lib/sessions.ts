@@ -10,7 +10,7 @@ export type SessionMeta = {
   updatedAt: number;
 };
 
-const STORE_PATH = "losos-ai-sessions.json";
+const STORE_PATH = "bubble-ai-sessions.json";
 const KEY_SESSIONS = "sessions";
 const KEY_ACTIVE = "activeId";
 const LEGACY_PREFIX = "messages:";
@@ -65,7 +65,7 @@ async function saveNative(
 ): Promise<void> {
   await invoke("ai_session_save", encoder.encode(JSON.stringify(messages)), {
     headers: {
-      "x-losos-session": escapeHeader({
+      "x-bubble-session": escapeHeader({
         id,
         migrate: options.migrate === true,
         durable: options.durable === true,

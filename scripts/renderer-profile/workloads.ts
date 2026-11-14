@@ -1016,7 +1016,7 @@ export async function runNamedWorkload(name: string, context: LabContext): Promi
   // change the measured memory behaviour. Off by default for the CPU/energy workloads.
   // Renderer tuning knob (renderers that predate it ignore it): idle canvas parking delay.
   const parkMs = context.params.get("parkMs");
-  if (parkMs !== null) localStorage.setItem("losos:terminal-canvas-park-ms", parkMs);
+  if (parkMs !== null) localStorage.setItem("bubble:terminal-canvas-park-ms", parkMs);
   const instrument =
     context.params.get("instrument") ??
     (["occlusion", "move", "resize", "canvas", "tabs"].includes(name) ? "1" : "0");

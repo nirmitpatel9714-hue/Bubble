@@ -8,7 +8,7 @@ import {
   terminalRendererReport,
 } from "./selection";
 
-const STORAGE_KEY = "losos.experimental.terminal-backend";
+const STORAGE_KEY = "bubble.experimental.terminal-backend";
 
 describe("terminal backend selection", () => {
   afterEach(() => vi.unstubAllGlobals());

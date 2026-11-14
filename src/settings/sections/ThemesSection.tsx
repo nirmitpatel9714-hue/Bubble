@@ -210,7 +210,7 @@ export function ThemesSection() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".bubble-theme,.losos-theme,.json,application/json"
+            accept=".bubble-theme,.bubble-theme,.json,application/json"
             className="hidden"
             onChange={(e) => {
               void handleThemeFiles(e.target.files);

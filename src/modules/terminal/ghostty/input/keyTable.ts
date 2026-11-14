@@ -1,4 +1,4 @@
-import { Key } from "@losos/ghostty-core/protocol";
+import { Key } from "@bubble/ghostty-core/protocol";
 
 /**
  * Physical key (`KeyboardEvent.code`) to the Ghostty key it encodes as. Most

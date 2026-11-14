@@ -17,7 +17,7 @@ type DistroKey = "arch" | "debian" | "fedora";
 function distroCommand(key: DistroKey, version: string): string {
   switch (key) {
     case "arch":
-      return "yay -S losos-bin";
+      return "yay -S bubble-bin";
     case "debian":
       return `sudo apt install ./Bubble_${version}_amd64.deb`;
     case "fedora":
@@ -57,6 +57,10 @@ export function UpdaterDialog() {
   const manual = status.kind === "manual-available" ? status.info : null;
   const downloading = status.kind === "downloading";
   const ready = status.kind === "ready";
+  // Release notes for the new version, shown for every update kind so the user
+  // always sees what changed. Tauri updates carry it on `Update.body`; Linux
+  // manual checks carry the GitHub release body on `info.body`.
+  const changelog = manual?.body?.trim() || update?.body?.trim() || "";
 
   const copyCommand = async () => {
     if (!navigator?.clipboard?.writeText) return;
@@ -104,9 +108,20 @@ export function UpdaterDialog() {
                   : formatBytes(status.downloaded)
                 : manual
                   ? `You're on v${manual.currentVersion}. Pick your distro and run the command, or grab the package from GitHub.`
-                  : update?.body || "A new version is ready to install."}
+                  : "A new version is ready to install."}
           </DialogDescription>
         </DialogHeader>
+
+        {changelog && !downloading && !ready && (
+          <div className="mt-1 flex flex-col gap-1.5">
+            <span className="text-[11px] font-medium tracking-tight text-muted-foreground">
+              What&rsquo;s new
+            </span>
+            <div className="max-h-[240px] overflow-y-auto rounded-md border border-border/60 bg-muted/30 p-3 text-[12px] leading-relaxed whitespace-pre-wrap">
+              {changelog}
+            </div>
+          </div>
+        )}
 
         {downloading && progress !== null && (
           <Progress value={progress} className="mt-2" />

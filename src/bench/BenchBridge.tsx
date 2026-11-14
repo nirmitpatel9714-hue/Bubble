@@ -3,7 +3,7 @@ import { startBenchDriver } from "./driver";
 import type { BenchAppApi } from "./types";
 
 /**
- * Mounted by App only in LOSOS_BENCH builds. It hands the live tab actions to the scenario driver
+ * Mounted by App only in BUBBLE_BENCH builds. It hands the live tab actions to the scenario driver
  * (which runs once, after the first render) and renders nothing.
  */
 export default function BenchBridge(props: BenchAppApi) {

@@ -5,7 +5,7 @@ use tauri::{
     AppHandle, Manager, Runtime,
 };
 
-const GUARDED_QUIT_MENU_ID: &str = "losos.quit";
+const GUARDED_QUIT_MENU_ID: &str = "bubble.quit";
 const QUIT_ACCELERATOR: &str = "Command+Q";
 
 fn invalid_default_menu(message: &'static str) -> tauri::Error {

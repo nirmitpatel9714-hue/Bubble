@@ -443,7 +443,7 @@ fn add_inner(
     };
 
     let mut git_args = if claimed.is_some() {
-        let hooks = super::plumbing::git_dir(&repo)?.join("losos-task-hooks");
+        let hooks = super::plumbing::git_dir(&repo)?.join("bubble-task-hooks");
         std::fs::create_dir_all(&hooks)?;
         super::checkpoint::plumbing_config(&hooks)
     } else {

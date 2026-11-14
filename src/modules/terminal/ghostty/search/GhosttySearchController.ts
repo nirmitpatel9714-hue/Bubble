@@ -132,7 +132,7 @@ export class GhosttySearchController implements TerminalSearchController {
       },
       (error) => {
         this.loading = false;
-        console.error("[losos] terminal search failed to load", error);
+        console.error("[bubble] terminal search failed to load", error);
       },
     );
   }

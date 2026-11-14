@@ -175,7 +175,7 @@ describe("built startup graph", () => {
   let outDir = "";
 
   beforeAll(() => {
-    outDir = mkdtempSync(join(tmpdir(), "losos-dist-budget-"));
+    outDir = mkdtempSync(join(tmpdir(), "bubble-dist-budget-"));
     // Sourcemaps list every module inside each chunk, so the package check does
     // not depend on how a chunk happens to be named. Built into a temp dir:
     // the real dist/ is untouched.
@@ -193,8 +193,8 @@ describe("built startup graph", () => {
       ],
       {
         cwd: root,
-        // LOSOS_BENCH is explicitly off: a shipped build must not contain the app-lab driver.
-        env: { ...process.env, NODE_ENV: "production", LOSOS_BENCH: "" },
+        // BUBBLE_BENCH is explicitly off: a shipped build must not contain the app-lab driver.
+        env: { ...process.env, NODE_ENV: "production", BUBBLE_BENCH: "" },
         stdio: "pipe",
         timeout: 240_000,
       },
@@ -295,7 +295,7 @@ describe("built startup graph", () => {
           env: {
             ...process.env,
             NODE_ENV: "production",
-            LOSOS_BENCH: "1",
+            BUBBLE_BENCH: "1",
             ...extra,
           },
           stdio: "pipe",
@@ -310,31 +310,31 @@ describe("built startup graph", () => {
       }
       return "";
     };
-    expect(failure({ LOSOS_BENCH_IDENTIFIER: "" })).toContain(
-      "LOSOS_BENCH_IDENTIFIER",
+    expect(failure({ BUBBLE_BENCH_IDENTIFIER: "" })).toContain(
+      "BUBBLE_BENCH_IDENTIFIER",
     );
-    expect(failure({ LOSOS_BENCH_IDENTIFIER: "app.losos" })).toContain(
+    expect(failure({ BUBBLE_BENCH_IDENTIFIER: "app.bubble" })).toContain(
       "not the product identifier",
     );
     // Nothing was emitted by either attempt.
     expect(existsSync(join(outDir, "guarded"))).toBe(false);
   });
 
-  it("contains none of the app-lab benchmark driver (LOSOS_BENCH is off)", () => {
+  it("contains none of the app-lab benchmark driver (BUBBLE_BENCH is off)", () => {
     // The driver (src/bench) and its Tauri commands exist only in builds made with
-    // LOSOS_BENCH=1: `__LOSOS_BENCH__` is the literal `false` otherwise, so its lazy import, the
+    // BUBBLE_BENCH=1: `__BUBBLE_BENCH__` is the literal `false` otherwise, so its lazy import, the
     // chunks behind it and every bench-only string are removed before bundling.
     const markers = [
       "bench_config",
       "bench_window",
       "bench_exit",
-      "__lososBenchConfig",
+      "__bubbleBenchConfig",
       // The smoothness probe's seam (src/bench/smoothHooks.ts): product code reports to it
-      // only behind __LOSOS_BENCH__, and the lookup itself is gated too.
-      "__lososSmooth",
-      "losos:bench:",
-      "LOSOS_BENCH",
-      "__LOSOS_BENCH__",
+      // only behind __BUBBLE_BENCH__, and the lookup itself is gated too.
+      "__bubbleSmooth",
+      "bubble:bench:",
+      "BUBBLE_BENCH",
+      "__BUBBLE_BENCH__",
     ];
     const files = (dir: string): string[] =>
       readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>

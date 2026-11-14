@@ -154,7 +154,7 @@ export class LazyTerminalLinks {
           links.ingest(event);
         }
       } catch (error) {
-        console.error("[losos] terminal link support failed to load:", error);
+        console.error("[bubble] terminal link support failed to load:", error);
       } finally {
         queue = null;
         clickStamp = null;

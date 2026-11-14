@@ -7,7 +7,7 @@ import type { Theme } from "../types";
  * variants also let the settings swatch fall back to the live CSS vars.
  */
 export const bubbleDefault: Theme = {
-  id: "losos-default",
+  id: "bubble-default",
   name: "Bubble Default",
   description: "Clean neutral greys with a full-color terminal.",
   editorTheme: { dark: "github-dark", light: "github-light" },

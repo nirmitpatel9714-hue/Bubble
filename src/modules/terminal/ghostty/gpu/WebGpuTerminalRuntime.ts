@@ -665,7 +665,7 @@ export class WebGpuTerminalRuntime {
   }
 
   private flushFrame(frameAt = performance.now()): void {
-    const benchStart = __LOSOS_BENCH__ ? performance.now() : 0;
+    const benchStart = __BUBBLE_BENCH__ ? performance.now() : 0;
     this.animationFrame = null;
     this.pacer.frameStarted(frameAt);
     this.animationFrames += 1;
@@ -770,7 +770,7 @@ export class WebGpuTerminalRuntime {
       if (encoder && rendered) {
         resources.device.queue.submit([encoder.finish()]);
         this.submittedFrames += 1;
-        if (__LOSOS_BENCH__) {
+        if (__BUBBLE_BENCH__) {
           const now = performance.now();
           smoothHooks()?.frame(now, now - benchStart);
         }

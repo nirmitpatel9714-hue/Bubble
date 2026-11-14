@@ -19,6 +19,9 @@ export type ShortcutId =
   | "tab.prev"
   | "tab.selectByIndex"
   | "tiling.toggle"
+  | "tiling.grow"
+  | "tiling.shrink"
+  | "tiling.resetWidth"
   | "space.next"
   | "space.prev"
   | "space.overview"
@@ -85,8 +88,8 @@ export type Shortcut = {
 };
 
 // Matching walks this list in order and skips a shortcut its host disables, so
-// terminal.clear stays ahead of commandPalette.open: leader+Shift+K clears a
-// focused terminal and leader+K opens the palette everywhere else.
+// terminal.clear stays ahead of the other chords: leader+Shift+K clears a
+// focused terminal, while the palette is a direct Ctrl+Space chord.
 const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   {
     id: "terminal.clear",
@@ -225,6 +228,23 @@ const SHORTCUT_META: Omit<Shortcut, "defaultBindings">[] = [
   {
     id: "tiling.toggle",
     label: "Toggle tiling for this window",
+    group: "Windows",
+  },
+  {
+    id: "tiling.grow",
+    label: "Increase tiled window width",
+    group: "Windows",
+    allowRepeat: true,
+  },
+  {
+    id: "tiling.shrink",
+    label: "Decrease tiled window width",
+    group: "Windows",
+    allowRepeat: true,
+  },
+  {
+    id: "tiling.resetWidth",
+    label: "Reset tiled window width",
     group: "Windows",
   },
   {

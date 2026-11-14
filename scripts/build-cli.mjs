@@ -47,7 +47,7 @@ function requireArtifact(path, label) {
 }
 
 const target =
-  process.env.LOSOS_CLI_TARGET?.trim() ||
+  process.env.BUBBLE_CLI_TARGET?.trim() ||
   process.env.CARGO_BUILD_TARGET?.trim() ||
   hostTriple();
 const cargoArgs = [
@@ -56,9 +56,9 @@ const cargoArgs = [
   "--manifest-path",
   join(tauriDir, "Cargo.toml"),
   "--package",
-  "losos-cli",
+  "bubble-cli",
   "--bin",
-  "losos-cli",
+  "bubble-cli",
   "--target",
   target,
 ];
@@ -73,12 +73,12 @@ const source = join(
   "target",
   target,
   profile,
-  `losos-cli${extension}`,
+  `bubble-cli${extension}`,
 );
 const destination = join(
   tauriDir,
   "binaries",
-  `losos-cli-${target}${extension}`,
+  `bubble-cli-${target}${extension}`,
 );
 requireArtifact(source, "Built CLI artifact");
 mkdirSync(dirname(destination), { recursive: true });

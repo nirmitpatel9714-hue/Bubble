@@ -127,10 +127,10 @@ describe.each([
   });
 
   it("continues past a disabled recorded match to a default", () => {
-    const user = { "view.zenMode": [{ leader: true, key: "k" }] };
+    const user = { "view.zenMode": [{ leader: true, key: "n" }] };
     expect(
-      leader(shortcuts, press("k"), { user, disabled: ["view.zenMode"] }),
-    ).toBe("commandPalette.open");
+      leader(shortcuts, press("n"), { user, disabled: ["view.zenMode"] }),
+    ).toBe("tab.new");
   });
 
   it("continues past a disabled default to another default", () => {
@@ -170,6 +170,12 @@ describe.each([
     expect(direct(shortcuts, press("s", mod))).toBe("editor.save");
     expect(direct(shortcuts, press("z", mod))).toBe("editor.undo");
     expect(direct(shortcuts, press("Z", `${mod}S`))).toBe("editor.redo");
+  });
+
+  it("opens the palette on a direct Ctrl+Space chord", () => {
+    expect(direct(shortcuts, press(" ", "C"))).toBe("commandPalette.open");
+    // Without Ctrl it is just a space keypress, not the palette.
+    expect(direct(shortcuts, press(" "))).toBeNull();
   });
 
   it("requires the chord's modifiers exactly", () => {

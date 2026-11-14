@@ -1,6 +1,6 @@
-"""Opt-in, isolated macOS WKWebView renderer lab. Never opens the user's LosOS profile.
+"""Opt-in, isolated macOS WKWebView renderer lab. Never opens the user's Bubble profile.
 
-Builds the real LosOS WebGPU renderer and the real Ghostty WASM models into a native WKWebView
+Builds the real Bubble WebGPU renderer and the real Ghostty WASM models into a native WKWebView
 host, drives a synthetic workload through the model write API (no PTY), and samples physical
 footprint, CPU time and energy of the host plus its WebKit helpers.
 
@@ -8,7 +8,7 @@ Workloads (`--workload`):
   default    the original tab-switch / resize / repaint workload (footprint only)
   occlusion  repeated window occlusion (order out, cover window or miniaturize) with a longer
              hold than the 2 s reclaim delay; optional forced-GC probes
-  canvas     the same occlusion cycles on a raw WebGPU canvas (no LosOS renderer) to compare
+  canvas     the same occlusion cycles on a raw WebGPU canvas (no Bubble renderer) to compare
              canvas teardown strategies with --variant
   move       small-step and jump window moves while terminals trickle output
   tabs       alternate between a one-pane and a four-pane tab, dwelling longer than the old
@@ -43,7 +43,7 @@ import procstats  # noqa: E402
 LEGACY_PHASES = {"blank", "two-blank", "streamed", "switched", "resized", "repaint-start", "repainted", "hidden", "disposed", "done"}
 SCOPE = (
     "Synthetic renderer in an isolated native WKWebView fed through the Ghostty model write API; "
-    "not full LosOS, a real PTY, React, AI streaming, IPC, packaged-app behaviour, or "
+    "not full Bubble, a real PTY, React, AI streaming, IPC, packaged-app behaviour, or "
     "cross-platform qualification. WindowServer CPU is whole-system (all windows), from ps, without energy."
 )
 
@@ -127,11 +127,11 @@ if args.workload == "occlusion" and not expect_reclaim and hidden_ms >= 1900:
 
 root = Path(__file__).resolve().parent
 repo = root.parent.parent
-output = (args.output or Path(tempfile.mkdtemp(prefix="losos-renderer-profile-"))).resolve()
+output = (args.output or Path(tempfile.mkdtemp(prefix="bubble-renderer-profile-"))).resolve()
 output.mkdir(parents=True, exist_ok=True)
 source = (args.source or repo).resolve()
 dist = output / "dist"
-bundle = output / "LosOS Renderer Lab.app"
+bundle = output / "Bubble Renderer Lab.app"
 executable = bundle / "Contents/MacOS/renderer-lab"
 executable.parent.mkdir(parents=True, exist_ok=True)
 vmmap_enabled = args.vmmap if args.vmmap is not None else args.workload in ("occlusion", "canvas", "move", "resize", "tabs")
@@ -185,7 +185,7 @@ if session_locked():
 # Build
 # ---------------------------------------------------------------------------------------------
 
-env = {**os.environ, "LOSOS_PROFILE_SOURCE_ROOT": str(source), "LOSOS_RENDERER_DIST": str(dist)}
+env = {**os.environ, "BUBBLE_PROFILE_SOURCE_ROOT": str(source), "BUBBLE_RENDERER_DIST": str(dist)}
 if args.reuse_build and (dist / "index.html").exists() and executable.exists():
     print(f"Reusing the build in {output} (artifact hashes are recorded in the report)", flush=True)
 else:
@@ -262,7 +262,7 @@ config = {
     "hostTimeoutS": host_timeout,
 }
 manifest = {
-    "schema": "losos-renderer-lab/2",
+    "schema": "bubble-renderer-lab/2",
     "scope": SCOPE,
     "config": config,
     "sourceRevision": revision.stdout.strip() if has_git else args.revision,
@@ -295,7 +295,7 @@ if args.workload != "default":
     })
 url = f"http://127.0.0.1:{server.server_port}/?{urlencode(query)}" + ("&inspect=1" if args.inspect else "")
 with (bundle / "Contents/Info.plist").open("wb") as info:
-    plistlib.dump({"CFBundleIdentifier": "app.losos.renderer-lab", "CFBundleExecutable": "renderer-lab", "CFBundleName": "LosOS Renderer Lab", "CFBundlePackageType": "APPL", "NSHighResolutionCapable": True, "LosOSLabURL": url}, info)
+    plistlib.dump({"CFBundleIdentifier": "app.bubble.renderer-lab", "CFBundleExecutable": "renderer-lab", "CFBundleName": "Bubble Renderer Lab", "CFBundlePackageType": "APPL", "NSHighResolutionCapable": True, "BubbleLabURL": url}, info)
 
 # ---------------------------------------------------------------------------------------------
 # Sampling
@@ -423,7 +423,7 @@ if args.inspect:
     command.append(str(output))
 process = subprocess.Popen(
     command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-    env={**os.environ, "LOSOS_LAB_CONTROL": "1", "LOSOS_LAB_TIMEOUT": str(host_timeout)},
+    env={**os.environ, "BUBBLE_LAB_CONTROL": "1", "BUBBLE_LAB_TIMEOUT": str(host_timeout)},
 )
 manifest["hostPid"] = process.pid
 poller.start()

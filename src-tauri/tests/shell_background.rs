@@ -2,8 +2,8 @@
 
 use std::time::{Duration, Instant};
 
-use losos_lib::modules::shell::background;
-use losos_lib::modules::workspace::WorkspaceEnv;
+use bubble_lib::modules::shell::background;
+use bubble_lib::modules::workspace::WorkspaceEnv;
 
 fn wait_until<F: Fn() -> bool>(timeout: Duration, check: F) -> bool {
     let deadline = Instant::now() + timeout;

@@ -1,4 +1,4 @@
-import type { ViewportLinkSource } from "@/modules/terminal/ghostty/core/ViewportLinkResolver";
+import { IS_WINDOWS } from "@/lib/platform";
 import type {
   PackedTerminalViewport,
   TerminalCursor,
@@ -7,26 +7,31 @@ import type {
   TerminalModes,
   TerminalRowRange,
 } from "@/modules/terminal/backend/contracts";
+import type { ViewportLinkSource } from "@/modules/terminal/ghostty/core/ViewportLinkResolver";
 import type {
   BubbleGhostty,
   BubbleGhosttyGpuRenderState,
   BubbleGhosttyRenderBase,
   BubbleGhosttyRenderState,
   BubbleGhosttyTerminal,
-} from "@losos/ghostty-core/adapted";
+} from "@bubble/ghostty-core/adapted";
 import type {
   GhosttyTerminalConfig,
   GhosttyTerminalEvent,
   KeyEvent,
-} from "@losos/ghostty-core/protocol";
-import { CellFlags } from "@losos/ghostty-core/protocol";
+} from "@bubble/ghostty-core/protocol";
+import { CellFlags } from "@bubble/ghostty-core/protocol";
 import { PromptPresentationGate } from "./core/PromptPresentationGate";
-import { ResizePromptHold } from "./core/ResizePromptHold";
 import {
   CELL_STRIDE,
   type Rgb,
   type TerminalCellReader,
 } from "./core/packedCells";
+import {
+  RESIZE_PROMPT_HOLD_MS,
+  ResizePromptHold,
+  WINDOWS_RESIZE_PROMPT_HOLD_MS,
+} from "./core/ResizePromptHold";
 import { SynchronizedOutputPresentationGate } from "./core/SynchronizedOutputPresentationGate";
 import {
   MIN_SCROLLBACK_BYTES,
@@ -158,8 +163,9 @@ export class AdaptedGhosttyTerminalModel implements GhosttyTerminalModelApi {
     this.promptPresentation = new PromptPresentationGate(() =>
       this.requestPresentation(),
     );
-    this.resizePromptHold = new ResizePromptHold(() =>
-      this.requestPresentation(),
+    this.resizePromptHold = new ResizePromptHold(
+      () => this.requestPresentation(),
+      IS_WINDOWS ? WINDOWS_RESIZE_PROMPT_HOLD_MS : RESIZE_PROMPT_HOLD_MS,
     );
     this.synchronizedOutputPresentation =
       new SynchronizedOutputPresentationGate(() => this.notifyDamage());

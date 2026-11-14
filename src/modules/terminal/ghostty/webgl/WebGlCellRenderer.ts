@@ -4,7 +4,7 @@
  */
 
 import type { TerminalDamage } from "@/modules/terminal/backend/contracts";
-import { CellFlags } from "@losos/ghostty-core/protocol";
+import { CellFlags } from "@bubble/ghostty-core/protocol";
 import type { Rgb, TerminalCellReader } from "../core/packedCells";
 import type { GhosttyTerminalModelApi } from "../GhosttyTerminalModel";
 import {

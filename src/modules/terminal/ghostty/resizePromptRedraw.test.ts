@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { RESIZE_PROMPT_HOLD_MS } from "./core/ResizePromptHold";
 import { TerminalResizeSync } from "@/modules/terminal/lib/terminalResizeSync";

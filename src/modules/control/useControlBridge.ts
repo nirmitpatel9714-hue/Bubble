@@ -92,7 +92,7 @@ async function respond(
     response,
   });
   if (!delivered) {
-    console.warn(`[losos] control response expired: ${requestId}`);
+    console.warn(`[bubble] control response expired: ${requestId}`);
   }
 }
 
@@ -130,7 +130,7 @@ export function useControlBridge({
               await window.setFocus();
               focused = true;
             } catch (error) {
-              console.warn("[losos] could not focus control target:", error);
+              console.warn("[bubble] could not focus control target:", error);
             }
           }
           const tabId = onOpen({ ...open, spaceId: context.space_id });
@@ -167,7 +167,7 @@ export function useControlBridge({
             : { code: "frontend_error", message: String(error) };
         await respond(request.id, { ok: false, error: responseError }).catch(
           (responseError) => {
-            console.error("[losos] control response failed:", responseError);
+            console.error("[bubble] control response failed:", responseError);
           },
         );
       }
@@ -185,14 +185,14 @@ export function useControlBridge({
         return setFrontendReady(true);
       })
       .catch((error) => {
-        console.error("[losos] control bridge setup failed:", error);
+        console.error("[bubble] control bridge setup failed:", error);
       });
 
     return () => {
       disposed = true;
       unlisten?.();
       void setFrontendReady(false).catch((error) => {
-        console.error("[losos] control bridge cleanup failed:", error);
+        console.error("[bubble] control bridge cleanup failed:", error);
       });
     };
   }, [ready, tabsRef, activeTabIdRef, activeSpaceIdRef, onOpen]);

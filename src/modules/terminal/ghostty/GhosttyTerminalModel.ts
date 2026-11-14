@@ -4,12 +4,12 @@ import type {
   TerminalModel,
   TerminalRowRange,
 } from "@/modules/terminal/backend/contracts";
-import type { BubbleGhosttyGpuGlyph } from "@losos/ghostty-core/adapted";
+import type { BubbleGhosttyGpuGlyph } from "@bubble/ghostty-core/adapted";
 import type {
   GhosttyTerminalConfig,
   GhosttyTerminalEvent,
   KeyEvent,
-} from "@losos/ghostty-core/protocol";
+} from "@bubble/ghostty-core/protocol";
 import type { TerminalCellReader } from "@/modules/terminal/ghostty/core/packedCells";
 import type { ViewportLinkSource } from "@/modules/terminal/ghostty/core/ViewportLinkResolver";
 
@@ -68,7 +68,7 @@ export type GhosttyGpuFrameOptions = {
 /**
  * Everything a GPU renderer needs for one frame, produced by
  * `GhosttyTerminalModelApi.consumeGpuFrame()`. Cell records are 16 bytes per
- * cell; see `@losos/ghostty-core/adapted` (`GPU_CELL_*`, `decodeGpuCell`) for
+ * cell; see `@bubble/ghostty-core/adapted` (`GPU_CELL_*`, `decodeGpuCell`) for
  * the exact word layout. `cells` and `memory.buffer` are borrowed: use them
  * synchronously (for example `queue.writeBuffer`) before the next call into
  * the model, because any WASM allocation can replace `memory.buffer`.

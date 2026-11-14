@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { AdaptedGhosttyTerminalModel } from "@/modules/terminal/ghostty/AdaptedGhosttyTerminalModel";
 import {
   GhosttyBlocks,
@@ -251,7 +251,7 @@ describe.each(["ghostty-vt", "ghostty-vt-scalar"])(
         expect(blocks.mode).toBe("plain");
         write("bare shell> \x1b]133;A\x07");
         expect(blocks.mode).toBe("plain");
-        write("\x1b]133;B;losos_blocks=0\x07");
+        write("\x1b]133;B;bubble_blocks=0\x07");
         expect(blocks.mode).toBe("plain");
         write("\x1b]133;C;command\x07\x1b]133;D;0\x07");
         expect(blocks.mode).toBe("plain");

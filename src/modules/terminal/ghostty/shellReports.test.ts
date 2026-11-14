@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { GhosttySemanticEventRouter } from "./core/GhosttySemanticEventRouter";
 import {

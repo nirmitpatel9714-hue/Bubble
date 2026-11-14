@@ -1,6 +1,6 @@
 # Ghostty PR review, September 7
 
-Review: [PR 1223](https://github.com/nirmitpatel9714-hue/LosOS/pull/1223), CodeRabbit's
+Review: [PR 1223](https://github.com/nirmitpatel9714-hue/Bubble/pull/1223), CodeRabbit's
 September 7 review of `4834c01`. All 26 major findings and the documentation
 index comment were checked against the implementation. No PR comments were
 posted and no review threads were marked resolved automatically.
@@ -121,7 +121,7 @@ diff comment and platform-validation nitpick.
 
 The reviewed head passed all test/build/coverage CI jobs, including Rust on
 Linux, macOS, and Windows and terminal tests on macOS and Windows:
-[CI run 34116210880](https://github.com/nirmitpatel9714-hue/LosOS/actions/runs/34116210880).
+[CI run 34116210880](https://github.com/nirmitpatel9714-hue/Bubble/actions/runs/34116210880).
 No PR replies were posted or review threads resolved automatically.
 
 Validation of this follow-up: 165 frontend files / 1,148 tests, TypeScript via

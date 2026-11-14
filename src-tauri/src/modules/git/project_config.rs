@@ -32,10 +32,10 @@ pub struct WorktreeConfig {
 impl Default for WorktreeConfig {
     fn default() -> Self {
         Self {
-            dir: "~/.losos/worktrees/{project}/{task}".into(),
+            dir: "~/.bubble/worktrees/{project}/{task}".into(),
             include: vec![".env".into(), ".env.local".into()],
             shared: vec!["node_modules/.cache".into()],
-            branch_prefix: "losos/".into(),
+            branch_prefix: "bubble/".into(),
         }
     }
 }
@@ -53,7 +53,7 @@ impl Default for Scripts {
     fn default() -> Self {
         Self {
             setup: "pnpm install".into(),
-            run: "pnpm dev --port $LOSOS_PORT".into(),
+            run: "pnpm dev --port $BUBBLE_PORT".into(),
             archive: "docker compose down".into(),
             run_mode: RunMode::Concurrent,
         }
@@ -118,12 +118,12 @@ fn invalid(text: &str, key: &str, why: impl std::fmt::Display) -> GitError {
                 .is_some_and(|rest| rest.trim_start().starts_with('='))
         })
         .map_or(1, |n| n + 1);
-    GitError::command(".losos/project.toml", format!("line {line}: {key}: {why}"))
+    GitError::command(".bubble/project.toml", format!("line {line}: {key}: {why}"))
 }
 
 pub fn parse(text: &str) -> Result<ProjectConfig> {
     let config: ProjectConfig = toml::from_str(text)
-        .map_err(|e| GitError::command(".losos/project.toml", e.to_string()))?;
+        .map_err(|e| GitError::command(".bubble/project.toml", e.to_string()))?;
     validate_template(&config.worktree.dir).map_err(|e| invalid(text, "dir", e))?;
     if !refs::is_plausible_ref_name(&format!("{}task", config.worktree.branch_prefix)) {
         return Err(invalid(text, "branch_prefix", "invalid branch prefix"));
@@ -252,7 +252,7 @@ pub fn read(
         ));
     }
     let mut config =
-        parse(&read_confined(&repo.local_path, ".losos/project.toml")?.unwrap_or_default())?;
+        parse(&read_confined(&repo.local_path, ".bubble/project.toml")?.unwrap_or_default())?;
     if let Some(text) = read_confined(&repo.local_path, ".worktreeinclude")? {
         for (line, entry) in text.lines().enumerate() {
             let entry = entry.trim();
@@ -352,7 +352,7 @@ fn resolved_destination(path: &Path) -> std::io::Result<PathBuf> {
 pub(crate) fn validate_location(path: &Path, repo: &Path, home: &Path) -> Result<()> {
     let target = resolved_destination(path)?;
     let repo = std::fs::canonicalize(repo)?;
-    let default_root = std::fs::canonicalize(home)?.join(".losos/worktrees");
+    let default_root = std::fs::canonicalize(home)?.join(".bubble/worktrees");
     let siblings = repo
         .parent()
         .ok_or_else(|| GitError::InvalidPath("repository has no parent".into()))?;

@@ -2,12 +2,13 @@
   <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
   <h1>Bubble</h1>
   <p><strong>Espace de développement léger, axé sur le terminal et natif pour l'IA.</strong></p>
-  <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
+  <p><a href="https://github.com/nirmitpatel9714-hue/Bubble">GitHub</a></p>
 
   <p>
-    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/LosOS?label=version&color=blue" alt="version" />
-    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/LosOS/total?label=downloads&color=blue" alt="téléchargements" />
-    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="plateforme" />
+    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/Bubble?label=version&color=blue" alt="version" />
+    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/Bubble/total?label=downloads&color=blue" alt="téléchargements" />
+    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="plateforme" />
+
   </p>
 </div>
 
@@ -88,7 +89,7 @@ Bubble est un environnement de développement (ADE) léger, open source, axé su
 
 ## Installation
 
-Les installateurs récents sont disponibles sur la page [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble s'y met à jour automatiquement.
+Les installateurs récents sont disponibles sur la page [Releases](https://github.com/nirmitpatel9714-hue/Bubble/releases/latest). Bubble s'y met à jour automatiquement.
 
 ### Notes Windows
 
@@ -97,8 +98,8 @@ Les installateurs récents sont disponibles sur la page [Releases](https://githu
 
 ### Notes Linux
 
-- **Arch / AUR :** `yay -S losos-bin` ou `paru`. Suit la dernière version.
-- **NixOS / Nix :** utilisez le flake officiel avec `nix profile install github:nirmitpatel9714-hue/LosOS` hors NixOS. Sous NixOS, importez le flake et ajoutez `inputs.losos.packages.${pkgs.system}.losos` à `environment.systemPackages`. `nixosModules.losos` offre aussi une configuration simplifiée.
+- **Arch / AUR :** `yay -S bubble-bin` ou `paru`. Suit la dernière version.
+- **NixOS / Nix :** utilisez le flake officiel avec `nix profile install github:nirmitpatel9714-hue/Bubble` hors NixOS. Sous NixOS, importez le flake et ajoutez `inputs.bubble.packages.${pkgs.system}.bubble` à `environment.systemPackages`. `nixosModules.bubble` offre aussi une configuration simplifiée.
 - **AppImage :** nécessite FUSE. Sans FUSE : `./Bubble_*.AppImage --appimage-extract-and-run`. En cas de défauts sous Wayland, essayez `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Les paquets `.deb` / `.rpm` utilisent la pile GTK du système et sont souvent plus fluides.
 
 ## Configurer l'IA

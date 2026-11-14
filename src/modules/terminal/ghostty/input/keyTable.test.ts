@@ -1,4 +1,4 @@
-import { Key } from "@losos/ghostty-core/protocol";
+import { Key } from "@bubble/ghostty-core/protocol";
 import { describe, expect, it } from "vitest";
 import { baseTextForCode, KEY_MAP, unshiftedCodepoint } from "./keyTable";
 

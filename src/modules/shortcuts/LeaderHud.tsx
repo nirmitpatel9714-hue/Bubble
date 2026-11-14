@@ -1,12 +1,12 @@
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { usePreferencesStore } from "@/modules/settings/preferences";
+import { useLeaderMode } from "./lib/leaderMode";
 import {
   getBindingTokens,
   getLeaderChordTokens,
   SHORTCUTS,
   type ShortcutId,
 } from "./shortcuts";
-import { useLeaderMode } from "./lib/leaderMode";
 
 const HINTS: readonly { id: ShortcutId; label: string }[] = [
   { id: "tiling.toggle", label: "Tile" },
@@ -16,7 +16,6 @@ const HINTS: readonly { id: ShortcutId; label: string }[] = [
   { id: "tab.next", label: "Next window" },
   { id: "space.prev", label: "Prev workspace" },
   { id: "space.next", label: "Next workspace" },
-  { id: "commandPalette.open", label: "Palette" },
 ];
 
 /** Bottom pill shown while the leader waits for its chord. */

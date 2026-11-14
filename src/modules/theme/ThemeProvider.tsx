@@ -41,8 +41,8 @@ type ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState | null>(null);
 
-const FAST_PATH_KEY = "losos-ui-theme-shadow";
-const FAST_PATH_THEME_ID = "losos-ui-theme-id-shadow";
+const FAST_PATH_KEY = "bubble-ui-theme-shadow";
+const FAST_PATH_THEME_ID = "bubble-ui-theme-id-shadow";
 
 function readFastMode(fallback: ThemePref): ThemePref {
   if (typeof window === "undefined") return fallback;

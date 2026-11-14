@@ -195,7 +195,7 @@ describe("supportsHunkActions", () => {
 describe("checkpointRef", () => {
   it("builds the ref the backend uses", () => {
     expect(checkpointRef("task-1", 12)).toBe(
-      "refs/losos/checkpoints/task-1/12",
+      "refs/bubble/checkpoints/task-1/12",
     );
   });
 });

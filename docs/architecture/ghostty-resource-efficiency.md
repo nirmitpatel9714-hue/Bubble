@@ -10,7 +10,7 @@ takes precedence; the renderer details are in
 | Area | What it costs and when it is released |
 | --- | --- |
 | Terminal model | One WASM instance per terminal, from one compiled module; closing a terminal drops its linear memory. Blank instance 320 KiB (96 KiB stack), blank 120x40 terminal ~1.1 MiB. Scrollback across terminals is capped at 192 MiB without pruning history already held. |
-| PTY transport | One held `losos-pty` poll per window carries every terminal's output; acks ride the next poll. Hidden terminals coalesce at 100 ms, an occluded window at 250 ms. 10 spinners at 20 Hz: ~55 IPC operations/s (was ~345). |
+| PTY transport | One held `bubble-pty` poll per window carries every terminal's output; acks ride the next poll. Hidden terminals coalesce at 100 ms, an occluded window at 250 ms. 10 spinners at 20 Hz: ~55 IPC operations/s (was ~345). |
 | Renderer | One WebGPU canvas per window terminal area, never destroyed or resized by tab switches or splits; cell buffers are uploaded straight from WASM memory, only changed rows. Per-frame WebGPU wrappers are mirrored to the garbage collector (`gpu/GcPressure.ts`). |
 | Resizing | One synchronized model + PTY resize per gesture; at most one canvas growth and one compaction per drag. |
 | Idle | No timers or frames while nothing changes; the focused input never shows a native caret (it keeps the display link running). Focused idle terminal: 0.24 % CPU, ~11 wakeups/s. |
@@ -31,8 +31,8 @@ takes precedence; the renderer details are in
 - `scripts/pty-smoke`: the real transport inside the real webview (latency, floods,
   reload, admission checks).
 - `scripts/terminal-visual`: pixel readback of a fixed pattern through any tree.
-- Release diagnostics: `localStorage.setItem("losos:terminal-diagnostics", "1")`,
-  reload, then `window.__lososTerm()` / `await window.__lososTermSnapshot()`.
+- Release diagnostics: `localStorage.setItem("bubble:terminal-diagnostics", "1")`,
+  reload, then `window.__bubbleTerm()` / `await window.__bubbleTermSnapshot()`.
 
 Reports go to a directory outside the repository. Compare medians of repeats; for
 memory prefer the timeline floor and the value after a forced collection, because

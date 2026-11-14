@@ -453,7 +453,7 @@ export async function ghosttyLeafHasForegroundProcess(
     });
   } catch (error) {
     console.error(
-      "[losos] Ghostty pty_has_foreground_process failed for leaf",
+      "[bubble] Ghostty pty_has_foreground_process failed for leaf",
       leafId,
       error,
     );
@@ -554,7 +554,7 @@ function ensureSession(
     pty: null,
     ptyResize,
     writer: new BoundedPtyWriter((error) => {
-      console.error("[losos] Ghostty PTY write failed:", error);
+      console.error("[bubble] Ghostty PTY write failed:", error);
     }),
     container: null,
     callbacks: {},
@@ -604,7 +604,7 @@ function initializeSession(session: GhosttySession): Promise<void> {
         session.ptyResize.reset();
       }
       session.startupError = toError(error).message;
-      console.error("[losos] Ghostty session initialization failed:", error);
+      console.error("[bubble] Ghostty session initialization failed:", error);
       session.callbacks.onError?.(sessionFailure(session));
     },
   );
@@ -664,7 +664,7 @@ async function initializeSessionGeneration(
     },
     onOverflow: (dropped) => {
       console.warn(
-        `[losos] Ghostty semantic event queue dropped ${dropped} event(s)`,
+        `[bubble] Ghostty semantic event queue dropped ${dropped} event(s)`,
       );
     },
     onPromptEnd: (reportsCommandStart) => {
@@ -796,7 +796,7 @@ async function initializeSessionGeneration(
   }
   if (webGpuPreload.error) {
     console.warn(
-      "[losos] WebGPU initialization failed; preserving the Ghostty session with WebGL:",
+      "[bubble] WebGPU initialization failed; preserving the Ghostty session with WebGL:",
       webGpuPreload.error.message,
     );
   }
@@ -828,7 +828,7 @@ async function initializeSessionGeneration(
       if (!surface) return;
       webGpuFallbackStarted = true;
       console.warn(
-        "[losos] WebGPU surface attachment failed; preserved the Ghostty session with WebGL:",
+        "[bubble] WebGPU surface attachment failed; preserved the Ghostty session with WebGL:",
         toError(error).message,
       );
     }
@@ -1091,7 +1091,7 @@ async function fallbackWebGpuSurface(
     return;
   }
   console.warn(
-    "[losos] WebGPU renderer failed; preserved the live Ghostty model, PTY, and scrollback with WebGL:",
+    "[bubble] WebGPU renderer failed; preserved the live Ghostty model, PTY, and scrollback with WebGL:",
     cause.message,
   );
 }
@@ -1168,7 +1168,7 @@ function sessionFailure(session: GhosttySession): GhosttySessionFailure | null {
 
 function logSurfaceError(backend: GhosttyBackend, error: Error): void {
   console.error(
-    `[losos] ${backend} surface failed:`,
+    `[bubble] ${backend} surface failed:`,
     error.message,
     error.stack ?? error,
   );

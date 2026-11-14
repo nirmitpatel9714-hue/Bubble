@@ -2,7 +2,7 @@
  * Standalone renderer harness: draws a fixed test pattern through the real
  * WebGPU surface and the real Ghostty model, and can read the presented canvas
  * back as exact RGBA. The same page runs against any source tree
- * (LOSOS_VISUAL_SOURCE_ROOT), which is how two renderer versions are compared.
+ * (BUBBLE_VISUAL_SOURCE_ROOT), which is how two renderer versions are compared.
  * See README.md for the query parameters and workflow.
  */
 import "@/styles/fonts.css";

@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import v8 from "node:v8";
 import vm from "node:vm";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { PackedCellView } from "./core/packedCells";
 import { linkUriAt } from "./core/ViewportLinkResolver";
@@ -468,7 +468,7 @@ describe("GhosttyCoreRuntime", () => {
       rows: 24,
     });
     const encode = (value: string) => new TextEncoder().encode(value);
-    model.write(encode("~/losos > "));
+    model.write(encode("~/bubble > "));
     model.consumeDamage();
     const damage = vi.fn();
     model.subscribeDamage(damage);
@@ -477,15 +477,15 @@ describe("GhosttyCoreRuntime", () => {
     expect(damage).toHaveBeenCalledTimes(1);
 
     model.write(encode("\x1b[?2026h\r\x1b[2K"));
-    expect(model.readText(24)).not.toContain("~/losos >");
+    expect(model.readText(24)).not.toContain("~/bubble >");
     expect(model.deferPresentation()).toBe(true);
 
     damage.mockClear();
-    model.write(encode("~/losos > \x1b[?2026l"));
+    model.write(encode("~/bubble > \x1b[?2026l"));
     expect(model.presentationSuppressed()).toBe(false);
     expect(damage).toHaveBeenCalledTimes(1);
     expect(model.consumeDamage().kind).not.toBe("none");
-    expect(model.readText(24)).toContain("~/losos >");
+    expect(model.readText(24)).toContain("~/bubble >");
     model.dispose();
   });
 
@@ -500,7 +500,7 @@ describe("GhosttyCoreRuntime", () => {
     });
     const prompt =
       "\x1b[J" +
-      "\x1b[1;36mlosos-ghostty\x1b[0m on " +
+      "\x1b[1;36mbubble-ghostty\x1b[0m on " +
       "\x1b[1;35m feat/ghostty-webgpu-terminal\x1b[0m " +
       "\x1b[1;31m[!?]\x1b[0m via \x1b[1;32m v26.5.0\x1b[0m\r\n" +
       "\x1b[1;32m❯\x1b[0m ";
@@ -509,13 +509,13 @@ describe("GhosttyCoreRuntime", () => {
         `${Array.from({ length: 40 }, (_, index) => `line-${index}\r\n`).join("")}${prompt}`,
       ),
     );
-    expect(model.readText(30)).toContain("losos-ghostty");
+    expect(model.readText(30)).toContain("bubble-ghostty");
     expect(model.readText(30)).toContain("❯");
 
     for (const cols of [119, 105, 90, 72, 55, 40, 55, 72, 88, 104, 120]) {
       model.resize(cols, 30);
       model.consumeDamage();
-      expect(model.readText(30)).toContain("losos-ghostty");
+      expect(model.readText(30)).toContain("bubble-ghostty");
       expect(model.readText(30)).toContain("❯");
       expect(model.cursor().y).toBe(29);
     }
@@ -658,7 +658,7 @@ describe("GhosttyCoreRuntime", () => {
       cols: 20,
       rows: 3,
     });
-    const uri = "https://losos.dev/docs";
+    const uri = "https://bubble.dev/docs";
     model.write(
       new TextEncoder().encode(
         `\x1b]8;;${uri}\x1b\\Bubble\x1b]8;;\x1b\\ plain`,

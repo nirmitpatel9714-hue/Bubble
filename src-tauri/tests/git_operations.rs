@@ -1,11 +1,11 @@
 mod common;
 
 use common::{git_available, GitRepoFixture};
-use losos_lib::modules::fs::to_canon;
-use losos_lib::modules::git::errors::GitError;
-use losos_lib::modules::git::operations;
-use losos_lib::modules::git::types::DiscardEntry;
-use losos_lib::modules::workspace::{WorkspaceEnv, WorkspaceRegistry};
+use bubble_lib::modules::fs::to_canon;
+use bubble_lib::modules::git::errors::GitError;
+use bubble_lib::modules::git::operations;
+use bubble_lib::modules::git::types::DiscardEntry;
+use bubble_lib::modules::workspace::{WorkspaceEnv, WorkspaceRegistry};
 use tempfile::TempDir;
 
 fn skip_if_no_git() -> bool {
@@ -714,17 +714,17 @@ fn discovery_preserves_derived_worktree_revocation() {
         let linked_display = to_canon(&linked);
         fx.run_git(&["worktree", "add", "--detach", &linked_display]);
         let linked_canonical = std::fs::canonicalize(&linked).unwrap();
-        losos_lib::modules::git::worktree::list(&fx.registry, &fx.repo_str(), &fx.workspace)
+        bubble_lib::modules::git::worktree::list(&fx.registry, &fx.repo_str(), &fx.workspace)
             .unwrap();
         assert!(fx.registry.is_authorized(&linked_canonical));
         operations::resolve_repo(&fx.registry, &linked_display, &fx.workspace).unwrap();
         operations::panel_snapshot(&fx.registry, &linked_display, &fx.workspace).unwrap();
         if prune {
             std::fs::remove_dir_all(&linked).unwrap();
-            losos_lib::modules::git::worktree::prune(&fx.registry, &fx.repo_str(), &fx.workspace)
+            bubble_lib::modules::git::worktree::prune(&fx.registry, &fx.repo_str(), &fx.workspace)
                 .unwrap();
         } else {
-            losos_lib::modules::git::worktree::remove(
+            bubble_lib::modules::git::worktree::remove(
                 &fx.registry,
                 &fx.repo_str(),
                 &linked_display,

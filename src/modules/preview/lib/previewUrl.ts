@@ -2,7 +2,7 @@ const RESERVED_HOSTS = new Set([
   "asset.localhost",
   "tauri.localhost",
   "ipc.localhost",
-  "losos-pty.localhost",
+  "bubble-pty.localhost",
 ]);
 
 export function isAllowedPreviewUrl(

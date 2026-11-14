@@ -2,12 +2,13 @@
   <img src="../../public/logo.png" width="144" height="144" alt="Bubble" />
   <h1>Bubble</h1>
   <p><strong>Легковесная среда разработки с упором на терминал и встроенным ИИ.</strong></p>
-  <p><a href="https://github.com/nirmitpatel9714-hue/LosOS">GitHub</a></p>
+  <p><a href="https://github.com/nirmitpatel9714-hue/Bubble">GitHub</a></p>
 
   <p>
-    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/LosOS?label=version&color=blue" alt="версия" />
-    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/LosOS/total?label=downloads&color=blue" alt="загрузки" />
-    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="платформа" />
+    <img src="https://img.shields.io/github/v/release/nirmitpatel9714-hue/Bubble?label=version&color=blue" alt="версия" />
+    <img src="https://img.shields.io/github/downloads/nirmitpatel9714-hue/Bubble/total?label=downloads&color=blue" alt="загрузки" />
+    <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-lightgrey" alt="платформа" />
+
   </p>
 </div>
 
@@ -88,7 +89,7 @@ Bubble представляет собой легковесную среду р�
 
 ## Установка
 
-Последние установщики находятся на странице [Releases](https://github.com/nirmitpatel9714-hue/LosOS/releases/latest). Bubble автоматически обновляется оттуда.
+Последние установщики находятся на странице [Releases](https://github.com/nirmitpatel9714-hue/Bubble/releases/latest). Bubble автоматически обновляется оттуда.
 
 ### Примечания для Windows
 
@@ -97,8 +98,8 @@ Bubble представляет собой легковесную среду р�
 
 ### Примечания для Linux
 
-- **Arch / AUR:** `yay -S losos-bin` или `paru`. Пакет следует за последним выпуском.
-- **NixOS / Nix:** используйте официальный flake. Вне NixOS выполните `nix profile install github:nirmitpatel9714-hue/LosOS`. В NixOS импортируйте flake и добавьте `inputs.losos.packages.${pkgs.system}.losos` в `environment.systemPackages`. Для более простой настройки доступен `nixosModules.losos`.
+- **Arch / AUR:** `yay -S bubble-bin` или `paru`. Пакет следует за последним выпуском.
+- **NixOS / Nix:** используйте официальный flake. Вне NixOS выполните `nix profile install github:nirmitpatel9714-hue/Bubble`. В NixOS импортируйте flake и добавьте `inputs.bubble.packages.${pkgs.system}.bubble` в `environment.systemPackages`. Для более простой настройки доступен `nixosModules.bubble`.
 - **AppImage:** требует FUSE. Без него выполните `./Bubble_*.AppImage --appimage-extract-and-run`. При проблемах рендеринга в Wayland попробуйте `WEBKIT_DISABLE_DMABUF_RENDERER=1`. Пакеты `.deb` / `.rpm` используют системный стек GTK и обычно работают плавнее.
 
 ## Настройка ИИ

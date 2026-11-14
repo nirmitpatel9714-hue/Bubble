@@ -440,9 +440,9 @@ mod tests {
             "/repo/.env",
             "/repo/file.pem",
             "/repo/.git/config",
-            "/Users/me/Library/Caches/losos/control.json",
-            "/home/me/.cache/losos/control.json",
-            "C:/Users/me/AppData/Local/losos/control.json",
+            "/Users/me/Library/Caches/bubble/control.json",
+            "/home/me/.cache/bubble/control.json",
+            "C:/Users/me/AppData/Local/bubble/control.json",
             "//wsl.localhost/Ubuntu/home/me/.ssh/id_rsa",
         ] {
             assert!(readable(Path::new(path)).is_err(), "{path}");

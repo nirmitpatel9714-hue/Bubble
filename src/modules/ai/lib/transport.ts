@@ -14,8 +14,8 @@ async function readBubbleMd(
   if (!workspaceRoot) return null;
   const workspace = { ...currentWorkspaceEnv() };
   const base = workspaceRoot.replace(/[\\/]$/, "");
-  // BUBBLE.md is the current name; LOSOS.md is the legacy fallback.
-  for (const name of ["BUBBLE.md", "LOSOS.md"]) {
+  // BUBBLE.md is the current name; BUBBLE.md is the legacy fallback.
+  for (const name of ["BUBBLE.md", "BUBBLE.md"]) {
     const path = `${base}/${name}`;
     try {
       const canonical = await native.canonicalize(path, workspace);

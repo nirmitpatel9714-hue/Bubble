@@ -240,7 +240,7 @@ export function AiComposerProvider({ children }: ProviderProps) {
       if (outcome.kind === "send-prompt") {
         effectiveText = outcome.prompt;
         if (outcome.commandName) {
-          commandMarker = `<losos-command name="${outcome.commandName}" />`;
+          commandMarker = `<bubble-command name="${outcome.commandName}" />`;
         }
       }
     }

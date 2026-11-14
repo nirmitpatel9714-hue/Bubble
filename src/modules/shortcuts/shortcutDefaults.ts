@@ -4,11 +4,12 @@ import type { KeyBinding, ShortcutId } from "./shortcuts";
  * Default bindings, one table per platform family. A shortcut means the same
  * thing wherever focus is: nothing here depends on what has focus.
  *
- * Every application binding is a leader chord: press the leader (Ctrl+Space by
- * default, configurable in Settings → Shortcuts), release, then press the
- * chord. Leader chords never use Alt or Super, and they never collide with the
- * readline/TUI control bytes a focused terminal reads, because the shell only
- * sees the leader press and the host consumes the chord.
+ * The command palette is a direct Ctrl+Space chord (the one shortcut that is
+ * not a leader chord). Every other application binding is a leader chord: press
+ * the leader (Ctrl+B by default, configurable in Settings → Shortcuts), release,
+ * then press the chord. Leader chords never use Alt or Super, and they never
+ * collide with the readline/TUI control bytes a focused terminal reads, because
+ * the shell only sees the leader press and the host consumes the chord.
  *
  * Text-editing keeps its native chords (undo, redo, save): those are muscle
  * memory inside the editor and never reach a shell.
@@ -26,7 +27,8 @@ type LeaderDefaults = Omit<
 >;
 
 const LEADER_DEFAULTS: LeaderDefaults = {
-  "commandPalette.open": [leader("k")],
+  // The palette is a single direct chord so it is always one press away.
+  "commandPalette.open": [{ ctrl: true, key: " " }],
   "commandPalette.files": [leader("p")],
   "commandPalette.content": [leader("f", true)],
   "settings.open": [leader(",")],
@@ -37,6 +39,9 @@ const LEADER_DEFAULTS: LeaderDefaults = {
   "tab.newEditor": [leader("e")],
   "tab.close": [leader("w")],
   "tiling.toggle": [leader("t")],
+  "tiling.grow": [leader("=", true), leader("r")],
+  "tiling.shrink": [leader("-", true), leader("r", true)],
+  "tiling.resetWidth": [leader("0", true)],
   "pane.splitRight": [leader("d")],
   "pane.splitDown": [leader("d", true)],
   "pane.focusNext": [leader("]", true)],

@@ -5,9 +5,9 @@ import {
   Key,
   KeyAction,
   Mods,
-} from "@losos/ghostty-core";
+} from "@bubble/ghostty-core";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import type { GhosttyTerminalEvent } from "@losos/ghostty-core/protocol";
+import type { GhosttyTerminalEvent } from "@bubble/ghostty-core/protocol";
 
 let ghostty: Ghostty;
 
@@ -188,7 +188,7 @@ describe("vendored libghostty-vt compatibility", () => {
     try {
       terminal.write(
         "\x1b]2;Bubble title\x07" +
-          "\x1b]7;file://localhost/Users/losos\x1b\\" +
+          "\x1b]7;file://localhost/Users/bubble\x1b\\" +
           "\x1b]133;A\x07" +
           "\x1b]133;B\x07" +
           "\x1b]133;C\x07" +
@@ -199,7 +199,7 @@ describe("vendored libghostty-vt compatibility", () => {
 
       expect(terminal.drainEvents()).toEqual([
         { type: "title", title: "Bubble title" },
-        { type: "pwd", uri: "file://localhost/Users/losos" },
+        { type: "pwd", uri: "file://localhost/Users/bubble" },
         { type: "prompt-start" },
         { type: "prompt-end" },
         { type: "end-of-input" },
@@ -216,7 +216,7 @@ describe("vendored libghostty-vt compatibility", () => {
   it("resolves OSC 8 links with a reusable WASM buffer", () => {
     const terminal = ghostty.createTerminal(80, 24);
     try {
-      const uri = "https://losos.dev/docs";
+      const uri = "https://bubble.dev/docs";
       terminal.write(`\x1b]8;;${uri}\x1b\\Bubble\x1b]8;;\x1b\\`);
       terminal.update();
       expect(terminal.getHyperlinkUri(0, 0)).toBe(uri);

@@ -11,9 +11,9 @@ import type { SidebarViewId } from "./types";
 const SIDEBAR_DEFAULT_WIDTH = 260;
 export const SIDEBAR_MIN_WIDTH = 220;
 export const SIDEBAR_MAX_WIDTH = 480;
-const SIDEBAR_WIDTH_STORAGE_KEY = "losos.sidebar.width";
-const SIDEBAR_VIEW_STORAGE_KEY = "losos.sidebar.view";
-const SIDEBAR_COLLAPSED_STORAGE_KEY = "losos.sidebar.collapsed";
+const SIDEBAR_WIDTH_STORAGE_KEY = "bubble.sidebar.width";
+const SIDEBAR_VIEW_STORAGE_KEY = "bubble.sidebar.view";
+const SIDEBAR_COLLAPSED_STORAGE_KEY = "bubble.sidebar.collapsed";
 
 export function shouldPersistSidebarWidth(
   width: number,

@@ -1,4 +1,4 @@
-import type { BubbleGhosttyTerminal } from "@losos/ghostty-core/adapted";
+import type { BubbleGhosttyTerminal } from "@bubble/ghostty-core/adapted";
 
 /**
  * Test support for the WebAssembly shadow stack. The module places its stack

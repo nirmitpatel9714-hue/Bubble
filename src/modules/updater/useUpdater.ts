@@ -4,10 +4,10 @@ import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useState } from "react";
 import { IS_LINUX } from "@/lib/platform";
 
-const LAST_CHECK_KEY = "losos:updater:last-check";
+const LAST_CHECK_KEY = "bubble:updater:last-check";
 const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 const GITHUB_LATEST_RELEASE =
-  "https://api.github.com/repos/nirmitpatel9714-hue/LosOS/releases/latest";
+  "https://api.github.com/repos/nirmitpatel9714-hue/Bubble/releases/latest";
 
 export interface ManualUpdateInfo {
   version: string;

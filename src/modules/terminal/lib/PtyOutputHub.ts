@@ -401,7 +401,7 @@ export class PtyOutputHub {
           try {
             entry.onExit(frame.code);
           } catch (error) {
-            console.error("[losos] PTY exit handler failed:", error);
+            console.error("[bubble] PTY exit handler failed:", error);
           }
           break;
         case "failed":
@@ -462,7 +462,7 @@ export class PtyOutputHub {
     this.failures += 1;
     this.stats.failures += 1;
     if (this.failures === 1)
-      console.warn("[losos] PTY stream request failed:", error);
+      console.warn("[bubble] PTY stream request failed:", error);
     this.setTransport(
       this.failures >= STALL_AFTER_FAILURES ? "stalled" : "retrying",
     );

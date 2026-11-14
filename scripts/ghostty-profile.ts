@@ -3,7 +3,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import v8 from "node:v8";
 import vm from "node:vm";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { it } from "vitest";
 import { readWasmLayout } from "../src/modules/terminal/ghostty/wasmStackProbe";
 
@@ -124,13 +124,13 @@ async function instantiationLatency(
 it("profiles identical isolated core workloads against optional baseline artifacts", async () => {
   const directories = [
     resolve(
-      process.env.LOSOS_PROFILE_CORE_DIR ?? "packages/ghostty-core/adapted",
+      process.env.BUBBLE_PROFILE_CORE_DIR ?? "packages/ghostty-core/adapted",
     ),
   ];
   const results = [];
   const encode = (value: string) => new TextEncoder().encode(value);
-  // LOSOS_PROFILE_FORMAT=gpu times the GPU cell-record format instead of SoA.
-  const gpuFormat = process.env.LOSOS_PROFILE_FORMAT === "gpu";
+  // BUBBLE_PROFILE_FORMAT=gpu times the GPU cell-record format instead of SoA.
+  const gpuFormat = process.env.BUBBLE_PROFILE_FORMAT === "gpu";
   const workloads = {
     row: [encode("\x1b[10;1Hagent frame A"), encode("\x1b[10;1Hagent frame B")],
     scrolling: [encode("agent output: analyzing repository\r\n")],
@@ -138,7 +138,7 @@ it("profiles identical isolated core workloads against optional baseline artifac
   };
   for (const directory of directories) {
     for (const artifact of [
-      process.env.LOSOS_PROFILE_ARTIFACT ?? "ghostty-vt.wasm",
+      process.env.BUBBLE_PROFILE_ARTIFACT ?? "ghostty-vt.wasm",
     ]) {
       const bytes = await readFile(resolve(directory, artifact));
       const layout = readWasmLayout(bytes);
@@ -227,7 +227,7 @@ it("profiles identical isolated core workloads against optional baseline artifac
     warmupSamples: 1,
     results,
   };
-  const output = process.env.LOSOS_PROFILE_REPORT;
+  const output = process.env.BUBBLE_PROFILE_REPORT;
   if (output) await writeFile(output, `${JSON.stringify(report, null, 2)}\n`);
   else console.info(JSON.stringify(report));
 });

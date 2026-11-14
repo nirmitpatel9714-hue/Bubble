@@ -9,7 +9,7 @@ const preferences: TerminalFont = {
 };
 
 describe("resolveTerminalFont", () => {
-  it("uses theme values ahead of global preferences field by field", () => {
+  it("keeps an explicitly chosen font family and takes theme size/weight", () => {
     const theme: Theme = {
       id: "custom-theme",
       name: "Custom",
@@ -24,10 +24,26 @@ describe("resolveTerminalFont", () => {
     };
 
     expect(resolveTerminalFont(preferences, theme, "dark")).toEqual({
-      fontFamily: "Iosevka",
+      fontFamily: "JetBrains Mono",
       fontWeight: "normal",
       fontSize: 16,
     });
+  });
+
+  it("falls back to the theme font when the user has not chosen one", () => {
+    const theme: Theme = {
+      id: "theme-font",
+      name: "Theme font",
+      variants: { dark: { terminal: { fontFamily: "Iosevka" } } },
+    };
+
+    expect(
+      resolveTerminalFont(
+        { fontFamily: "  ", fontWeight: "normal", fontSize: 14 },
+        theme,
+        "dark",
+      ).fontFamily,
+    ).toBe("Iosevka");
   });
 
   it("restores global preferences when the theme has no font values", () => {

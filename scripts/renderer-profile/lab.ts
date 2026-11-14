@@ -15,7 +15,7 @@ declare global {
 // `--native-signal`: stand in for the NSWindow live-resize notifications Bubble forwards from
 // window_presentation.rs (the lab has no Tauri host). Without it only the heuristic runs.
 if (new URLSearchParams(location.search).get("nativeSignal") === "1") {
-  (window as unknown as { __lososLiveResize: (active: boolean) => void }).__lososLiveResize =
+  (window as unknown as { __bubbleLiveResize: (active: boolean) => void }).__bubbleLiveResize =
     setNativeLiveResize;
 }
 const core = getGhosttyCoreRuntime();

@@ -21,8 +21,8 @@ below do.
 
 | Gate | Needed |
 | --- | --- |
-| Windows (WebView2, ConPTY) | Installer, text crispness at 125/150 % with the renderer on WebGPU (reports #1357 and #1372 blame WebGPU; `localStorage["losos:terminal-text-contrast"]` is off by default now), `losos-pty` long-poll, IME, AltGr, pwsh/cmd/WSL, resize behaviour (burst heuristic, no native live-resize signal). |
-| Linux (WebKitGTK 4.1) | Package install, WebGPU or WebGL path, `losos-pty` POST bodies, IME, resize. |
+| Windows (WebView2, ConPTY) | Installer, text crispness at 125/150 % with the renderer on WebGPU (reports #1357 and #1372 blame WebGPU; `localStorage["bubble:terminal-text-contrast"]` is off by default now), `bubble-pty` long-poll, IME, AltGr, pwsh/cmd/WSL, resize behaviour (burst heuristic, no native live-resize signal). |
+| Linux (WebKitGTK 4.1) | Package install, WebGPU or WebGL path, `bubble-pty` POST bodies, IME, resize. |
 | Long sessions | A multi-hour daily-use run with agents on the release build; memory must return to its floor after tab switches, drags and occlusion. |
 | Accessibility | VoiceOver smoke test (the terminal input holds a selected placeholder character). |
 | Updater | Signed release artifacts and update from the previous beta. |

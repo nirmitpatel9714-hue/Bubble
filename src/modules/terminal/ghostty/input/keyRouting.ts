@@ -4,7 +4,7 @@ import {
   type KeyAction,
   type KeyEvent,
   Mods,
-} from "@losos/ghostty-core/protocol";
+} from "@bubble/ghostty-core/protocol";
 import { baseTextForCode, KEY_MAP, unshiftedCodepoint } from "./keyTable";
 
 /** Kitty keyboard protocol flag bits (progressive enhancement). */

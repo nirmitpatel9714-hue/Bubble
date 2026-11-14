@@ -25,7 +25,7 @@ describe("Ghostty artifact selection", () => {
         }),
       );
       vi.stubGlobal("fetch", fetch);
-      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      const { BubbleGhostty } = await import("@bubble/ghostty-core/adapted");
       const ghostty = await BubbleGhostty.load();
       expect(fetch).toHaveBeenCalledExactlyOnceWith(
         expect.stringContaining(filename),
@@ -61,7 +61,7 @@ describe("Ghostty artifact selection", () => {
           async () => new Response(await artifact(), { headers }),
         );
       vi.stubGlobal("fetch", fetch);
-      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      const { BubbleGhostty } = await import("@bubble/ghostty-core/adapted");
       return { fetch, ghostty: await BubbleGhostty.load() };
     }
 
@@ -98,7 +98,7 @@ describe("Ghostty artifact selection", () => {
 
     it("rejects an empty artifact and a module without the bridge exports", async () => {
       vi.resetModules();
-      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      const { BubbleGhostty } = await import("@bubble/ghostty-core/adapted");
       await expect(BubbleGhostty.loadBytes(new ArrayBuffer(0))).rejects.toThrow(
         "empty",
       );
@@ -112,7 +112,7 @@ describe("Ghostty artifact selection", () => {
 
     it("gives each instance its own log import that stops reading memory once disposed", async () => {
       vi.resetModules();
-      const { BubbleGhostty } = await import("@losos/ghostty-core/adapted");
+      const { BubbleGhostty } = await import("@bubble/ghostty-core/adapted");
       const module = await WebAssembly.compile(await artifact());
       const imports: WebAssembly.Imports[] = [];
       const log = vi.fn();

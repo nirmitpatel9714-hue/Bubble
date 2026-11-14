@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { BubbleGhostty } from "@losos/ghostty-core/adapted";
+import { BubbleGhostty } from "@bubble/ghostty-core/adapted";
 import { AdaptedGhosttyTerminalModel } from "@/modules/terminal/ghostty/AdaptedGhosttyTerminalModel";
 import { describe, expect, it, vi } from "vitest";
 import type {

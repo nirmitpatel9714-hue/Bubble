@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { MOD_PROP } from "@/lib/platform";
+import { describe, expect, it } from "vitest";
 import {
   buildShortcuts,
   getBindingTokens,
@@ -316,14 +316,16 @@ describe("palette shortcuts", () => {
     ["macOS", true],
     ["Windows and Linux", false],
   ])(
-    "opens files on leader+p and commands on leader+k (%s)",
+    "opens commands on Ctrl+Space and files on leader+p (%s)",
     (_name, isMac) => {
       const list = buildShortcuts(isMac);
       const [files] = defaults(list, "commandPalette.files");
       const [commands] = defaults(list, "commandPalette.open");
       const [content] = defaults(list, "commandPalette.content");
       expect(matchLeaderChord(press("p"), files)).toBe(true);
-      expect(matchLeaderChord(press("k"), commands)).toBe(true);
+      // The palette is a single direct Ctrl+Space press, not a leader chord.
+      expect(matchBinding(press(" ", { ctrlKey: true }), commands)).toBe(true);
+      expect(matchLeaderChord(press("p"), commands)).toBe(false);
       expect(matchLeaderChord(press("F", { shiftKey: true }), content)).toBe(
         true,
       );

@@ -181,7 +181,7 @@ function fanout<T>(
         try {
           handler(value);
         } catch (error) {
-          console.error(`[losos] ${eventName} handler failed:`, error);
+          console.error(`[bubble] ${eventName} handler failed:`, error);
         }
       }
     });
@@ -191,7 +191,7 @@ function fanout<T>(
     attachResult.catch(() => undefined);
     pending.catch((error) => {
       if (attached === pending) attached = null;
-      console.error(`[losos] could not listen for ${eventName}:`, error);
+      console.error(`[bubble] could not listen for ${eventName}:`, error);
     });
   };
 

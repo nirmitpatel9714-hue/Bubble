@@ -4,7 +4,7 @@
  */
 
 import { extendedSymbolsPending } from "@/lib/fonts";
-import { CellFlags } from "@losos/ghostty-core/protocol";
+import { CellFlags } from "@bubble/ghostty-core/protocol";
 import {
   BuiltinGlyphRenderer,
   builtinGlyphPending,

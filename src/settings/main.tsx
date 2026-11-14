@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 
 import { USE_CUSTOM_WINDOW_CONTROLS } from "@/lib/platform";
-import { ThemeProvider } from "@/modules/theme";
+import { ThemeProvider, UserCssBridge } from "@/modules/theme";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import ReactDOM from "react-dom/client";
 import { SettingsApp } from "./SettingsApp";
@@ -14,6 +14,7 @@ ReactDOM.createRoot(
   document.getElementById("settings-root") as HTMLElement,
 ).render(
   <ThemeProvider>
+    <UserCssBridge />
     <SettingsApp />
   </ThemeProvider>,
 );

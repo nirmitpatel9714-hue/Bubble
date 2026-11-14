@@ -1,10 +1,10 @@
 mod common;
 
 use common::{git_available, FsFixture, GitRepoFixture};
-use losos_lib::modules::fs::grep::{run_glob as fs_glob, run_grep as fs_grep};
-use losos_lib::modules::fs::index::FileIndexState;
-use losos_lib::modules::fs::search::{run_list_files, run_search, SearchOptions};
-use losos_lib::modules::fs::tree::{
+use bubble_lib::modules::fs::grep::{run_glob as fs_glob, run_grep as fs_grep};
+use bubble_lib::modules::fs::index::FileIndexState;
+use bubble_lib::modules::fs::search::{run_list_files, run_search, SearchOptions};
+use bubble_lib::modules::fs::tree::{
     read_dir_entries as fs_read_dir, subdirs as list_subdirs, EntryKind,
 };
 
@@ -12,9 +12,9 @@ fn fs_search(
     root: String,
     query: String,
     limit: Option<usize>,
-    workspace: Option<losos_lib::modules::workspace::WorkspaceEnv>,
+    workspace: Option<bubble_lib::modules::workspace::WorkspaceEnv>,
     show_hidden: Option<bool>,
-) -> Result<losos_lib::modules::fs::search::SearchResult, String> {
+) -> Result<bubble_lib::modules::fs::search::SearchResult, String> {
     run_search(
         &FileIndexState::default(),
         root,
@@ -31,9 +31,9 @@ fn fs_list_files(
     root: String,
     limit: Option<usize>,
     max_depth: Option<usize>,
-    workspace: Option<losos_lib::modules::workspace::WorkspaceEnv>,
+    workspace: Option<bubble_lib::modules::workspace::WorkspaceEnv>,
     show_hidden: Option<bool>,
-) -> Result<losos_lib::modules::fs::search::ListFilesResult, String> {
+) -> Result<bubble_lib::modules::fs::search::ListFilesResult, String> {
     run_list_files(
         &FileIndexState::default(),
         root,
