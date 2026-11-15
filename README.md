@@ -1,7 +1,5 @@
 # Bubble
 
-<img src="logo.png" alt="Bubble" width="96" />
-
 **The only app you need. For all dev.**
 (forked from terax)
 
