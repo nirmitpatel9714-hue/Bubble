@@ -116,7 +116,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDNCQUJGRDhBQjYwRTM0NjkKUldScE5BNjJpdjJyT3dIN0dqbUpHaDA4QW1GaDVmTTllRXdZVk96dFNTRUZ3Y2hiVGszYjFqRloK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU2RjEwREM2OTBBODNBQzMKUldURE9xaVF4ZzN4NXRGR1FhalBZNlJQMFZVTmxwUVI4dWFvSm1maXNCY0JnV0paL0tjOVYvZlQK",
       "endpoints": [
         "https://github.com/nirmitpatel9714-hue/Bubble/releases/latest/download/latest.json"
       ]

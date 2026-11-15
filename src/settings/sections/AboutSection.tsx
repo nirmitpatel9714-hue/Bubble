@@ -47,6 +47,8 @@ export function AboutSection() {
                   : "Check for updates";
   const onUpdateClick = () => {
     if (available) void install();
+    else if (status.kind === "manual-available")
+      void openUrl(status.info.downloadUrl);
     else void check({ manual: true });
   };
 
