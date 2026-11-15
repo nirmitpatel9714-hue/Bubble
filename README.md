@@ -49,51 +49,7 @@ React, and a WebGPU terminal renderer.
 ---
 
 ## Quick start
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) **22 or newer**
-- [pnpm](https://pnpm.io/) 11
-- The [Tauri prerequisites](https://tauri.app/start/prerequisites/) for your OS
-  (Rust toolchain, and on Linux the WebKitGTK/webkit2gtk packages).
-
-### Install
-
-```bash
-pnpm install
-```
-
-### Run in development
-
-```bash
-pnpm tauri dev
-```
-
-`pnpm dev` starts only the Vite web layer (no native window); use
-`pnpm tauri dev` for the real app.
-
-### Build a release
-
-```bash
-pnpm tauri build
-```
-
-Bundles are written to `src-tauri/target/release/bundle/`.
-
-Release builds produce signed updater artifacts (`createUpdaterArtifacts: true`), which require the updater signing key in `TAURI_SIGNING_PRIVATE_KEY`. The key lives outside the repo at `%USERPROFILE%\.tauri\bubble-updater.key` (set as a user environment variable pointing to that path) and its public half is committed in `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`). If the key is ever regenerated, update the `pubkey` — and re-install any existing app build, since old installs verify updates against the key they shipped with.
-
-### Useful scripts
-
-| Command | What it does |
-| --- | --- |
-| `pnpm tauri dev` | Run the desktop app in development |
-| `pnpm build` | Type-check and build the web assets |
-| `pnpm test` | Run the Vitest suite |
-| `pnpm check-types` | `tsc --noEmit` |
-| `pnpm lint` | Biome lint over `src` |
-| `pnpm format` | Biome format `src` |
-
----
+Download the setup file for your system in the latest release.
 
 ## Using Bubble
 
