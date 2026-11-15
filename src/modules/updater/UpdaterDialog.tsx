@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { IS_LINUX } from "@/lib/platform";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { useState } from "react";
 import { useUpdater } from "./useUpdater";
@@ -58,8 +59,8 @@ export function UpdaterDialog() {
   const downloading = status.kind === "downloading";
   const ready = status.kind === "ready";
   // Release notes for the new version, shown for every update kind so the user
-  // always sees what changed. Tauri updates carry it on `Update.body`; Linux
-  // manual checks carry the GitHub release body on `info.body`.
+  // always sees what changed. Tauri updates carry it on `Update.body`; manual
+  // checks carry the GitHub release body on `info.body`.
   const changelog = manual?.body?.trim() || update?.body?.trim() || "";
 
   const copyCommand = async () => {
@@ -107,7 +108,9 @@ export function UpdaterDialog() {
                   ? `${progress.toFixed(0)}% — ${formatBytes(status.downloaded)}`
                   : formatBytes(status.downloaded)
                 : manual
-                  ? `You're on v${manual.currentVersion}. Pick your distro and run the command, or grab the package from GitHub.`
+                  ? IS_LINUX
+                    ? `You're on v${manual.currentVersion}. Pick your distro and run the command, or grab the package from GitHub.`
+                    : `You're on v${manual.currentVersion}. Download the v${manual.version} installer from GitHub to update.`
                   : "A new version is ready to install."}
           </DialogDescription>
         </DialogHeader>
@@ -132,33 +135,43 @@ export function UpdaterDialog() {
 
         {manual && (
           <div className="mt-2 flex flex-col gap-2">
-            <div className="flex gap-1 rounded-md bg-muted/40 p-1">
-              {DISTROS.map((d) => (
-                <button
-                  key={d.key}
-                  type="button"
-                  onClick={() => setDistro(d.key)}
-                  className={`flex-1 rounded px-2 py-1 text-[11px] transition-colors ${
-                    distro === d.key
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {d.label}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2 font-mono text-[12px]">
-              <span className="flex-1 select-all">$ {activeCommand}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-[11px]"
-                onClick={() => void copyCommand()}
-              >
-                {copied ? "Copied" : "Copy"}
-              </Button>
-            </div>
+            {IS_LINUX ? (
+              <>
+                <div className="flex gap-1 rounded-md bg-muted/40 p-1">
+                  {DISTROS.map((d) => (
+                    <button
+                      key={d.key}
+                      type="button"
+                      onClick={() => setDistro(d.key)}
+                      className={`flex-1 rounded px-2 py-1 text-[11px] transition-colors ${
+                        distro === d.key
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2 font-mono text-[12px]">
+                  <span className="flex-1 select-all">$ {activeCommand}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-[11px]"
+                    onClick={() => void copyCommand()}
+                  >
+                    {copied ? "Copied" : "Copy"}
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/40 px-3 py-2 text-[12px]">
+                <span className="flex-1">
+                  {manual.downloadName || "Installer package"}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -178,8 +191,11 @@ export function UpdaterDialog() {
               <Button variant="ghost" size="sm" onClick={dismiss}>
                 Later
               </Button>
-              <Button size="sm" onClick={() => void openUrl(manual.releaseUrl)}>
-                Download package
+              <Button
+                size="sm"
+                onClick={() => void openUrl(manual.downloadUrl)}
+              >
+                {IS_LINUX ? "Download package" : "Download installer"}
               </Button>
             </>
           )}

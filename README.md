@@ -82,6 +82,8 @@ pnpm tauri build
 
 Bundles are written to `src-tauri/target/release/bundle/`.
 
+Release builds produce signed updater artifacts (`createUpdaterArtifacts: true`), which require the updater signing key in `TAURI_SIGNING_PRIVATE_KEY`. The key lives outside the repo at `%USERPROFILE%\.tauri\bubble-updater.key` (set as a user environment variable pointing to that path) and its public half is committed in `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`). If the key is ever regenerated, update the `pubkey` — and re-install any existing app build, since old installs verify updates against the key they shipped with.
+
 ### Useful scripts
 
 | Command | What it does |

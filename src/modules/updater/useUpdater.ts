@@ -1,19 +1,26 @@
+import { IS_LINUX, IS_MAC, IS_WINDOWS } from "@/lib/platform";
 import { getVersion } from "@tauri-apps/api/app";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { check, type Update } from "@tauri-apps/plugin-updater";
 import { useCallback, useEffect, useState } from "react";
-import { IS_LINUX } from "@/lib/platform";
 
 const LAST_CHECK_KEY = "bubble:updater:last-check";
 const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 const GITHUB_LATEST_RELEASE =
   "https://api.github.com/repos/nirmitpatel9714-hue/Bubble/releases/latest";
 
+interface ReleaseAsset {
+  name: string;
+  browser_download_url: string;
+}
+
 export interface ManualUpdateInfo {
   version: string;
   currentVersion: string;
   body: string;
   releaseUrl: string;
+  downloadUrl: string;
+  downloadName: string;
 }
 
 export type UpdaterStatus =
@@ -46,7 +53,14 @@ function isNewer(remote: string, current: string): boolean {
   return false;
 }
 
-async function checkLinuxRelease(): Promise<ManualUpdateInfo | null> {
+function isInstallerForThisPlatform(name: string): boolean {
+  if (IS_WINDOWS) return /\.(msi|exe)$/i.test(name);
+  if (IS_MAC) return /\.(dmg|app\.tar\.gz)$/i.test(name);
+  if (IS_LINUX) return /\.(appimage|deb|rpm)$/i.test(name);
+  return false;
+}
+
+async function checkGitHubRelease(): Promise<ManualUpdateInfo | null> {
   const [current, res] = await Promise.all([
     getVersion(),
     fetch(GITHUB_LATEST_RELEASE, {
@@ -60,14 +74,20 @@ async function checkLinuxRelease(): Promise<ManualUpdateInfo | null> {
     tag_name: string;
     body?: string;
     html_url: string;
+    assets?: ReleaseAsset[];
   };
   const remote = data.tag_name.replace(/^v/, "");
   if (!isNewer(remote, current)) return null;
+  const asset = data.assets?.find((candidate) =>
+    isInstallerForThisPlatform(candidate.name),
+  );
   return {
     version: remote,
     currentVersion: current,
     body: data.body ?? "",
     releaseUrl: data.html_url,
+    downloadUrl: asset?.browser_download_url ?? data.html_url,
+    downloadName: asset?.name ?? "",
   };
 }
 
@@ -90,23 +110,35 @@ export function useUpdater({ autoCheck = true }: HookOptions = {}) {
       if (Date.now() - last < CHECK_INTERVAL_MS) return;
     }
     setStatus({ kind: "checking" });
+
+    const markUpToDate = () => {
+      localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
+      setStatus({ kind: "uptodate" });
+    };
+
     try {
-      if (IS_LINUX) {
-        const info = await checkLinuxRelease();
-        if (info) {
-          setStatus({ kind: "manual-available", info });
-        } else {
-          localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
-          setStatus({ kind: "uptodate" });
+      // Linux has no signed Tauri update path here, so check GitHub directly.
+      if (!IS_LINUX) {
+        try {
+          const update = await check();
+          if (update) {
+            setStatus({ kind: "available", update });
+          } else {
+            markUpToDate();
+          }
+          return;
+        } catch {
+          // The published release may not include `latest.json` (or the
+          // signed updater artifact). Fall back to the GitHub API below so
+          // the check still reports new versions.
         }
-        return;
       }
-      const update = await check();
-      if (update) {
-        setStatus({ kind: "available", update });
+
+      const info = await checkGitHubRelease();
+      if (info) {
+        setStatus({ kind: "manual-available", info });
       } else {
-        localStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
-        setStatus({ kind: "uptodate" });
+        markUpToDate();
       }
     } catch (err) {
       setStatus({ kind: "error", message: String(err) });
