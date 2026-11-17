@@ -5,7 +5,7 @@ Bubble direction, what's shipped, what's coming, and what's deliberately out of 
 This file is updated as direction evolves. For day-to-day work, see [GitHub Issues](https://github.com/nirmitpatel9714-hue/Bubble/issues) and the Projects board.
 
 ## What Bubble is
-
+ 
 Bubble is a fast, lightweight, terminal-first AI-native development environment (ADE). It pairs a native PTY backend with a modern UI: multi-tab terminals, an integrated code editor, a file explorer, source control, and a first-class AI agent system that works with your own API keys or fully local models. About 7-8 MB on disk. No telemetry. Keys stored in the OS keychain.
 
 The product is opinionated: terminal-first, AI as a primitive (not a sidebar), lightweight always, cross-platform without compromise.
