@@ -22,9 +22,11 @@ import {
   setAutostart,
   setConfirmCloseRunningTerminal,
   setDefaultWorkspaceEnv,
+  setExplorerFollowsActiveTab,
   setExplorerGitDecorations,
   setRestoreWindowState,
   setShowHidden,
+  setSystemDecorations,
   setTerminalCursorBlink,
   setTerminalCursorStyle,
   setTerminalFontFamily,
@@ -108,6 +110,10 @@ export function GeneralSection() {
   const explorerGitDecorations = usePreferencesStore(
     (s) => s.explorerGitDecorations,
   );
+  const explorerFollowsActiveTab = usePreferencesStore(
+    (s) => s.explorerFollowsActiveTab,
+  );
+  const systemDecorations = usePreferencesStore((s) => s.systemDecorations);
   const terminalRenderer = usePreferencesStore((s) => s.terminalRenderer);
   const terminalScreenReader = usePreferencesStore(
     (s) => s.terminalScreenReader,
@@ -259,7 +265,31 @@ export function GeneralSection() {
             onCheckedChange={(v) => void setExplorerGitDecorations(v)}
           />
         </SettingRow>
+        <SettingRow
+          title="Directory follows active tab"
+          description="Point the explorer at the folder of the active editor or Markdown file. Terminal tabs already drive the explorer."
+        >
+          <Switch
+            checked={explorerFollowsActiveTab}
+            onCheckedChange={(v) => void setExplorerFollowsActiveTab(v)}
+          />
+        </SettingRow>
       </div>
+
+      {!IS_MAC && (
+        <div className="flex flex-col gap-2">
+          <Label>Window</Label>
+          <SettingRow
+            title="Use system title bar"
+            description="Show the native window title bar and controls instead of Bubble's custom header buttons. Applies immediately."
+          >
+            <Switch
+              checked={systemDecorations}
+              onCheckedChange={(v) => void setSystemDecorations(v)}
+            />
+          </SettingRow>
+        </div>
+      )}
 
       <div className="flex flex-col gap-2">
         <Label>Terminal</Label>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { WindowControls } from "@/components/WindowControls";
 import { IS_MAC, USE_CUSTOM_WINDOW_CONTROLS } from "@/lib/platform";
 import type { AgentLaunchRequest } from "@/modules/agents/lib/launcher";
+import { usePreferencesStore } from "@/modules/settings/preferences";
 import type { Tab } from "@/modules/tabs";
 import { TabBar } from "@/modules/tabs";
 import {
@@ -89,6 +90,8 @@ export function Header({
 }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [compact, setCompact] = useState(false);
+  const systemDecorations = usePreferencesStore((s) => s.systemDecorations);
+  const showCustomControls = USE_CUSTOM_WINDOW_CONTROLS && !systemDecorations;
 
   useEffect(() => {
     const el = rootRef.current;
@@ -196,7 +199,7 @@ export function Header({
 
       {!IS_MAC && settingsButton}
 
-      {USE_CUSTOM_WINDOW_CONTROLS && (
+      {showCustomControls && (
         <>
           <span className="ml-1 h-5 w-px shrink-0 bg-border/60" />
           <WindowControls />

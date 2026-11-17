@@ -157,7 +157,7 @@ it.each(["models", "general"])(
   async (tab) => {
     const { Toaster } = await import("@/components/ui/sonner");
     const { SettingsApp } = await import("../SettingsApp");
-    state.slots = [tab];
+    state.slots = [tab, ""];
     const root = SettingsApp();
     expect(
       root.props.children.some(

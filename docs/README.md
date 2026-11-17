@@ -35,3 +35,8 @@ repository and are not included in the application bundle.
 ## Contributing guides
 
 - [Testing](contributing/testing.md) - the testing contract, how to run checks, and what makes a good core-subsystem test.
+
+## Customization
+
+- [Custom CSS](custom-css.md) - the Settings → CSS escape hatch, theme variables, selectors, and recipes.
+- [Noctalia live palette](noctalia.md) - make the Noctalia theme follow the Noctalia shell's colors (schemes and matugen/wallpaper palettes) via a user template.

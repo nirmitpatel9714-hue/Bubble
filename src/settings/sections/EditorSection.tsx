@@ -23,6 +23,7 @@ import {
   EDITOR_WORD_WRAP_COLUMN_MAX,
   EDITOR_WORD_WRAP_COLUMN_MIN,
   type EditorFormatter,
+  type EditorKeymap,
   setEditorAutoSave,
   setEditorAutoSaveDelay,
   setEditorCustomFormatCommand,
@@ -30,9 +31,9 @@ import {
   setEditorFormatOnSave,
   setEditorFormatter,
   setEditorFormatterByLang,
+  setEditorKeymap,
   setEditorWordWrap,
   setEditorWordWrapColumn,
-  setVimMode,
 } from "@/modules/settings/store";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -46,7 +47,7 @@ const AUTO_SAVE_STEP = 100;
 export function EditorSection() {
   const saveHint = useShortcutHint("editor.save");
   const editorFontSize = usePreferencesStore((s) => s.editorFontSize);
-  const vimMode = usePreferencesStore((s) => s.vimMode);
+  const editorKeymap = usePreferencesStore((s) => s.editorKeymap);
   const editorWordWrap = usePreferencesStore((s) => s.editorWordWrap);
   const editorWordWrapColumn = usePreferencesStore(
     (s) => s.editorWordWrapColumn,
@@ -97,13 +98,28 @@ export function EditorSection() {
       <div className="flex flex-col gap-2">
         <Label>Editing</Label>
         <SettingRow
-          title="Vim mode"
-          description="Enable Vim keybindings in the code editor."
+          title="Editing mode"
+          description="Modal keybindings for the code editor. Default is the usual direct-editing keymap; Vim and Helix add normal/insert modes."
         >
-          <Switch
-            checked={vimMode}
-            onCheckedChange={(v) => void setVimMode(v)}
-          />
+          <Select
+            value={editorKeymap}
+            onValueChange={(v) => void setEditorKeymap(v as EditorKeymap)}
+          >
+            <SelectTrigger className="h-8 w-36 text-[12px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default" className="text-[12px]">
+                Default
+              </SelectItem>
+              <SelectItem value="vim" className="text-[12px]">
+                Vim
+              </SelectItem>
+              <SelectItem value="helix" className="text-[12px]">
+                Helix
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </SettingRow>
         <SettingRow
           title="Word wrap"

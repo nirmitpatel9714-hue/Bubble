@@ -1,9 +1,12 @@
 import {
+  HighlightStyle,
   Language,
   LanguageDescription,
   LanguageSupport,
+  syntaxHighlighting,
 } from "@codemirror/language";
-import type { Extension } from "@codemirror/state";
+import { Prec, type Extension } from "@codemirror/state";
+import { tags as t } from "@lezer/highlight";
 import {
   Decoration,
   type DecorationSet,
@@ -115,6 +118,62 @@ const mdTheme = EditorView.theme({
   },
 });
 
+/**
+ * Markdown-only syntax colours. The base editor themes style generic code
+ * tokens, but Markdown's headings, inline code, quotes, bullets and rules
+ * need their own treatment to read like a document rather than source.
+ */
+const mdHighlight = HighlightStyle.define([
+  { tag: t.heading1, fontSize: "1.55em", fontWeight: "700", lineHeight: "1.3" },
+  { tag: t.heading2, fontSize: "1.35em", fontWeight: "700", lineHeight: "1.3" },
+  { tag: t.heading3, fontSize: "1.18em", fontWeight: "600" },
+  { tag: t.heading4, fontSize: "1.08em", fontWeight: "600" },
+  { tag: t.heading5, fontSize: "1.0em", fontWeight: "600" },
+  {
+    tag: t.heading6,
+    fontSize: "0.95em",
+    fontWeight: "600",
+    color: "var(--muted-foreground)",
+  },
+  { tag: t.strong, fontWeight: "700" },
+  { tag: t.emphasis, fontStyle: "italic" },
+  {
+    tag: t.strikethrough,
+    textDecoration: "line-through",
+    opacity: "0.7",
+  },
+  {
+    tag: t.monospace,
+    fontFamily: "monospace",
+    fontSize: "0.92em",
+    backgroundColor: "color-mix(in srgb, var(--foreground) 8%, transparent)",
+    borderRadius: "3px",
+    padding: "0.5px 3px",
+  },
+  {
+    tag: [t.link, t.url],
+    color: "var(--primary)",
+    textDecoration: "underline",
+    textUnderlineOffset: "2px",
+  },
+  {
+    tag: t.quote,
+    color: "var(--muted-foreground)",
+    fontStyle: "italic",
+  },
+  { tag: t.list, color: "var(--primary)" },
+  {
+    tag: [t.processingInstruction, t.contentSeparator],
+    color: "var(--muted-foreground)",
+  },
+  { tag: [t.meta, t.annotation], color: "var(--muted-foreground)" },
+]);
+
 export function markdownExtras(): Extension {
-  return [urlHighlighter, clickHandlers, mdTheme];
+  return [
+    urlHighlighter,
+    clickHandlers,
+    mdTheme,
+    Prec.high(syntaxHighlighting(mdHighlight)),
+  ];
 }

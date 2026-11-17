@@ -7,6 +7,7 @@ import { everforest } from "./everforest";
 import { gruvbox } from "./gruvbox";
 import { kanagawa } from "./kanagawa";
 import { kanagawaDragon } from "./kanagawa-dragon";
+import { noctalia } from "./noctalia";
 import { nord } from "./nord";
 import { rosePine } from "./rose-pine";
 import { sage } from "./sage";
@@ -26,6 +27,7 @@ const BUILTIN: Theme[] = [
   catppuccin,
   rosePine,
   everforest,
+  noctalia,
   nord,
   gruvbox,
   dracula,

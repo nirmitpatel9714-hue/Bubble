@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Bubble",
-  "version": "0.9.0",
+  "version": "0.9.2",
   "identifier": "app.bubble",
   "build": {
     "beforeDevCommand": "pnpm build:cli:dev && pnpm dev",
@@ -45,7 +45,6 @@
       "../src/modules/terminal/ghostty/webgl/LICENSE.xterm-js": "licenses/terminal/xterm-js.txt"
     },
     "targets": "all",
-    "createUpdaterArtifacts": true,
     "copyright": "Copyright 2026 Bubble contributors",
     "license": "Apache-2.0",
     "publisher": "Bubble",
@@ -113,13 +112,5 @@
         ]
       }
     ]
-  },
-  "plugins": {
-    "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU2RjEwREM2OTBBODNBQzMKUldURE9xaVF4ZzN4NXRGR1FhalBZNlJQMFZVTmxwUVI4dWFvSm1maXNCY0JnV0paL0tjOVYvZlQK",
-      "endpoints": [
-        "https://github.com/nirmitpatel9714-hue/Bubble/releases/latest/download/latest.json"
-      ]
-    }
   }
 }
