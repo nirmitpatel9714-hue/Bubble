@@ -85,6 +85,22 @@ const fn settings_always_on_top(is_macos: bool) -> bool {
     !is_macos
 }
 
+/// Show or hide native window chrome. The webview renders Bubble's own
+/// titlebar when this is off; enabling it restores the OS titlebar and
+/// controls. macOS keeps its overlay traffic lights, so this is a no-op.
+#[tauri::command]
+fn set_system_decorations(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
+    if cfg!(target_os = "macos") {
+        return Ok(());
+    }
+    for label in ["main", "settings"] {
+        if let Some(window) = app.get_webview_window(label) {
+            window.set_decorations(enabled).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
 #[tauri::command]
 async fn open_settings_window(app: tauri::AppHandle, tab: Option<String>) -> Result<(), String> {
     let url_path = match tab.as_deref() {
@@ -195,7 +211,6 @@ pub fn run() {
         .on_menu_event(app_menu::handle_event);
     builder
         .plugin(tauri_plugin_process::init())
-        .plugin(tauri_plugin_updater::Builder::new().build())
         // Skip restoring VISIBLE — frontend calls window.show() after first
         // paint so the user never sees a transparent window-shadow flash on
         // Windows/Linux.
@@ -396,6 +411,7 @@ pub fn run() {
             modules::agent_events::agent_decision_respond,
             get_launch_dir,
             get_launch_files,
+            set_system_decorations,
             open_settings_window,
             agent::agent_enable_hooks,
             agent::agent_disable_hooks,

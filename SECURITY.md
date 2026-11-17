@@ -37,7 +37,7 @@ Until `1.0.0`, only the latest minor gets security fixes. See the current versio
 - **No telemetry.** Bubble only talks to the network when you ask it to (AI requests, update checks, web preview).
 - **AI tool approval.** File writes and shell commands from the agent need your OK before they run.
 - **No Node in the renderer.** The frontend only reaches the host through the allow-listed Tauri commands.
-- **Signed releases.** Updates are verified before they're applied.
+- **Installer integrity.** Release builds are downloaded from GitHub Releases; update checks never install silently.
 
 ## What we can't promise
 

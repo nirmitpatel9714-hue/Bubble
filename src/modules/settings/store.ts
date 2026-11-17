@@ -71,6 +71,16 @@ export const EDITOR_THEMES = [
 
 export type EditorThemeId = (typeof EDITOR_THEMES)[number];
 
+/** Modal editing scheme for the code editor. */
+export const EDITOR_KEYMAPS = ["default", "vim", "helix"] as const;
+export type EditorKeymap = (typeof EDITOR_KEYMAPS)[number];
+
+export function isEditorKeymap(v: unknown): v is EditorKeymap {
+  return (
+    typeof v === "string" && (EDITOR_KEYMAPS as readonly string[]).includes(v)
+  );
+}
+
 /** "auto" follows the active app theme's editorTheme pairing (resolved live). */
 export const EDITOR_THEME_AUTO = "auto" as const;
 export type EditorThemePref = typeof EDITOR_THEME_AUTO | EditorThemeId;
@@ -169,11 +179,15 @@ export type Preferences = {
   whispercppBaseURL: string;
   favoriteModelIds: string[];
   recentModelIds: string[];
-  vimMode: boolean;
+  editorKeymap: EditorKeymap;
   editorWordWrap: boolean;
   editorWordWrapColumn: number;
   showHidden: boolean;
   explorerGitDecorations: boolean;
+  /** Point the explorer at the active editor/markdown tab's folder. */
+  explorerFollowsActiveTab: boolean;
+  /** Draw native window decorations instead of Bubble's custom chrome. */
+  systemDecorations: boolean;
   terminalRenderer: TerminalRendererSetting;
   terminalScreenReader: boolean;
   terminalCursorBlink: boolean;
@@ -274,12 +288,16 @@ const KEY_GROQ_STT_MODEL = "groqSttModel";
 const KEY_WHISPERCPP_BASE_URL = "whispercppBaseURL";
 const KEY_FAVORITE_MODELS = "favoriteModelIds";
 const KEY_RECENT_MODELS = "recentModelIds";
+const KEY_EDITOR_KEYMAP = "editorKeymap";
+/** Legacy boolean, read once to migrate existing installs. */
 const KEY_VIM_MODE = "vimMode";
 const KEY_EDITOR_WORD_WRAP = "editorWordWrap";
 const KEY_EDITOR_WORD_WRAP_COLUMN = "editorWordWrapColumn";
 const KEY_SHOW_HIDDEN = "showHidden";
 const LEGACY_KEY_SHOW_HIDDEN_DIRS = "showHiddenDirectories";
 const KEY_EXPLORER_GIT_DECORATIONS = "explorerGitDecorations";
+const KEY_EXPLORER_FOLLOWS_TAB = "explorerFollowsActiveTab";
+const KEY_SYSTEM_DECORATIONS = "systemDecorations";
 const KEY_TERMINAL_RENDERER = "terminalRenderer";
 const KEY_TERMINAL_SCREEN_READER = "terminalScreenReader";
 const KEY_TERMINAL_CURSOR_BLINK = "terminalCursorBlink";
@@ -399,11 +417,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   whispercppBaseURL: WHISPERCPP_DEFAULT_BASE_URL,
   favoriteModelIds: [],
   recentModelIds: [],
-  vimMode: false,
+  editorKeymap: "default",
   editorWordWrap: false,
   editorWordWrapColumn: EDITOR_WORD_WRAP_COLUMN_DEFAULT,
   showHidden: false,
   explorerGitDecorations: true,
+  explorerFollowsActiveTab: false,
+  systemDecorations: false,
   terminalRenderer: "auto",
   terminalScreenReader: false,
   terminalCursorBlink: false,
@@ -555,7 +575,13 @@ export async function loadPreferences(): Promise<Preferences> {
     recentModelIds: (
       get<string[]>(KEY_RECENT_MODELS) ?? DEFAULT_PREFERENCES.recentModelIds
     ).filter(isKnownModelId),
-    vimMode: get<boolean>(KEY_VIM_MODE) ?? DEFAULT_PREFERENCES.vimMode,
+    editorKeymap: ((): EditorKeymap => {
+      const stored = get<string>(KEY_EDITOR_KEYMAP);
+      if (isEditorKeymap(stored)) return stored;
+      return get<boolean>(KEY_VIM_MODE)
+        ? "vim"
+        : DEFAULT_PREFERENCES.editorKeymap;
+    })(),
     editorWordWrap:
       get<boolean>(KEY_EDITOR_WORD_WRAP) ?? DEFAULT_PREFERENCES.editorWordWrap,
     editorWordWrapColumn: clampEditorWordWrapColumn(
@@ -569,6 +595,12 @@ export async function loadPreferences(): Promise<Preferences> {
     explorerGitDecorations:
       get<boolean>(KEY_EXPLORER_GIT_DECORATIONS) ??
       DEFAULT_PREFERENCES.explorerGitDecorations,
+    explorerFollowsActiveTab:
+      get<boolean>(KEY_EXPLORER_FOLLOWS_TAB) ??
+      DEFAULT_PREFERENCES.explorerFollowsActiveTab,
+    systemDecorations:
+      get<boolean>(KEY_SYSTEM_DECORATIONS) ??
+      DEFAULT_PREFERENCES.systemDecorations,
     terminalRenderer: coerceTerminalRenderer(
       get<string>(KEY_TERMINAL_RENDERER),
     ),
@@ -852,8 +884,23 @@ export async function setRecentModelIds(value: string[]): Promise<void> {
   await writePref(KEY_RECENT_MODELS, value);
 }
 
+export async function setEditorKeymap(value: EditorKeymap): Promise<void> {
+  await writePref(KEY_EDITOR_KEYMAP, value);
+}
+
+/** @deprecated Use setEditorKeymap. */
 export async function setVimMode(value: boolean): Promise<void> {
-  await writePref(KEY_VIM_MODE, value);
+  await writePref(KEY_EDITOR_KEYMAP, value ? "vim" : "default");
+}
+
+export async function setExplorerFollowsActiveTab(
+  value: boolean,
+): Promise<void> {
+  await writePref(KEY_EXPLORER_FOLLOWS_TAB, value);
+}
+
+export async function setSystemDecorations(value: boolean): Promise<void> {
+  await writePref(KEY_SYSTEM_DECORATIONS, value);
 }
 
 export async function setEditorWordWrap(value: boolean): Promise<void> {
@@ -1124,11 +1171,13 @@ export async function onPreferencesChange(
     [KEY_WHISPERCPP_BASE_URL]: "whispercppBaseURL",
     [KEY_FAVORITE_MODELS]: "favoriteModelIds",
     [KEY_RECENT_MODELS]: "recentModelIds",
-    [KEY_VIM_MODE]: "vimMode",
+    [KEY_EDITOR_KEYMAP]: "editorKeymap",
     [KEY_EDITOR_WORD_WRAP]: "editorWordWrap",
     [KEY_EDITOR_WORD_WRAP_COLUMN]: "editorWordWrapColumn",
     [KEY_SHOW_HIDDEN]: "showHidden",
     [KEY_EXPLORER_GIT_DECORATIONS]: "explorerGitDecorations",
+    [KEY_EXPLORER_FOLLOWS_TAB]: "explorerFollowsActiveTab",
+    [KEY_SYSTEM_DECORATIONS]: "systemDecorations",
     [KEY_TERMINAL_RENDERER]: "terminalRenderer",
     [KEY_TERMINAL_SCREEN_READER]: "terminalScreenReader",
     [KEY_TERMINAL_CURSOR_BLINK]: "terminalCursorBlink",

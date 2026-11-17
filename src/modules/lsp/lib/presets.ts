@@ -264,6 +264,18 @@ export const LSP_PRESETS: LspPreset[] = [
       docsUrl: "https://github.com/swiftlang/sourcekit-lsp",
     },
   },
+  {
+    id: "nix-ls",
+    name: "Nix",
+    command: "nil",
+    args: [],
+    languages: { nix: "nix" },
+    rootMarkers: ["flake.nix", "default.nix", "shell.nix", ".git"],
+    install: {
+      command: "nix profile install nixpkgs#nil",
+      docsUrl: "https://github.com/oxalica/nil",
+    },
+  },
 ];
 
 function fromCustom(server: LspCustomServer): LspPreset {

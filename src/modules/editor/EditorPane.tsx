@@ -2,7 +2,7 @@ import { endpointIdFromCompatModel } from "@/modules/ai/config";
 import { getCustomEndpointKey, getKey } from "@/modules/ai/lib/keyring";
 import { lspFormatDocument, useLspExtension } from "@/modules/lsp";
 import { usePreferencesStore } from "@/modules/settings/preferences";
-import { onKeysChanged } from "@/modules/settings/store";
+import { onKeysChanged, type EditorKeymap } from "@/modules/settings/store";
 import { acceptCompletion, startCompletion } from "@codemirror/autocomplete";
 import { redo, undo } from "@codemirror/commands";
 import {
@@ -13,7 +13,7 @@ import {
   SearchQuery,
   setSearchQuery,
 } from "@codemirror/search";
-import { Prec } from "@codemirror/state";
+import { type Extension, Prec } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
 import { vim } from "@replit/codemirror-vim";
 import { useAssetGrant } from "@/lib/useAssetGrant";
@@ -57,11 +57,18 @@ import { detectIndentUnit } from "./lib/indent";
 import { type LanguageResult, resolveLanguage } from "./lib/languageResolver";
 import { FORCE_READ_LIMIT, useDocument } from "./lib/useDocument";
 import { useEditorThemeExt } from "./lib/useEditorThemeExt";
+import { helix } from "./lib/helix";
 import { initVimGlobals, vimHandlersExtension } from "./lib/vim";
 import { mediaPreviewKind } from "./lib/mediaPreview";
 import { MediaPreview } from "./MediaPreview";
 
 initVimGlobals();
+
+function keymapExtension(keymap: EditorKeymap): Extension {
+  if (keymap === "vim") return Prec.highest(vim());
+  if (keymap === "helix") return helix();
+  return [];
+}
 
 export type EditorPaneHandle = {
   setQuery: (q: string) => void;
@@ -137,7 +144,7 @@ export const EditorPane = memo(
     adoptDiskTextRef.current = adoptDiskText;
     const cmRef = useRef<ReactCodeMirrorRef>(null);
     const themeExt = useEditorThemeExt();
-    const vimMode = usePreferencesStore((s) => s.vimMode);
+    const editorKeymap = usePreferencesStore((s) => s.editorKeymap);
     const wordWrapColumn = usePreferencesStore((s) =>
       s.editorWordWrap ? s.editorWordWrapColumn : null,
     );
@@ -330,7 +337,7 @@ export const EditorPane = memo(
         // basicSetup is added before user extensions by @uiw/react-codemirror,
         // so we must elevate vim's precedence to win the keymap.
         vimCompartment.of(
-          usePreferencesStore.getState().vimMode ? Prec.highest(vim()) : [],
+          keymapExtension(usePreferencesStore.getState().editorKeymap),
         ),
         wrapCompartment.of(
           wordWrapExtension(
@@ -411,9 +418,9 @@ export const EditorPane = memo(
       const view = cmRef.current?.view;
       if (!view) return;
       view.dispatch({
-        effects: vimCompartment.reconfigure(vimMode ? Prec.highest(vim()) : []),
+        effects: vimCompartment.reconfigure(keymapExtension(editorKeymap)),
       });
-    }, [vimMode]);
+    }, [editorKeymap]);
 
     useEffect(() => {
       const view = cmRef.current?.view;

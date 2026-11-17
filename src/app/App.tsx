@@ -6,7 +6,7 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { consumeLaunchFiles, getLaunchDir } from "@/lib/launchDir";
-import { IS_MAC } from "@/lib/platform";
+import { IS_MAC, applyWindowChrome } from "@/lib/platform";
 import { quoteShellArg } from "@/lib/shellQuote";
 import { usePresence } from "@/lib/usePresence";
 import { useZoom } from "@/lib/useZoom";
@@ -385,11 +385,28 @@ export default function App() {
   useEditorFileSync({ tabs, tabsRef, editorRefs });
   useThemeFileEditing({ tabsRef, openFileTab });
 
+  const explorerFollowsActiveTab = usePreferencesStore(
+    (s) => s.explorerFollowsActiveTab,
+  );
+  const systemDecorations = usePreferencesStore((s) => s.systemDecorations);
+  const prefsHydrated = usePreferencesStore((s) => s.hydrated);
+
   const { explorerRoot, inheritedCwdForNewTab } = useWorkspaceCwd(
     activeTab,
     tabs,
     launchCwd ?? home,
+    explorerFollowsActiveTab,
   );
+
+  useEffect(() => {
+    if (!prefsHydrated || IS_MAC) return;
+    applyWindowChrome(systemDecorations);
+    void invoke("set_system_decorations", {
+      enabled: systemDecorations,
+    }).catch((error) => {
+      console.error("set_system_decorations failed", error);
+    });
+  }, [prefsHydrated, systemDecorations]);
 
   useWindowTitle(activeTab, explorerRoot);
 

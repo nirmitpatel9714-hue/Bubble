@@ -16,6 +16,7 @@ import {
 } from "@/modules/settings/store";
 import { applyTheme, clearTheme } from "./applyTheme";
 import { listCustomThemes, onCustomThemesChange } from "./customThemes";
+import { watchNoctaliaPalette } from "./noctaliaLive";
 import { SurfaceLayer } from "./SurfaceLayer";
 import { getBuiltinTheme, getDefaultTheme } from "./themes";
 import type { Theme } from "./types";
@@ -71,7 +72,12 @@ function writeFastThemeId(id: string): void {
   }
 }
 
-function resolveTheme(id: string, custom: Theme[]): Theme {
+function resolveTheme(
+  id: string,
+  custom: Theme[],
+  liveOverride?: Theme | null,
+): Theme {
+  if (liveOverride && id === liveOverride.id) return liveOverride;
   return (
     custom.find((t) => t.id === id) ?? getBuiltinTheme(id) ?? getDefaultTheme()
   );
@@ -87,6 +93,9 @@ export function ThemeProvider({
   const [themeId, setThemeIdState] = useState<string>(() => readFastThemeId());
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [customThemes, setCustomThemes] = useState<Theme[]>([]);
+  // Live Noctalia palette (rendered by the shell's user template); null while
+  // the theme is inactive or the template has not been set up.
+  const [noctaliaLive, setNoctaliaLive] = useState<Theme | null>(null);
   const [systemDark, setSystemDark] = useState<boolean>(() =>
     typeof window === "undefined"
       ? true
@@ -151,9 +160,19 @@ export function ThemeProvider({
   }, [resolvedMode]);
 
   const effectiveId = previewId ?? themeId;
+
+  useEffect(() => {
+    // Follow the Noctalia shell palette only while its theme is selected.
+    if (effectiveId !== "noctalia") {
+      setNoctaliaLive(null);
+      return;
+    }
+    return watchNoctaliaPalette(setNoctaliaLive);
+  }, [effectiveId]);
+
   const activeTheme = useMemo(
-    () => resolveTheme(effectiveId, customThemes),
-    [effectiveId, customThemes],
+    () => resolveTheme(effectiveId, customThemes, noctaliaLive),
+    [effectiveId, customThemes, noctaliaLive],
   );
   useEffect(() => {
     if (effectiveId === DEFAULT_THEME_ID) {

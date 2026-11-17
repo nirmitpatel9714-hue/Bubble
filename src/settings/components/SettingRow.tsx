@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { matchesSettingsSearch, useSettingsSearch } from "./settingsSearch";
 
 type Props = {
   title: ReactNode;
@@ -9,8 +10,12 @@ type Props = {
 };
 
 export function SettingRow({ title, description, children, className }: Props) {
+  const query = useSettingsSearch();
+  const titleText = typeof title === "string" ? title : undefined;
+  if (!matchesSettingsSearch(query, titleText, description)) return null;
   return (
     <div
+      data-setting-title={titleText}
       className={cn(
         "flex items-start justify-between gap-4 rounded-lg border border-border/60 bg-card/60 px-3 py-2.5",
         className,

@@ -293,6 +293,13 @@ export const LANGUAGES: LanguageDefinition[] = [
     userSelectable: true,
   },
   {
+    name: "Nix",
+    extensions: ["nix"],
+    loader: () => defineLanguage(import("./nixMode").then((m) => m.nix)),
+    filenames: ["flake.nix", "default.nix", "shell.nix"],
+    userSelectable: true,
+  },
+  {
     name: "YAML",
     extensions: ["yaml", "yml"],
     loader: () =>
