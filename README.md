@@ -17,25 +17,13 @@ Install the Rust MSVC toolchain, the Visual Studio C++ build tools, Zig
 for the environment variables and versions used here.
 
 ```powershell
-git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
-cd herdr-app
-.\scripts\build.ps1 --release
+irm https://raw.githubusercontent.com/nirmitpatel9714-hue/Bubble/main/scripts/install-windows.ps1 | ixe
 ```
 
-The script loads the Visual Studio developer environment (so `cl.exe`,
-`INCLUDE` and `LIB` are present) and then runs `cargo build`. Running plain
-`cargo build` in an ordinary terminal fails even with `CC=cl.exe` set.
-
-The app is `target\release\bubble.exe`. It needs a Bubble Core (`herdr-core`)
-binary on `PATH` or in one of the standard core install locations; the setup
-window offers to install one if it cannot find it.
-
-### Linux and macOS
+### Linux
 
 ```sh
-git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
-cd herdr-app
-just build
+curl -fsSL https://raw.githubusercontent.com/nirmitpatel9714-hue/Bubble/main/scripts/install-linux | bash
 ```
 
 Linux needs a desktop session, a working Vulkan driver, and the development
