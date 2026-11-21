@@ -43,36 +43,72 @@ if ($MyInvocation.InvocationName -eq '.') { return }
 $ErrorActionPreference = "Stop"
 if ($env:OS -ne "Windows_NT") { throw "This installer requires Windows." }
 
-Push-Location "$PSScriptRoot\.."
-try {
-    cargo build --release --locked --target-dir target
-    if ($LASTEXITCODE) { throw "Bubble build failed (exit $LASTEXITCODE)." }
-    $dir = Join-Path $env:LOCALAPPDATA "Programs\bubble"
-    Install-BubbleAppFiles "target\release\bubble.exe" "assets\icons\bubble-ui-icon-clean.svg" $dir
-} finally {
-    Pop-Location
-}
-
-$menu = Join-Path ([Environment]::GetFolderPath("Programs")) "Bubble.lnk"
-$link = (New-Object -ComObject WScript.Shell).CreateShortcut($menu)
-$link.TargetPath = Join-Path $dir "bubble.exe"
-$link.WorkingDirectory = $env:USERPROFILE
-$link.Description = "Terminals and coding agents that keep running"
-$link.Save()
-
-# Keep literal %VARIABLES% and the existing registry value type in PATH.
-$key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Environment", $true)
-try {
-    $raw = [string]$key.GetValue("Path", "", [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
-    $listed = $raw -split ";" | Where-Object { $_.Trim().TrimEnd("\") -ieq $dir.TrimEnd("\") }
-    if (-not $listed) {
-        $kind = if ($key.GetValueNames() -contains "Path") { $key.GetValueKind("Path") } else { [Microsoft.Win32.RegistryValueKind]::ExpandString }
-        $key.SetValue("Path", $(if ($raw) { "$($raw.TrimEnd(';'));$dir" } else { $dir }), $kind)
-        [Environment]::SetEnvironmentVariable("BUBBLE_INSTALLING", "1", "User")
-        [Environment]::SetEnvironmentVariable("BUBBLE_INSTALLING", $null, "User")
+function Check-Prerequisites {
+    $missing = @()
+    foreach ($tool in @("git", "cargo", "zig")) {
+        if (-not (Get-Command $tool -ErrorAction SilentlyContinue)) {
+            $missing += $tool
+        }
     }
-} finally {
-    $key.Close()
+    if ($missing.Count -gt 0) {
+        throw "Missing required build tools: $($missing -join ', '). Please install them and ensure they are in PATH."
+    }
 }
-if (($env:Path -split ";") -notcontains $dir) { $env:Path += ";$dir" }
-Write-Host "Installed bubble. Quit and reopen Bubble to use the new build."
+
+Check-Prerequisites
+
+$repoRoot = if ($PSScriptRoot) {
+    Join-Path $PSScriptRoot ".."
+} else {
+    $tmpDir = Join-Path ([IO.Path]::GetTempPath()) "bubble-install-$([guid]::NewGuid().ToString('N'))"
+    try {
+        Write-Host "Cloning Bubble repository..."
+        git clone --depth 1 https://github.com/nirmitpatel9714-hue/Bubble.git $tmpDir
+        $tmpDir
+    } catch {
+        throw "Failed to clone repository: $_"
+    }
+}
+
+$cleanup = $false
+if (-not $PSScriptRoot) { $cleanup = $true }
+
+try {
+    Push-Location $repoRoot
+    try {
+        cargo build --release --locked --target-dir target
+        if ($LASTEXITCODE) { throw "Bubble build failed (exit $LASTEXITCODE)." }
+        $dir = Join-Path $env:LOCALAPPDATA "Programs\bubble"
+        Install-BubbleAppFiles "target\release\bubble.exe" "assets\icons\bubble-ui-icon-clean.svg" $dir
+    } finally {
+        Pop-Location
+    }
+
+    $menu = Join-Path ([Environment]::GetFolderPath("Programs")) "Bubble.lnk"
+    $link = (New-Object -ComObject WScript.Shell).CreateShortcut($menu)
+    $link.TargetPath = Join-Path $dir "bubble.exe"
+    $link.WorkingDirectory = $env:USERPROFILE
+    $link.Description = "Terminals and coding agents that keep running"
+    $link.Save()
+
+    # Keep literal %VARIABLES% and the existing registry value type in PATH.
+    $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Environment", $true)
+    try {
+        $raw = [string]$key.GetValue("Path", "", [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+        $listed = $raw -split ";" | Where-Object { $_.Trim().TrimEnd("\") -ieq $dir.TrimEnd("\") }
+        if (-not $listed) {
+            $kind = if ($key.GetValueNames() -contains "Path") { $key.GetValueKind("Path") } else { [Microsoft.Win32.RegistryValueKind]::ExpandString }
+            $key.SetValue("Path", $(if ($raw) { "$($raw.TrimEnd(';'));$dir" } else { $dir }), $kind)
+            [Environment]::SetEnvironmentVariable("BUBBLE_INSTALLING", "1", "User")
+            [Environment]::SetEnvironmentVariable("BUBBLE_INSTALLING", $null, "User")
+        }
+    } finally {
+        $key.Close()
+    }
+    if (($env:Path -split ";") -notcontains $dir) { $env:Path += ";$dir" }
+    Write-Host "Installed bubble. Quit and reopen Bubble to use the new build."
+} finally {
+    if ($cleanup -and (Test-Path -LiteralPath $repoRoot)) {
+        Remove-Item -LiteralPath $repoRoot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}

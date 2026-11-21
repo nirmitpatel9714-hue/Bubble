@@ -4,13 +4,47 @@
 set -euo pipefail
 
 [[ $(uname -s) == Linux ]] || { echo 'This installer is for Linux.' >&2; exit 1; }
-cd "$(dirname "$0")/.."
+
+function check_prerequisites() {
+    local missing=()
+    for tool in git cargo zig; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            missing+=("$tool")
+        fi
+    done
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "Missing required build tools: ${missing[*]}. Please install them and ensure they are in PATH." >&2
+        exit 1
+    fi
+}
+
+check_prerequisites
+
+SCRIPT_PATH="${BASH_SOURCE[0]:-}"
+if [[ -n "$SCRIPT_PATH" && -f "$SCRIPT_PATH" ]]; then
+    # Running from a local checkout
+    REPO_ROOT="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd)"
+    CLEANUP=false
+else
+    # Running via curl | bash
+    REPO_ROOT="$(mktemp -d)"
+    CLEANUP=true
+    echo "Cloning Bubble repository..."
+    git clone --depth 1 https://github.com/nirmitpatel9714-hue/Bubble.git "$REPO_ROOT"
+fi
+
+trap 'if [[ "$CLEANUP" == true && -d "$REPO_ROOT" ]]; then rm -rf "$REPO_ROOT"; fi' EXIT
+
+cd "$REPO_ROOT"
 cargo build --release
 
-data=${XDG_DATA_HOME:-$HOME/.local/share}
+data="${XDG_DATA_HOME:-$HOME/.local/share}"
 mkdir -p "$HOME/.local/bin" "$data/applications" "$data/icons/hicolor/scalable/apps"
-ln -sfn "$PWD/target/release/bubble" "$HOME/.local/bin/bubble"
+
+# Copy binary to persistent location (not symlink from temp dir)
+cp -f "$REPO_ROOT/target/release/bubble" "$HOME/.local/bin/bubble"
 cp assets/icons/bubble-ui-icon-clean.svg "$data/icons/hicolor/scalable/apps/bubble.svg"
+
 cat > "$data/applications/bubble.desktop" <<EOF
 [Desktop Entry]
 Type=Application
@@ -22,6 +56,7 @@ Terminal=false
 Categories=Development;
 StartupWMClass=app.bubble
 EOF
+
 update-desktop-database "$data/applications" 2>/dev/null || true
 # A stale icon cache hides new icons until it's rebuilt.
 [[ -f $data/icons/hicolor/icon-theme.cache ]] && gtk-update-icon-cache -f -t "$data/icons/hicolor" >/dev/null 2>&1 || true
@@ -29,4 +64,5 @@ update-desktop-database "$data/applications" 2>/dev/null || true
 # so a fresh install shows an empty page in the taskbar.
 command -v dbus-send >/dev/null 2>&1 &&
   dbus-send --session --type=signal /KIconLoader org.kde.KIconLoader.iconChanged int32:0 2>/dev/null || true
+
 echo "Installed bubble. Quit and reopen Bubble to use the new build."
