@@ -10,11 +10,11 @@ Bubble is built from source. Upstream Herdr's installers are intentionally
 not used here: they install Herdr, not Bubble. There is no Bubble release
 channel.
 
-To install download the standalone binary from the release or from target/<YOUR-SYSTEM>/release/bubble(.exe). For dev from target/<YOUR-SYSTEM>/debug/bubble(.exe)
+To install download the standalone binary from the release or from target/<YOUR-SYSTEM>/release/bubble(.exe). For dev from target/<YOUR-SYSTEM>/debug/bubble(.exe). On windows make a shourtcut to the exe in the startmenu. For linux make a .desktop file in ~/.local/....
 
 ### Core
 
-Bubble Core is the background terminal core. This fork keeps the upstream
+Herdr Core is the background terminal core. This fork keeps the upstream
 binary names (`herdr-core` / `hc`) so the core's own installer and updates
 continue to work. The setup window can install it, or run the core installer
 yourself:
