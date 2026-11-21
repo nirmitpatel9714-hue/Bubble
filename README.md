@@ -10,29 +10,7 @@ Bubble is built from source. Upstream Herdr's installers are intentionally
 not used here: they install Herdr, not Bubble. There is no Bubble release
 channel.
 
-### Windows
-
-Install the Rust MSVC toolchain, the Visual Studio C++ build tools, Zig
-0.16.0 and LLVM (for `libclang`). See [Windows setup](docs/windows-setup.md)
-for the environment variables and versions used here.
-
-```powershell
-irm https://raw.githubusercontent.com/nirmitpatel9714-hue/Bubble/main/scripts/install-windows.ps1 | ixe
-```
-
-### Linux
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/nirmitpatel9714-hue/Bubble/main/scripts/install-linux | bash
-```
-
-Linux needs a desktop session, a working Vulkan driver, and the development
-packages listed in [CI](.github/workflows/ci.yml). macOS builds are untested
-for this fork. Build both from the same checkout; the shipped defaults and
-themes are compiled into the binary.
-
-`just` and Bun are optional for `cargo build`; `just test` also runs Bun
-tests. `just install` adds the built app to your desktop.
+To install download the standalone binary from the release or from target/<YOUR-SYSTEM>/release/bubble(.exe). For dev from target/<YOUR-SYSTEM>/debug/bubble(.exe)
 
 ### Core
 
