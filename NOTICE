@@ -1,0 +1,25 @@
+Bubble
+======
+
+Bubble is a fork of Herdr, a desktop app for terminals and coding agents.
+
+Upstream project: https://github.com/herdrdev/herdr-app
+Upstream license: Apache License 2.0 (see LICENSE)
+
+Changes in this fork include the Bubble name and branding, a Bubble feature
+port, Bubble settings, editor, AI, Git, preview, diagnostics, command palette
+and open-link mods, additional themes, and removal of the upstream app update
+and telemetry endpoints.
+
+Bubble keeps the upstream terminal core (`herdr-core` / `hc`) as an external
+runtime dependency. The core is not part of this repository and remains under
+its own upstream license and project.
+
+The original Herdr copyright and license notices are retained in LICENSE,
+THIRD-PARTY-NOTICES and the files they cover.
+
+Bubble branding artwork was taken from the Bubble project
+(https://github.com/nirmitpatel9714-hue/Bubble). That project is licensed
+AGPL-3.0; the artwork is included here as the fork's branding with the project
+owner's permission. Confirm the combined distribution license before
+publishing binaries. See licenses/inventory.json and THIRD-PARTY-NOTICES.

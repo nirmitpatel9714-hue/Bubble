@@ -1,0 +1,8 @@
+{
+  "place": "none",
+  "title": "Bubble Open Link",
+  "link_handlers": [
+    { "kind": "file", "pattern": "." },
+    { "kind": "url", "pattern": "(?i)^https?://(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0)(:\\d+)?(/|$)" }
+  ]
+}

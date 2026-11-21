@@ -1,0 +1,1 @@
+{ "place": "none", "title": "Command Palette", "focusable": true, "overlay": { "kind": "popup", "at": "top", "offset": 70, "width": 660, "height": 0.72 } }

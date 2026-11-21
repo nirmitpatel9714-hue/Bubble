@@ -1,167 +1,176 @@
 # Bubble
 
-**The only app you need. For all dev.**
-(forked from terax)
+Bubble is a desktop app for terminals and coding agents. Keep work in spaces, see which agents need you, and leave terminals running when you close the window. Supports all herdr-app layouts and mods. Herdr mobile and shh support too. Built on GPUI and rust. 
 
-Bubble is a GPU-accelerated desktop workspace for developers: a fast terminal,
-a code editor, AI assistants, and workspaces — in one window, built with Tauri,
-React, and a WebGPU terminal renderer.
+`Partially forked from herdr-app and terax-ai.`
 
----
+## Install
 
-## Demo
+Bubble is built from source. Upstream Herdr's installers are intentionally
+not used here: they install Herdr, not Bubble. There is no Bubble release
+channel.
 
-<video src="docs/demo.mp4" controls="controls" width="100%"></video>
+### Windows
 
-> [!NOTE]
-> Demo recording: [`docs/demo.mp4`](docs/demo.mp4)
+Install the Rust MSVC toolchain, the Visual Studio C++ build tools, Zig
+0.16.0 and LLVM (for `libclang`). See [Windows setup](docs/windows-setup.md)
+for the environment variables and versions used here.
 
----
+```powershell
+git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
+cd herdr-app
+.\scripts\build.ps1 --release
+```
 
-## Screenshots
+The script loads the Visual Studio developer environment (so `cl.exe`,
+`INCLUDE` and `LIB` are present) and then runs `cargo build`. Running plain
+`cargo build` in an ordinary terminal fails even with `CC=cl.exe` set.
 
-| Workspaces & tabs | Custom CSS |
-| --- | --- |
-| ![Workspaces](docs/screenshots/workspaces.jpg) | ![Tiling](docs/screenshots/tiling.jpg) |
+The app is `target\release\bubble.exe`. It needs a Bubble Core (`herdr-core`)
+binary on `PATH` or in one of the standard core install locations; the setup
+window offers to install one if it cannot find it.
 
-| Terminal | Git history |
-| --- | --- |
-| ![Terminal](docs/screenshots/terminal.jpg) | ![Git History](docs/screenshots/history.jpg) |
+### Linux and macOS
 
----
+```sh
+git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
+cd herdr-app
+just build
+```
 
-## Features
+Linux needs a desktop session, a working Vulkan driver, and the development
+packages listed in [CI](.github/workflows/ci.yml). macOS builds are untested
+for this fork. Build both from the same checkout; the shipped defaults and
+themes are compiled into the binary.
 
-- **GPU terminal** — a WebGPU-rendered terminal with a full VT/xterm engine,
-  OSC 133 shell integration, block mode, and a searchable scrollback.
-- **Workspaces** — group tabs into isolated workspaces, each with its own
-  working directory and environment.
-- **Tabs & tiling** — stack tabs or tile them into niri-style scrolling columns.
-- **Editor** — CodeMirror-based editor with LSP diagnostics, autocomplete,
-  Git diffs, and a file explorer.
-- **AI** — bring your own model/endpoint, chat, inline edits, and agent
-  sessions.
-- **Command palette** — every action is one keystroke away.
-- **Themes** — built-in themes plus importable custom themes; customize the
-  terminal font, colors, and CSS.
-- **Cross-platform** — Windows, macOS, and Linux.
+`just` and Bun are optional for `cargo build`; `just test` also runs Bun
+tests. `just install` adds the built app to your desktop.
 
----
+### Core
 
-## Quick start
-Download the setup file for your system in the latest release.
+Bubble Core is the background terminal core. This fork keeps the upstream
+binary names (`herdr-core` / `hc`) so the core's own installer and updates
+continue to work. The setup window can install it, or run the core installer
+yourself:
 
-## Using Bubble
+```sh
+curl -fsSL https://releases.herdr.dev/core/install.sh | sh
+```
 
-### Workspaces
+The core is the one deliberate upstream dependency left in Bubble.
 
-A **workspace** is a named group of tabs with its own directory and shell
-environment. Create one from the workspace switcher, then open terminals and
-files inside it. Switching workspaces keeps every session alive in the
-background.
+## Find your work
 
-### Tabs and tiling
+A **space** holds work on one machine, usually in one repo. Each space has **tabs**. Split a tab into **panes** to put terminals or mod panels beside each other.
 
-- Open a terminal with the **+** button or the command palette.
-- Drag a tab onto another to split/tiling, or use the tiling toggle to lay tabs
-  out as equal columns.
-- Tiled tabs are a horizontally scrollable row: the active column is scrolled
-  to the center, and each column keeps a fixed width so it never stretches with
-  the window. Use `Shift+mouse wheel` (or the trackpad) to scroll the row.
+An unnamed space follows its first terminal's folder. Name a space or tab when you want a label that stays.
+New tabs start in the focused terminal's folder.
 
-### Terminal
+The agents sidebar brings agents from your spaces into one list, including workers started by another agent.
+Agents that report status show as:
 
-- Type commands as usual; the shell prompt is redrawn on resize.
-- **Block mode** turns command output into collapsible blocks.
-- Search the scrollback from the terminal toolbar.
-- The terminal font, size, weight, cursor, and scrollback are in
-  **Settings → General → Terminal**.
+- **Working:** still busy.
+- **Blocked:** waiting for you.
+- **Done:** finished while you were looking elsewhere.
+- **Idle:** not working, or a finished agent you have looked at.
 
-### Editor
+Click an agent to see it. A worker without a pane opens in **peek**, over your tab. Keep it as a tab if you want it beside your other work.
+Ctrl-click a live terminal address in terminal text to peek at it; use Cmd-click on macOS.
+An address such as `t7` means a terminal on the same machine as the terminal showing it. `vps/t7` names one on another machine.
 
-- Open files from the explorer or with the command palette.
-- LSP diagnostics, autocomplete, and formatting are configurable in
-  **Settings → Editor**.
+The window arranges terminals. The core runs them.
+Closing the window leaves them running; closing a pane or tab ends its terminals.
+After a reboot or core crash, kept panes get fresh shells in their last folders, not their old programs.
 
-### AI
+## Work on another machine
 
-- Add a provider/endpoint and model in **Settings → Models**.
-- Open the AI panel to chat, run inline edits, or start an agent session.
+Add an SSH machine from Settings → Machines or the sidebar's Add machine action.
+Pick a host from your SSH config or type how SSH reaches it.
+Spaces on that machine run their terminals there, not on your computer.
 
-### Command palette
+Each machine keeps its spaces, tabs and splits in its core. Connected screens share that structure and the live terminals, but keep their own focus and zoom.
+Remote work keeps running when your local window closes or your laptop sleeps, as long as the remote machine and core stay up.
 
-Press **Ctrl+Space** anywhere to open the command palette. Type to filter
-commands, files, and content actions.
+## Make it yours
 
-### Leader shortcuts
+Open the command palette to find an action by name, or open Settings to change fonts, colors, sounds and other preferences.
+Settings > Look also adjusts terminal line height, cell width and scroll speed. All default to 100%; layouts can override them with `terminal_line_height` (0.8–2), `terminal_cell_width` (0.8–2) and `terminal_scroll_speed` (0.1–5).
+The built-in layouts include Bubble, Terminals and Bubble 98.
+A **layout** arranges the window. **Mods** are small JavaScript programs that draw its panels, menus and dialogs.
 
-Most actions are leader chords: press the **leader** (default **Ctrl+B**),
-release, then press the chord key. Change the leader key in
-**Settings → Shortcuts**. Every binding is rebindable there too.
+Duplicate a shipped layout or mod before changing its structure or code. Your copies stay yours; Bubble updates the shipped ones on start.
+Save a personal layout, mod or key file and the window reloads it.
+A broken edit keeps the last good version and reports the error.
 
-### Themes and CSS
+Ctrl+Shift+P shows every command and its key (Cmd+Shift+P on macOS). Change any key in `keys.json`; see [the keys section](defaults/AGENTS.md#keys-keysjson) of the mod guide for the format, including JSON objects for named, typed command arguments.
 
-- **Settings → Themes** — pick a built-in theme, import a custom theme, or edit
-  theme colors and the terminal font.
-- **Settings → CSS** — inject your own CSS, and toggle **Terminal CSS** for
-  sharp, square corners. Theme colors are preserved; a custom `font-family`
-  never repaints the palette.
+On macOS, Cmd+A selects the terminal's whole screen and scrollback, ready for Cmd+C.
+In vim and other alternate-screen apps, it selects only that screen.
+Linux and Windows keep Ctrl+A for the shell; bind `terminal.select_all` in `keys.json` if desired.
 
----
+[Layouts and mods](docs/mods.md) · [Commands](docs/commands.md)
 
-## Keyboard shortcuts
+## Updates and privacy
 
-| Action | Default |
-| --- | --- |
-| Command palette | `Ctrl+Space` |
-| Leader | `Ctrl+B` |
-| New terminal | `Ctrl+B` then `N` |
-| New window/tab | `Ctrl+B` then `O` |
-| Next / previous window | `Ctrl+B` then `→` / `←` |
-| Next / previous workspace | `Ctrl+B` then `Space` |
-| Open settings | `Ctrl+B` then `,` |
-| Clear terminal | `Ctrl+B` then `Shift+K` |
-| Toggle sidebar | `Ctrl+B` then `Shift+B` |
-| Editor undo / redo / save | `Ctrl+Z` / `Ctrl+Y` (or `Ctrl+Shift+Z`) / `Ctrl+S` |
+This fork has no app update channel: rebuild from source to update Bubble.
+Settings → Updates still shows the installed versions, and can update Bubble
+Core when you ask it to. Your terminals keep running in the core.
+What's New is available from the command palette.
 
-On macOS the editor chords use `Cmd` instead of `Ctrl`. Leader chords never use
-Alt or Super, so they never collide with terminal control bytes.
+Telemetry is local-only: nothing is sent unless you set
+`BUBBLE_TELEMETRY_URL`. Feedback is unavailable unless you set
+`BUBBLE_FEEDBACK_URL`. `DO_NOT_TRACK=1` and `BUBBLE_TELEMETRY=0` turn
+telemetry off entirely, and Settings → Privacy has the same switch.
+Mods are trusted code, not sandboxed extensions. Read
+[security and privacy](docs/security.md) before installing someone else's mod.
 
----
+## For agents
 
-## Contributing
+```sh
+bubble --skill
+```
 
-Thanks for your interest in Bubble! Bug reports, feature requests, and pull
-requests are welcome.
+This prints the agent guide for driving the window. The Bubble Core skill
+points agents here. Use Bubble Core for running and coordinating programs;
+use the app to change what you see.
 
-1. Fork the repo and create a branch.
-2. `pnpm install`
-3. Make your change; add or update tests where it makes sense.
-4. Run `pnpm check-types`, `pnpm lint`, and `pnpm test`.
-5. Open a pull request against `main` describing the change.
+```sh
+bubble ls
+bubble status
+bubble commands
+```
 
-Please keep commits focused and follow the existing code style (Biome handles
-formatting). By contributing you agree to license your work under the project's
-[Apache-2.0](LICENSE) license.
+The first two inspect the open window. The command list also works without one.
+See the [command reference](docs/commands.md) for arguments.
 
-### Sponsors & advertising
+## Build from source
 
-Bubble is free and open source. Sponsorship and advertising keep development
-going. If you'd like to sponsor the project or place an ad in the README, open
-an issue titled **Sponsor** or **Advertise** and we'll follow up.
+For bugs, mod API requests and code contributions, see [Contributing](CONTRIBUTING.md).
 
-<!-- Advertisement slots (replace with real sponsor links/creatives):
-- [ Your logo here ] — 970×90 leaderboard
-- [ Your logo here ] — 300×250 sidebar
--->
+Clone this repo with its submodules. Use Rust 1.95.0 or newer and Zig 0.16.0, the versions used in [CI](.github/workflows/ci.yml).
+Linux needs the development packages listed in that workflow.
 
-| Sponsor slot | Size |
-| --- | --- |
-| _Your logo here_ | 970×90 leaderboard |
-| _Your logo here_ | 300×250 sidebar |
+```sh
+git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
+cd herdr-app
+just build
+just test
+just install
+```
 
----
+Install [just](https://github.com/casey/just) to use these recipes.
+The platform installer builds a release and adds the app to your desktop.
+On Linux it links to this checkout, so keep the checkout in place.
+Quit and reopen Bubble to use the new build.
 
-## License
+Documentation checks also need [Bun](https://bun.sh): `just docs-check` checks generated pages and CLI examples; `just docs-generate` refreshes the reference pages.
 
-Apache-2.0. See [LICENSE](LICENSE).
+To compare drawing changes on Windows, Linux or macOS, run the same fixed workloads against each build:
+
+```sh
+python scripts/bench.py --bin <app executable> --set spinners --seconds 20
+```
+
+The runner requires `hc` on PATH and uses the Python executable running the script. It prints a unique artifact folder with the run settings, counters and results, then stops its private app, terminals and core. Every set uses Python fixture programs; the default set’s TUI workload replaces historical `btop` measurements. `--only spinners` measures just the quiet native spinner scenario. `--set titles` runs eight agents whose titles spin after a prefix (`π ⠹ task`) on the main layout. Keep the window visible and the display awake, and compare the same window activity and display settings; inactive windows may draw at a lower rate. Windows records visibility, foreground activity and display Hz at each measurement boundary; other platforms mark these observations unavailable. Visibility does not establish occlusion. Draws are window render calls. Render-to-paint elapsed time stops before scene finalization, backend drawing, uploads and presentation; it is separate from OS process CPU time. Neither measures physical presentation or the FPS HUD’s derived MAX FPS.
+
+`python scripts/bench_compare.py ghostty --root <artifact folder>` reuses a run’s fake agent for the macOS comparison. Benchmark checks: `python -m unittest discover -s scripts -p test_bench.py`.

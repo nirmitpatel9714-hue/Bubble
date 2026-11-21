@@ -1,46 +1,9 @@
 # Security
 
-Bubble runs shells, reads/writes files, and talks to AI providers, so security bugs matter. If you find one, please tell us before posting it publicly.
+Report vulnerabilities privately through [GitHub's Report a vulnerability](https://github.com/nirmitpatel9714-hue/herdr-app/security/advisories/new). Don't post exploit details in a public issue.
 
-## Reporting
+Include the Bubble version, OS, what you found, steps to reproduce it, and the impact. A small proof of concept helps. Remove secrets and personal data from logs.
 
-Open a private security advisory at [github.com/nirmitpatel9714-hue/Bubble/security/advisories/new](https://github.com/nirmitpatel9714-hue/Bubble/security/advisories/new). Include:
+Only the latest build from this fork is supported.
 
-- What the issue is and what it lets an attacker do
-- Steps to reproduce (a small PoC is great)
-- Version, OS, arch
-
-We'll get back to you within a few days. Once it's fixed, we'll credit you in the release notes - unless you'd rather stay anonymous.
-
-Please **don't** open a public GitHub issue for security reports.
-
-## Supported versions
-
-Until `1.0.0`, only the latest minor gets security fixes. See the current version in `package.json` or on the [Releases page](https://github.com/nirmitpatel9714-hue/Bubble/releases). 
-
-## What's in scope
-
-- The Rust backend in `src-tauri/` (PTY, FS, IPC, plugins)
-- The frontend in `src/` - anywhere untrusted input lands (terminal output, file content, AI tool results, credentials)
-- Release artifacts on GitHub
-- The auto-updater
-
-## What's not
-
-- Bugs in upstream deps (Tauri, xterm.js, CodeMirror, AI SDKs…) - report those upstream. We'll ship the fix once it's released.
-- Anything that needs an already-compromised machine or a local attacker with shell access
-- Older versions (`< 0.5`)
-
-## What we do to keep things safe
-
-- **API keys** live in the OS keychain via `keyring` - not on disk, not in `localStorage`, not in logs.
-- **No telemetry.** Bubble only talks to the network when you ask it to (AI requests, update checks, web preview).
-- **AI tool approval.** File writes and shell commands from the agent need your OK before they run.
-- **No Node in the renderer.** The frontend only reaches the host through the allow-listed Tauri commands.
-- **Installer integrity.** Release builds are downloaded from GitHub Releases; update checks never install silently.
-
-## What we can't promise
-
-- Bubble runs whatever you (or the agent) tell it to run, with your permissions. That's kind of the point of a terminal.
-- AI providers see whatever you send them. Read their retention policies.
-- Local LLM endpoints (LM Studio, OpenAI-compatible) are trusted at the network level - only point Bubble at servers you control.
+For how Bubble handles trusted mods, updates and telemetry, see [security and privacy](docs/security.md).
