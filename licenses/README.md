@@ -6,7 +6,7 @@ Install [cargo-about](https://github.com/EmbarkStudios/cargo-about) 0.9.3 and [B
 
 ```sh
 cargo install --locked cargo-about --version 0.9.3
-just notices
+bun scripts/notices.ts
 ```
 
 `CARGO_ABOUT` can point to a separately installed cargo-about binary. Generation uses the locked graph and full upstream license texts. Review warnings and the diff, especially copyright notices. Don't add blanket license overrides to get a dependency through.

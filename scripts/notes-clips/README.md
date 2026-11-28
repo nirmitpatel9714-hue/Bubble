@@ -1,6 +1,6 @@
 # Release-note clips
 
-On Linux, run `just notes-clip pane-drag` or `just notes-clip peek`.
+On Linux, run `bun scripts/notes-media.ts clip pane-drag` or `bun scripts/notes-media.ts clip peek`.
 An optional second argument selects the version (otherwise Cargo.toml).
 Requires Bun, ffmpeg, ImageMagick, Weston/Xwayland and the sandbox's uv/python-xlib input.
 Each run builds the app, creates its own sandbox, records app-rendered PNGs
@@ -26,7 +26,7 @@ Override the base with `BUBBLE_NOTES_MEDIA_DIR`. Launch the app with that
 same variable to preview CHANGELOG images pointing at the final URLs:
 `https://media.herdr.dev/<version>/<scene>.webp`. No CHANGELOG rewrite needed.
 
-`just notes-upload <version>` uploads the version's WebP files to
+`bun scripts/notes-media.ts upload <version>` uploads the version's WebP files to
 `bubble-media`, using Bun's S3Client and credentials in
 `~/.config/bubble-media/env`:
 `R2_MEDIA_ACCESS_KEY_ID=...` and `R2_MEDIA_SECRET_ACCESS_KEY=...`.
@@ -34,7 +34,7 @@ Never commit that file. Uploads set image/webp and immutable one-year caching.
 Existing keys are refused, including concurrent writes. Upload only final
 clips: immutable URLs must never be reused for changed content.
 
-`just notes-check <version>` checks every image in that CHANGELOG entry
+`bun scripts/notes-media.ts check <version>` checks every image in that CHANGELOG entry
 for HTTP 200 and an image content type. The release publish job runs it
 before any release files or manifest are uploaded. An entry without media
 is valid; a missing entry isn't.

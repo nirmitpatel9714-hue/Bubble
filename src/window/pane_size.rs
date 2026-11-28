@@ -12,6 +12,14 @@ pub(super) fn padding(n: &Node) -> (f32, f32) {
     n.padding.map_or((0.0, 0.0), |p| p.axes())
 }
 
+/// A tiled row's column width and the gap after it, in logical px. Two or
+/// more columns share the width, each at least 320 px; the row scrolls.
+pub(super) fn tiled_widths(available: f32, zoom: f32, columns: usize) -> (f32, f32) {
+    let gap = 6.0 * zoom;
+    let width = if columns > 1 { ((available - gap) * 0.5).max(320.0 * zoom) } else { available };
+    (width, gap)
+}
+
 pub(super) fn frame_border(frame: &PaneFrame, focused: bool) -> Option<&Line> {
     if focused { frame.focus.as_ref().or(frame.border.as_ref()) } else { frame.border.as_ref() }
 }
@@ -146,17 +154,17 @@ pub(super) enum HiddenFit {
 impl AppWindow {
     pub(super) fn initial_size(&self, root: &Node, pane: &str, window: &Window) -> Option<(u16, u16)> {
         let focused = root.path_to(pane)?.into_iter().collect();
-        self.displayed_size(root, root.panes().len(), pane, &focused, window)
+        self.displayed_size(root, root.panes().len(), pane, &focused, self.model.tab(&root.id), window)
     }
 
     /// The grid `pane` gets when `tab` is the one shown.
     pub(super) fn shown_size(&self, tab: &Tab, pane: &str, window: &Window) -> Option<(u16, u16)> {
         let focused = tab.focused_pane().and_then(|f| tab.root.path_to(&f)).unwrap_or_default().into_iter().collect();
-        self.displayed_size(tab.shown(), tab.root.panes().len(), pane, &focused, window)
+        self.displayed_size(tab.shown(), tab.root.panes().len(), pane, &focused, Some(tab), window)
     }
 
     /// `shown`: the tree on screen; `panes`: how many the tab has (its frame needs more than one, or `lone`).
-    fn displayed_size(&self, shown: &Node, panes: usize, pane: &str, focused: &HashSet<String>, window: &Window) -> Option<(u16, u16)> {
+    fn displayed_size(&self, shown: &Node, panes: usize, pane: &str, focused: &HashSet<String>, tab: Option<&Tab>, window: &Window) -> Option<(u16, u16)> {
         let (context, area) = self.context_area()?;
         let frame = match context.content() {
             Some(Content::Context { pane: Some(frame), .. }) if frame.lone || panes > 1 => Some(frame),
@@ -166,8 +174,28 @@ impl AppWindow {
         // The absolute bounds canvas already excludes the context border (padding box).
         let (y, x) = padding(context);
         let size = inset(area, 2.0 * x * zoom, 2.0 * y * zoom);
+        // In a tiled row each tab is a column with its own header and border.
+        let size = tab.and_then(|tab| self.tiled_column_size(size, tab)).unwrap_or(size);
         let size = pane_size(shown, size, pane, frame, focused, zoom)?;
         Some(crate::terminal::grid_size(size, crate::terminal::cell_size(window)))
+    }
+
+    /// The inside of one tiled column, when `tab` is shown as a column.
+    fn tiled_column_size(&self, size: Size<Pixels>, tab: &Tab) -> Option<Size<Pixels>> {
+        if !settings::get().tiled_tabs {
+            return None;
+        }
+        let space = self.model.active_space()?;
+        let tabs: Vec<&Tab> = space.tabs.iter().filter(|t| t.settled.is_none()).collect();
+        if tabs.len() < 2 || !tabs.iter().any(|t| t.id == tab.id) {
+            return None;
+        }
+        let zoom = settings::zoom();
+        let (width, _) = tiled_widths(size.width.as_f32(), zoom, tabs.len());
+        let width = width - 2.0 * zoom;
+        // The column's name bar and its border.
+        let height = (size.height.as_f32() - (24.0 + 2.0) * zoom).max(1.0);
+        Some(Size { width: px(width.max(1.0)), height: px(height) })
     }
 
     /// Use the full split layout even if it has never been drawn unzoomed.
@@ -212,8 +240,9 @@ impl AppWindow {
             }
         }
         let scale = window.scale_factor();
-        let active = self.model.active_tab().map(|t| t.id.clone());
-        for tab in self.model.tabs().filter(|t| Some(&t.id) != active.as_ref()) {
+        // Tiled tabs are on screen, so they are not fitted out of sight.
+        let drawn: HashSet<String> = self.rendered_tabs().into_iter().map(|t| t.id.clone()).collect();
+        for tab in self.model.tabs().filter(|t| !drawn.contains(&t.id)) {
             for pane in tab.shown().panes() {
                 if let Some(t) = self.terms.get(&pane.id)
                     && let Some((cols, rows)) = self.shown_size(tab, &pane.id, window)

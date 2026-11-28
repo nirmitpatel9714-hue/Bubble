@@ -17,9 +17,16 @@
 //! applies).
 
 use gpui::{App, KeyBinding, KeyBindingContextPredicate, NoAction};
+use std::cell::RefCell;
 use std::rc::Rc;
 use gpui_shell::action::ShellAction;
 use std::collections::BTreeMap;
+
+/// The command waiting for a key press from `app.bind_key`, if any:
+/// (command, args, section).
+thread_local! {
+    static RECORDING: RefCell<Option<(String, serde_json::Value, String)>> = const { RefCell::new(None) };
+}
 
 /// The reserved shortcut that restores the default layout and keys.
 pub const ESCAPE_HATCH: &str = "ctrl-alt-shift-escape";
@@ -110,6 +117,108 @@ pub fn listing() -> Vec<(String, String, String)> {
 
 pub fn path() -> std::path::PathBuf {
     crate::mods::app_dir().join("keys.json")
+}
+
+/// The command `app.bind_key` is waiting for a key press for.
+pub fn recording() -> Option<(String, serde_json::Value, String)> {
+    RECORDING.with(|r| r.borrow().clone())
+}
+
+pub fn set_recording(value: Option<(String, serde_json::Value, String)>) {
+    RECORDING.with(|r| *r.borrow_mut() = value);
+}
+
+/// A keys.json section: `global`, `terminal`, `layout:<name>` or `mod:<name>`.
+pub fn check_section(section: &str) -> Result<(), String> {
+    tab(section).map(|_| ())
+}
+
+fn empty_args(args: &serde_json::Value) -> bool {
+    args.is_null() || args.as_object().is_some_and(serde_json::Map::is_empty)
+}
+
+/// Whether a binding value is `command` with exactly `args`.
+fn same_action(value: &serde_json::Value, command: &str, args: &serde_json::Value) -> bool {
+    match value {
+        serde_json::Value::String(action) => empty_args(args) && action == command,
+        serde_json::Value::Object(binding) => {
+            binding.get("command").and_then(serde_json::Value::as_str) == Some(command)
+                && if empty_args(args) {
+                    binding.get("args").is_none_or(empty_args)
+                } else {
+                    binding.get("args") == Some(args)
+                }
+        }
+        _ => false,
+    }
+}
+
+fn read_for_write(path: &std::path::Path) -> Result<serde_json::Value, String> {
+    let text = match std::fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => DEFAULTS.to_owned(),
+        Err(e) => return Err(format!("cannot read keys.json: {e}")),
+    };
+    let value: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|e| format!("keys.json: {e}"))?;
+    if !value.is_object() {
+        return Err("keys.json must be an object of sections".into());
+    }
+    Ok(value)
+}
+
+fn write(path: &std::path::Path, value: &serde_json::Value) -> Result<(), String> {
+    let text = format!("{}\n", serde_json::to_string_pretty(value).map_err(|e| e.to_string())?);
+    crate::persist::write_atomic(path, text.as_bytes()).map_err(|e| format!("cannot write keys.json: {e}"))
+}
+
+/// Binds `command` (with `args`) to `keystroke` in `section`, replacing the
+/// key everywhere and the command's old binding in that section.
+pub fn bind(command: &str, args: &serde_json::Value, section: &str, keystroke: &str) -> Result<(), String> {
+    bind_at(&path(), command, args, section, keystroke)
+}
+
+fn bind_at(path: &std::path::Path, command: &str, args: &serde_json::Value, section: &str, keystroke: &str) -> Result<(), String> {
+    check_section(section)?;
+    gpui::Keystroke::parse(keystroke).map_err(|e| format!("{keystroke:?} is not a key: {e}"))?;
+    let mut root = read_for_write(path)?;
+    let sections = root.as_object_mut().expect("checked object");
+    // A key does one thing: the newest binding wins in every section.
+    for (_, keys) in sections.iter_mut() {
+        if let Some(keys) = keys.as_object_mut() {
+            keys.remove(keystroke);
+        }
+    }
+    let keys = sections.entry(section.to_owned()).or_insert_with(|| serde_json::json!({}));
+    let keys = keys.as_object_mut().ok_or_else(|| format!("keys.json: section {section:?} must be an object"))?;
+    keys.retain(|_, value| !same_action(value, command, args));
+    keys.insert(keystroke.to_owned(), if empty_args(args) {
+        serde_json::Value::String(command.to_owned())
+    } else {
+        serde_json::json!({ "command": command, "args": args })
+    });
+    write(path, &root)
+}
+
+/// Removes `command`'s binding from `section` (with `args`, when given).
+pub fn unbind(command: &str, args: &serde_json::Value, section: &str) -> Result<(), String> {
+    unbind_at(&path(), command, args, section)
+}
+
+fn unbind_at(path: &std::path::Path, command: &str, args: &serde_json::Value, section: &str) -> Result<(), String> {
+    check_section(section)?;
+    let mut root = read_for_write(path)?;
+    let sections = root.as_object_mut().expect("checked object");
+    let mut changed = false;
+    if let Some(keys) = sections.get_mut(section).and_then(serde_json::Value::as_object_mut) {
+        let before = keys.len();
+        keys.retain(|_, value| !same_action(value, command, args));
+        changed = keys.len() != before;
+        if keys.is_empty() && changed {
+            sections.remove(section);
+        }
+    }
+    if changed { write(path, &root) } else { Ok(()) }
 }
 
 /// The GPUI key tab a section applies in. `global` is the window itself,
@@ -313,6 +422,47 @@ mod tests {
         assert_eq!(super::current("context.new"), "tab.new");
         assert_eq!(super::current("mod.open:start"), "tab.new");
         assert_eq!(super::current("pane.zoom"), "pane.zoom");
+    }
+
+    #[test]
+    fn binding_a_key_writes_it_once_and_unbinding_removes_it() {
+        let dir = std::env::temp_dir().join(format!("bubble-keys-bind-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("keys.json");
+        std::fs::write(&path, "{\n  \"global\": { \"ctrl-shift-t\": \"tab.new\", \"ctrl-shift-w\": \"tab.close\" },\n  \"terminal\": { \"ctrl-shift-t\": \"terminal\" }\n}\n").unwrap();
+        let read = || -> serde_json::Value {
+            serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap()
+        };
+        // The newest binding wins: ctrl-shift-t leaves tab.new and the terminal.
+        super::bind_at(&path, "tab.next", &serde_json::json!({}), "global", "ctrl-shift-t").unwrap();
+        let v = read();
+        assert_eq!(v["global"]["ctrl-shift-t"], "tab.next");
+        assert!(v["terminal"].get("ctrl-shift-t").is_none());
+        // Binding the same action again replaces its old key in that section.
+        super::bind_at(&path, "tab.next", &serde_json::json!({}), "global", "alt-t").unwrap();
+        let v = read();
+        assert!(v["global"].get("ctrl-shift-t").is_none());
+        assert_eq!(v["global"]["alt-t"], "tab.next");
+        // Arguments are kept with the command.
+        let args = serde_json::json!({ "commands": ["tab.next"] });
+        super::bind_at(&path, "app.sequence", &args, "terminal", "alt-n").unwrap();
+        let v = read();
+        assert_eq!(v["terminal"]["alt-n"]["command"], "app.sequence");
+        assert_eq!(v["terminal"]["alt-n"]["args"], args);
+        // Unbinding removes that exact action; an empty section goes.
+        super::unbind_at(&path, "app.sequence", &args, "terminal").unwrap();
+        let v = read();
+        assert!(v.get("terminal").is_none());
+        super::unbind_at(&path, "tab.next", &serde_json::json!({}), "global").unwrap();
+        let v = read();
+        assert!(v["global"].get("alt-t").is_none());
+        assert_eq!(v["global"]["ctrl-shift-w"], "tab.close");
+        // Bad keys and sections are refused, leaving the file as it was.
+        let before = std::fs::read_to_string(&path).unwrap();
+        assert!(super::bind_at(&path, "tab.next", &serde_json::json!({}), "nope", "alt-x").is_err());
+        assert!(super::bind_at(&path, "tab.next", &serde_json::json!({}), "global", "").is_err());
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), before);
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[cfg(target_os = "macos")]

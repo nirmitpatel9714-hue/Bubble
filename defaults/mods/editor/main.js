@@ -525,6 +525,7 @@ export default class BubbleEditor extends View {
     const entry = this.current();
     const entries = this.entries;
     const dirty = entries.filter((e) => e.dirty).length;
+    const preview = Boolean(entry?.preview) && MARKDOWN.test(entry?.path ?? "");
 
     const icon = (name) => svg(`mods/workspace-chrome/${name}.svg`).size(13).flex_none();
     const button = (id, label, action, tone = "muted") => h_flex().id(id).h(24).px(8).gap(5).flex_none().items_center().rounded(6)
@@ -569,17 +570,7 @@ export default class BubbleEditor extends View {
             .on_click((_e, cx) => this.defer(cx, (cx) => this.open(path, { cwd: this.cwd ?? loc().cwd, on: this.on ?? loc().on }, cx))).child(icon("file-text")).child(div().flex_1().truncate().child(path))))));
     } else {
       const matches = this.findOpen ? this.matches() : [];
-      const preview = entry.preview && MARKDOWN.test(entry.path);
       body = v_flex().flex_1().min_h(0)
-        .child(h_flex().h(30).flex_none().px(10).gap(6).items_center().border_b(1).border_color(t.border)
-          .child(icon("file-text")).child(div().flex_1().min_w(0).truncate().text_size(11.5).text_color(t.dim).child(entry.path))
-          .when(entry.dirty, (el) => el.child(div().text_size(10).text_color(t.accent).child("modified")))
-          .when(entry.conflict, (el) => el.child(button("ed-reload", "Reload", (e, cx) => this.defer(cx, (cx) => this.reload(entry, cx)), "blocked")).child(button("ed-overwrite", "Keep mine", (e, cx) => this.defer(cx, (cx) => this.overwrite(entry, cx)), "blocked")))
-          .when(MARKDOWN.test(entry.path), (el) => el.child(tool("ed-preview", preview ? "file-text" : "monitor", preview ? "Show source" : "Preview Markdown", (_e, cx) => this.togglePreview(cx), preview ? "accent" : "muted")))
-          .child(tool("ed-wrap", "panel-right", style.wordWrap ? "Word wrap on" : "Word wrap off", (_e, cx) => this.toggleWrap(cx), style.wordWrap ? "accent" : "muted"))
-          .child(tool("ed-find", "search", "Find (Ctrl+F)", (_e, cx) => this.showFind(false, cx)))
-          .child(tool("ed-save", "check", entry.saving ? "Saving…" : "Save (Ctrl+S)", (e, cx) => this.defer(cx, (cx) => this.save(entry, cx)), entry.dirty ? "accent" : "muted"))
-          .child(tool("ed-quick", "search", "Quick open (Ctrl+P)", (_e, cx) => this.showQuick(cx))))
 
         .when(this.findOpen, (el) => el.child(v_flex().flex_none().px(10).py(8).gap(6).border_b(1).border_color(t.border).bg(t.surface)
           .child(h_flex().h(30).gap(8).items_center()
@@ -633,17 +624,25 @@ export default class BubbleEditor extends View {
         }
         if (e.key === "enter" && e.modifiers.control && this.newOpen) { this.defer(cx, (cx) => this.createFile(cx)); cx.stop_propagation(); }
       })
-      .child(h_flex().h(38).flex_none().px(10).gap(6).items_center().border_b(1).border_color(t.border)
-        .child(svg("mods/workspace-chrome/square-pen.svg").size(14).text_color(t.accent))
-        .child(div().font_semibold().mr(4).child("Editor"))
-        .when(dirty > 0, (el) => el.child(div().px(5).py(1).rounded(4).border_1().border_color(t.border).text_size(10).text_color(t.muted).child(`${dirty} unsaved`)))
-        .child(div().flex_1())
-        .when(this.entries.length > 0, (el) => el.child(button("ed-save-all", "Save all", (e, cx) => this.defer(cx, (cx) => this.saveAll(cx)), dirty ? "accent" : "muted")))
+      // One bar: the open files, the file in front of them, and what you can do
+      // with it. The full path is here, so each pill only needs its name.
+      .child(h_flex().h(36).flex_none().px(8).gap(6).items_center().border_b(1).border_color(t.border)
+        .child(svg("mods/workspace-chrome/square-pen.svg").size(14).flex_none().text_color(t.accent))
+        .when(entries.length > 0, (el) => el.child(h_flex().flex_1().min_w(0).h_full().gap(4).items_center().overflow_x_scrollbar().children(entries.map(tab))))
+        .when(entries.length === 0, (el) => el.child(h_flex().flex_1().min_w(0).gap(8).items_center().child(div().font_semibold().child("Editor"))))
+        .when(Boolean(entry), (el) => el.child(h_flex().flex_none().max_w(240).min_w(0).gap(5).items_center()
+          .child(icon("file-text"))
+          .child(div().flex_1().min_w(0).truncate().text_size(11).text_color(t.dim).child(entry.path))
+          .when(entry.dirty, (row) => row.child(div().flex_none().text_size(10).text_color(t.accent).child("modified")))))
+        .when(Boolean(entry), (el) => el.child(h_flex().flex_none().gap(2).items_center()
+          .when(MARKDOWN.test(entry.path), (row) => row.child(tool("ed-preview", preview ? "file-text" : "monitor", preview ? "Show source" : "Preview Markdown", (_e, cx) => this.togglePreview(cx), preview ? "accent" : "muted")))
+          .child(tool("ed-wrap", "panel-right", style.wordWrap ? "Word wrap on" : "Word wrap off", (_e, cx) => this.toggleWrap(cx), style.wordWrap ? "accent" : "muted"))
+          .child(tool("ed-find", "search", "Find (Ctrl+F)", (_e, cx) => this.showFind(false, cx)))
+          .child(tool("ed-save", "check", entry.saving ? "Saving…" : "Save (Ctrl+S)", (e, cx) => this.defer(cx, (cx) => this.save(entry, cx)), entry.dirty ? "accent" : "muted"))))
+        .when(entries.length > 0, (el) => el.child(button("ed-save-all", "Save all", (e, cx) => this.defer(cx, (cx) => this.saveAll(cx)), dirty ? "accent" : "muted")))
         .child(tool("ed-new-file", "plus", "New file", (_e, cx) => { this.newOpen = true; this.newInput.focus(); cx.notify(); }))
-        .child(tool("ed-open", "folder", "Quick open", (_e, cx) => this.showQuick(cx))))
-      .when(this.entries.length > 0, (el) => el.child(h_flex().h(34).flex_none().px(8).gap(4).items_center().border_b(1).border_color(t.border).overflow_x_scrollbar().children(entries.map(tab))))
+        .child(tool("ed-open", "folder", "Quick open (Ctrl+P)", (_e, cx) => this.showQuick(cx))))
       .child(body)
-      .when(!entry, (el) => el.child(h_flex().h(24).flex_none().px(10).items_center().text_size(10.5).text_color(t.dim).child("Bubble feature pack · editor")))
       .when(Boolean(this.note), (el) => el.child(div().px(10).py(5).flex_none().text_size(11).text_color(t.muted).child(this.note)));
   }
 }

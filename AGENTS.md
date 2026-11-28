@@ -62,11 +62,11 @@ checked on those systems, not only by cross-compiling.
 
 ## Building and testing
 
-`just build`, `just test` (what CI runs, on Linux), `just check` (the tests).
-`just install` builds and installs the desktop app using the platform installer.
-On Windows it updates `%LOCALAPPDATA%\Programs\bubble` and the Start menu;
-quit and reopen Bubble to use the new build. Windows recipes use PowerShell by default;
-`just --shell pwsh --shell-arg -Command <recipe>` uses pwsh.
+`cargo build` builds the app and `cargo test --locked` runs the tests. There is
+no task runner in this fork: run the scripts under `scripts/` with Bun or bash.
+On Windows, build from a Visual Studio developer environment (see
+`docs/windows-setup.md`); a plain `cargo build` there has no `cl.exe`, `INCLUDE`
+or `LIB`.
 
 Never run a bare `target/*/bubble` (no arguments) on a machine where you
 also use the app without `BUBBLE_APP_HOME` pointing at a scratch home: it

@@ -1201,6 +1201,17 @@ fn module(inst: Instance, copy: u64) -> HostModule {
             let list: Vec<Value> = crate::keys::listing().into_iter().map(|(s, k, a)| json!({ "section": s, "keys": k, "action": a })).collect();
             Ok(to_host(&Value::Array(list)))
         })
+        .function("recordingKey", |_| {
+            let value = match crate::keys::recording() {
+                Some((command, args, section)) => json!({ "command": command, "args": args, "section": section }),
+                None => Value::Null,
+            };
+            Ok(to_host(&value))
+        })
+        .function("cancelRecordingKey", |_| {
+            crate::keys::set_recording(None);
+            Ok(HostValue::Null)
+        })
         .function("openOverlay", |a| {
             let mut spec = from_host(a.value(0)?);
             if spec.get("mod").is_none()

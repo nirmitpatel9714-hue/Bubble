@@ -133,7 +133,7 @@ fn third_party_notices_are_current_and_complete() {
             inputs.insert(path);
             assert!(
                 notices.contains(read(path).trim()),
-                "{path} missing from THIRD-PARTY-NOTICES; run just notices"
+                "{path} missing from THIRD-PARTY-NOTICES; run bun scripts/notices.ts"
             );
         }
     }
@@ -151,7 +151,7 @@ fn third_party_notices_are_current_and_complete() {
             notices
                 .lines()
                 .any(|line| line == format!("Input-SHA256: {hash} {path}")),
-            "{path} changed; review licenses and run just notices"
+            "{path} changed; review licenses and run bun scripts/notices.ts"
         );
     }
     assert!(notices.contains("Cargo dependencies"));

@@ -141,6 +141,15 @@ those files or the generated guide. The app rewrites them on start.
   branches become dashes). Use an absolute path or `~` / `~/...`, resolved on the
   space's machine. Read on dialog open; existing checkouts stay put. No clones
   needed, and the app does not read the TUI's config.toml.
+- Keys: Settings → Keys records a key for an action (Escape cancels) and
+  writes keys.json. From a shell or mod, `app.bind_key {command, args?, section?}`
+  and `app.unbind_key {command, args?, section?}` do the same; `app.sequence
+  {commands}` makes one key run several commands. Sections are `global`,
+  `terminal`, `layout:<name>` and `mod:<name>`; a key does one thing, so binding
+  it takes it from other actions.
+- `tiled_tabs: true` in settings.json (Settings → Tabs) shows every open tab of
+  the space side by side as scrolling columns, like niri; click one to show it.
+  It is a person setting, not a layout field.
 - Mods live in `mods/<name>/` with `main.js` for a view or `link.js` for
   Ctrl/Cmd-clicked terminal links. They are trusted JavaScript with command
   and network access. `mod.json` declares link rules. A personal layout's

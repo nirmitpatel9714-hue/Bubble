@@ -391,6 +391,13 @@ export function settings(): Record<string, unknown>;
 /** Every key binding: { section, keys, action }. */
 export function keys(): { section: string; keys: string; action: string }[];
 
+/** The command waiting for a key press from `app.bind_key` (the next key becomes
+ *  its binding), or null. `section` is where it will be written. */
+export function recordingKey(): { command: string; args: Record<string, unknown>; section: string } | null;
+
+/** Stops waiting for a key from `app.bind_key`; nothing is bound. */
+export function cancelRecordingKey(): null;
+
 export interface OverlaySpec {
   /** One mod, or `layout`. */
   mod?: string;

@@ -2,12 +2,14 @@
 
 import { View, div, svg, image } from "gpui-kit";
 import { v_flex, h_flex, Scrollbar, InputState, Input, Popup } from "gpui-base";
-import { hc, run, theme, themes, fonts, updates, telemetry, settings, layouts, shared, appHome, readTextFile, writeTextFile, playSound, props, closeOverlay, notify, window } from "bubble";
+import { hc, run, theme, themes, fonts, updates, telemetry, settings, layouts, layout, commands, keys, recordingKey, cancelRecordingKey, shared, setShared, appHome, readTextFile, writeTextFile, playSound, props, closeOverlay, notify, window } from "bubble";
 
 const I = (name) => `frame/settings/${name}.svg`;
 
 const SECTIONS = [
   { id: "look", title: "Look", icon: "palette" },
+  { id: "keys", title: "Keys", icon: "keyboard" },
+  { id: "tabs", title: "Tabs", icon: "tabs" },
   ...(window()?.platform === "macos" ? [{ id: "keyboard", title: "Keyboard", icon: "keyboard" }] : []),
   { id: "machines", title: "Machines", icon: "server" },
   { id: "alerts", title: "Alerts", icon: "bell" },
@@ -34,6 +36,10 @@ export default class Settings extends View {
     this.filter = "";
     this.fontInput = InputState.new({ placeholder: "Type to search fonts" });
     this.fontInput.on("change", (_e, cx) => { this.filter = this.fontInput.value(); cx.notify(); });
+    this.keyInput = InputState.new({ placeholder: "Filter commands" });
+    this.keyInput.on("change", (_e, cx) => { this.keyFilter = this.keyInput.value(); cx.notify(); });
+    this.keyFilter = "";
+    this.keyScope = "global"; // where a recorded key is written
     this.renameInput = InputState.new();
     this.renameInput.on("focus", (_e, cx) => { this.renameFocused = true; cx.notify(); });
     this.renameInput.on("blur", (_e, cx) => { this.renameFocused = false; cx.notify(); });
@@ -565,6 +571,257 @@ export default class Settings extends View {
       .child(fontRow("ui_font", null, "Interface font", s.ui_font_family, DEFAULT_UI_FONT));
   }
 
+  // Keys -----------------------------------------------------------------
+
+  // A stored action: a command name, or a {command, args} object.
+  actionOf(action) {
+    if (typeof action !== "string" || !action.startsWith("{")) return action;
+    try {
+      return JSON.parse(action);
+    } catch {
+      return action;
+    }
+  }
+
+  // Arguments compare by content: JSON key order differs between the app and here.
+  sameArgs(a, b) {
+    const canon = (v) =>
+      Array.isArray(v)
+        ? v.map(canon)
+        : v && typeof v === "object"
+          ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canon(v[k])]))
+          : v;
+    return JSON.stringify(canon(a ?? {})) === JSON.stringify(canon(b ?? {}));
+  }
+
+  bindingMatches(binding, command, args) {
+    const a = this.actionOf(binding.action);
+    return typeof a === "string"
+      ? a === command && !args
+      : Boolean(a) && a.command === command && this.sameArgs(a.args, args);
+  }
+
+  sectionLabel(section) {
+    if (section === "global") return "everywhere";
+    if (section === "terminal") return "terminal";
+    if (section.startsWith("layout:")) return section.slice(7);
+    if (section.startsWith("mod:")) return section.slice(4);
+    return section;
+  }
+
+  keyChip(t, binding) {
+    return h_flex()
+      .gap(6)
+      .items_center()
+      .px(8)
+      .py(4)
+      .rounded(6)
+      .border_1()
+      .border_color(t.border)
+      .bg(t.raised)
+      .child(div().font_family(DEFAULT_FONT).text_size(12).text_color(t.foreground).child(binding.keys))
+      .child(div().text_size(11).text_color(t.dim).child(this.sectionLabel(binding.section)));
+  }
+
+  keys(t, cx) {
+    const rec = recordingKey();
+    const all = keys();
+    const scopes = [
+      ["global", "Everywhere"],
+      ["terminal", "In terminals"],
+    ];
+    const shownLayout = shared("layout");
+    if (shownLayout) scopes.push([`layout:${shownLayout}`, `In ${shownLayout}`]);
+    const scope = scopes.some(([id]) => id === this.keyScope) ? this.keyScope : "global";
+    const id = (command, args) => `st-k-${command}-${JSON.stringify(args ?? null)}`.replace(/[^a-z0-9-]/gi, "-");
+
+    const record = (command, args) => {
+      const on = rec && rec.command === command && rec.section === scope && this.sameArgs(rec.args, args);
+      if (on)
+        return h_flex()
+          .gap(6)
+          .items_center()
+          .child(div().px(10).py(5).rounded(7).border_1().border_color(t.accent).bg(t.raised).text_size(12.5).text_color(t.foreground).child("Press a key\u2026"))
+          .child(
+            this.button(t, `st-k-cancel-${id(command, args)}`, "Cancel", (_e, cx) => {
+              cancelRecordingKey();
+              this.handle.focus();
+              cx.notify();
+            }),
+          );
+      const bound = all.filter((b) => this.bindingMatches(b, command, args));
+      return h_flex()
+        .gap(6)
+        .items_center()
+        .children(bound.map((b) => this.keyChip(t, b)))
+        .child(
+          this.button(t, `st-k-record-${id(command, args)}`, bound.length ? "Change" : "Record", (_e, cx) => {
+            run("app.bind_key", { command, args, section: scope });
+            this.handle.focus();
+            cx.notify();
+          }),
+        )
+        .when(bound.some((b) => b.section === scope), (el) =>
+          el.child(
+            this.button(t, `st-k-clear-${id(command, args)}`, "Clear", (_e, cx) => {
+              run("app.unbind_key", { command, args, section: scope });
+              cx.notify();
+            }),
+          ),
+        );
+    };
+
+    // Commands that need a name or value can't run from a bare key; the panel
+    // actions below carry their arguments, and keys.json can hold any others.
+    const bare = commands().filter(
+      (c) => c.args.every((a) => !a.required) && !["app.bind_key", "app.unbind_key", "app.sequence", "app.reset"].includes(c.name),
+    );
+    const q = (this.keyFilter ?? "").trim().toLowerCase();
+    const listed = q ? bare.filter((c) => `${c.name} ${c.about}`.toLowerCase().includes(q)) : bare;
+
+    const hasBlock = (wanted) => {
+      const walk = (n) => Boolean(n) && (n.id === wanted || (n.children ?? []).some(walk));
+      return walk(layout());
+    };
+    const hasPanel = hasBlock("panel") && hasBlock("panel-body");
+    const actions = [
+      { title: "Toggle the sidebar", command: "layout.toggle", args: { id: "sidebar" }, when: hasBlock("sidebar") },
+      {
+        title: "Open the Files panel",
+        about: "Shows the Files panel in the sidebar.",
+        command: "app.sequence",
+        args: {
+          commands: [
+            { command: "layout.select", args: { stack: "panel-body", child: "files" } },
+            { command: "layout.show", args: { id: "panel" } },
+          ],
+        },
+        when: hasPanel,
+      },
+      {
+        title: "Open the Changes panel",
+        about: "Shows the Changes panel in the sidebar.",
+        command: "app.sequence",
+        args: {
+          commands: [
+            { command: "layout.select", args: { stack: "panel-body", child: "changes" } },
+            { command: "layout.show", args: { id: "panel" } },
+          ],
+        },
+        when: hasPanel,
+      },
+      { title: "Split right", command: "pane.split", args: { direction: "right" } },
+      { title: "Split down", command: "pane.split", args: { direction: "down" } },
+    ].filter((a) => a.when !== false);
+
+    const scopeButton = ([value, label]) =>
+      div()
+        .id(`st-k-scope-${value}`)
+        .px(10)
+        .py(5)
+        .rounded(7)
+        .cursor_pointer()
+        .text_size(12.5)
+        .border_1()
+        .border_color(value === scope ? t.accent : t.border)
+        .bg(value === scope ? t.raised : t.chrome)
+        .text_color(value === scope ? t.foreground : t.muted)
+        .hover((s) => s.bg(t.hover))
+        .on_click((_e, cx) => {
+          this.keyScope = value;
+          cx.notify();
+        })
+        .child(label);
+
+    return v_flex()
+      .w_full()
+      .child(this.heading(t, "Actions"))
+      .child(
+        div()
+          .pb(10)
+          .text_size(12.5)
+          .line_height("18px")
+          .text_color(t.dim)
+          .child("Click Record, then press the key. It is written to keys.json, where your agent can bind any command with its arguments. Escape cancels. A key does one thing: binding it here takes it from every other action."),
+      )
+      .when(Boolean(rec), (el) =>
+        el.child(
+          h_flex()
+            .gap(8)
+            .items_center()
+            .pb(10)
+            .child(div().text_size(12.5).text_color(t.foreground).child(`Press a key for ${rec.command}\u2026 Escape cancels.`))
+            .child(
+              this.button(t, "st-k-cancel-banner", "Cancel", (_e, cx) => {
+                cancelRecordingKey();
+                this.handle.focus();
+                cx.notify();
+              }),
+            ),
+        ),
+      )
+      .child(
+        h_flex()
+          .gap(6)
+          .pb(12)
+          .items_center()
+          .child(div().text_size(12.5).text_color(t.dim).child("Bind in"))
+          .children(scopes.map(scopeButton)),
+      )
+      .children(actions.map((a) => this.row(t, a.title, a.about ?? a.command, record(a.command, a.args))))
+      .child(div().h(18))
+      .child(this.heading(t, "Commands"))
+      .child(div().pb(10).child(Input.new(this.keyInput).h(28).w(300).text_color(t.foreground)))
+      .when(listed.length === 0, (el) => el.child(div().py(10).text_size(12.5).text_color(t.dim).child("No commands match.")))
+      .children(listed.map((c) => this.row(t, c.name, c.about, record(c.name, undefined))))
+      .child(
+        div()
+          .pt(12)
+          .text_size(12.5)
+          .line_height("18px")
+          .text_color(t.dim)
+          .child("Commands that need a name or value (closing a space, selecting a tab by number) aren't listed here; ask your agent to add them to keys.json."),
+      );
+  }
+
+  // Tabs -----------------------------------------------------------------
+
+  tabs(t, cx) {
+    const s = settings();
+    const on = (this.person.tiled_tabs ?? s.tiled_tabs) === true;
+    const bar = shared("workspace.top_bar") === true;
+    return v_flex()
+      .w_full()
+      .child(this.heading(t, "Tabs"))
+      .child(
+        this.row(
+          t,
+          "Top bar",
+          "Show the space's tabs in a bar across the top of the window, with the window buttons in it, instead of a list in the sidebar.",
+          this.toggle(t, "st-top-bar", bar, (_e, cx) => {
+            setShared("workspace.top_bar", !bar);
+            cx.notify();
+          }),
+        ),
+      )
+      .child(
+        this.row(
+          t,
+          "Tiled tabs",
+          "Show every open tab of the space side by side as columns you scroll, like niri. Click a column to show it; the shown one has an accent border. Off: one tab at a time.",
+          this.toggle(t, "st-tiled-tabs", on, (_e, cx) => this.change((p) => (p.tiled_tabs = !on), cx)),
+        ),
+      )
+      .child(
+        div()
+          .pt(12)
+          .text_size(12.5)
+          .line_height("18px")
+          .text_color(t.dim)
+          .child("Settled tabs stay put away; tiling shows the tabs that are open in the space. Two or more share the width evenly, each at least 320 px, so a wide row scrolls sideways."),
+      );
+  }
+
   keyboard(t) {
     const choices = [
       ["auto", "Automatic (Alt on US keyboards)"],
@@ -977,6 +1234,10 @@ export default class Settings extends View {
                   .child(
                     this.section === "look"
                       ? this.look(t, cx)
+                      : this.section === "keys"
+                        ? this.keys(t, cx)
+                      : this.section === "tabs"
+                        ? this.tabs(t, cx)
                       : this.section === "keyboard"
                         ? this.keyboard(t)
                       : this.section === "machines"

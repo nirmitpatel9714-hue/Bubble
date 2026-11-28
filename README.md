@@ -119,17 +119,15 @@ Linux needs the development packages listed in that workflow.
 ```sh
 git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
 cd herdr-app
-just build
-just test
-just install
+cargo build --release --locked
+cargo test --locked
 ```
 
-Install [just](https://github.com/casey/just) to use these recipes.
-The platform installer builds a release and adds the app to your desktop.
-On Linux it links to this checkout, so keep the checkout in place.
-Quit and reopen Bubble to use the new build.
+Run the build with `./target/release/bubble` (`.exe` on Windows). This fork
+publishes no releases, so there is no install step; `distribution/install.ps1`
+and `install.sh` install one when `BUBBLE_RELEASES_URL` points at your own server.
 
-Documentation checks also need [Bun](https://bun.sh): `just docs-check` checks generated pages and CLI examples; `just docs-generate` refreshes the reference pages.
+Documentation checks also need [Bun](https://bun.sh): `bun scripts/docs.ts check` checks generated pages and CLI examples; `bun scripts/docs.ts generate` refreshes the reference pages. Both read `target/debug/bubble` unless you pass another path.
 
 To compare drawing changes on Windows, Linux or macOS, run the same fixed workloads against each build:
 

@@ -52,24 +52,17 @@ the build script below, but it is cleaner to remove it:
 `CC=cl.exe` on its own is **not** enough. `cl.exe` must be on `PATH`, and
 `INCLUDE`, `LIB`, `WindowsSdkDir` and `VCINSTALLDIR` must be set too. Those
 come from the Visual Studio developer environment, which a normal terminal
-does not have. Use `scripts/build.ps1` (or `just build`) so this is handled
-for you; it finds Visual Studio with `vswhere`, loads `Launch-VsDevShell.ps1`
-into the current process, then runs cargo.
+does not have. Load it into the shell before cargo (below) so this is handled
+for you.
 
 Open a new terminal after changing user environment variables.
 
 ## Optional tools
 
-These are not needed for `cargo build`, but the `just` recipes and docs checks
-use them.
+These are not needed for `cargo build`, but the docs checks and the JavaScript
+tests use them.
 
-- **just**:
-
-  ```powershell
-  cargo install just --locked
-  ```
-
-- **Bun** (for `just docs-check` and JavaScript tests):
+- **Bun** (for `bun scripts/docs.ts check` and the `scripts/*.test.ts` tests):
 
   ```powershell
   irm bun.sh/install.ps1 | iex
@@ -77,34 +70,22 @@ use them.
 
 ## Build and run
 
+Load the MSVC developer environment into the shell, then build:
+
 ```powershell
 git clone --recurse-submodules https://github.com/nirmitpatel9714-hue/herdr-app.git
 cd herdr-app
-.\scripts\build.ps1 --release
-.\target\release\bubble.exe
-```
-
-Or with `just`, which calls the same script on Windows:
-
-```powershell
-just build
-```
-
-Debug builds work the same way without `--release` (`.\scripts\build.ps1`).
-
-The script loads the MSVC developer environment first. Running `cargo build`
-directly in an ordinary terminal fails with `ToolNotFound: failed to find tool
-"cl.exe"` even when `CC=cl.exe` is set, because the compiler and the Windows
-SDK paths are not on `PATH`.
-
-If you would rather do it by hand, load the environment in the same shell
-before cargo:
-
-```powershell
 & "$env:ProgramFiles(x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -HostArch amd64
 $env:CC = "cl.exe"
 cargo build --release --locked
+.\target\release\bubble.exe
 ```
+
+Debug builds work the same way without `--release` (`cargo build --locked`).
+
+Running `cargo build` directly in an ordinary terminal fails with
+`ToolNotFound: failed to find tool "cl.exe"` even when `CC=cl.exe` is set,
+because the compiler and the Windows SDK paths are not on `PATH`.
 
 The `defaults/` folder and the themes are compiled into the binary, so rebuild
 after changing them.
