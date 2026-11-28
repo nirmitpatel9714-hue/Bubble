@@ -38,6 +38,7 @@ mod terminal;
 mod update;
 mod update_notes;
 mod vt;
+mod webhooks;
 mod win32_keys;
 mod window;
 
@@ -55,6 +56,7 @@ Usage:
   bubble status                 what the window shows, and any errors
   bubble shot [file.png]        save the current window frame (default: bubble-shot.png)
   bubble check <mod folder>     load a mod once and report what's wrong
+  bubble webhook <event> [json] send a signed webhook through Svix (SVIX_API_KEY)
   bubble --skill                Agent Skill: driving the window, and where hc fits
   bubble --version
 
@@ -120,6 +122,9 @@ fn main() {
     }
     if matches!(args.get(1).map(String::as_str), Some("do" | "status" | "ls" | "commands" | "feedback" | "shot")) {
         std::process::exit(control::client(&args[1..]));
+    }
+    if args.get(1).map(String::as_str) == Some("webhook") {
+        std::process::exit(webhooks::cli(&args[2..]));
     }
     // Anything else from a shell answers in the shell; only a bare launch opens the window.
     match args.get(1).map(String::as_str) {

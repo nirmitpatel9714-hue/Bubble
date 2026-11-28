@@ -23,7 +23,7 @@
       "id": "sidebar",
       "type": "column",
       "size": {
-        "px": 268
+        "px": 300
       },
       "min": 44,
       "max": 480,
@@ -44,6 +44,10 @@
         {
           "id": "sidebar-lists",
           "type": "column",
+          "size": {
+            "weight": 1
+          },
+          "min": 90,
           "children": [
             {
               "id": "spaces",
@@ -57,15 +61,85 @@
               }
             },
             {
-              "id": "agents",
+              "id": "tab-list",
               "type": "block",
               "size": {
                 "weight": 1
               },
               "min": 90,
               "content": {
-                "mod": "agents"
+                "mod": "tabs",
+                "props": {
+                  "list": true
+                }
               }
+            }
+          ]
+        },
+        {
+          "id": "panel",
+          "type": "column",
+          "hidden": true,
+          "size": {
+            "weight": 1
+          },
+          "min": 120,
+          "children": [
+            {
+              "id": "panel-body",
+              "type": "stack",
+              "active": "files",
+              "children": [
+                {
+                  "id": "files",
+                  "type": "block",
+                  "content": {
+                    "mod": "files"
+                  }
+                },
+                {
+                  "id": "changes",
+                  "type": "block",
+                  "content": {
+                    "mod": "changes"
+                  }
+                },
+                {
+                  "id": "agents",
+                  "type": "block",
+                  "content": {
+                    "mod": "agents"
+                  }
+                },
+                {
+                  "id": "git",
+                  "type": "block",
+                  "content": {
+                    "mod": "git"
+                  }
+                },
+                {
+                  "id": "diagnostics",
+                  "type": "block",
+                  "content": {
+                    "mod": "diagnostics"
+                  }
+                },
+                {
+                  "id": "preview",
+                  "type": "block",
+                  "content": {
+                    "mod": "preview"
+                  }
+                },
+                {
+                  "id": "ai",
+                  "type": "block",
+                  "content": {
+                    "mod": "ai"
+                  }
+                }
+              ]
             }
           ]
         },
@@ -73,7 +147,7 @@
           "id": "sidebar-footer",
           "type": "block",
           "size": {
-            "px": 69
+            "px": 96
           },
           "content": {
             "mod": "workspace-chrome",
@@ -90,11 +164,12 @@
       "resizable": false,
       "children": [
         {
-          "id": "tabs",
+          "id": "top-bar",
           "type": "block",
           "size": {
-            "px": 42
+            "px": 46
           },
+          "hidden": true,
           "window_drag": true,
           "content": {
             "mod": "tabs"
@@ -134,67 +209,6 @@
                   }
                 }
               }
-            },
-            {
-              "id": "panel",
-              "type": "column",
-              "hidden": true,
-              "size": {
-                "px": 368
-              },
-              "min": 280,
-              "max": 900,
-              "children": [
-                {
-                  "id": "panel-body",
-                  "type": "stack",
-                  "active": "files",
-                  "children": [
-                    {
-                      "id": "files",
-                      "type": "block",
-                      "content": {
-                        "mod": "files"
-                      }
-                    },
-                    {
-                      "id": "changes",
-                      "type": "block",
-                      "content": {
-                        "mod": "changes"
-                      }
-                    },
-                    {
-                      "id": "git",
-                      "type": "block",
-                      "content": {
-                        "mod": "git"
-                      }
-                    },
-                    {
-                      "id": "diagnostics",
-                      "type": "block",
-                      "content": {
-                        "mod": "diagnostics"
-                      }
-                    },
-                    {
-                      "id": "preview",
-                      "type": "block",
-                      "content": {
-                        "mod": "preview"
-                      }
-                    },
-                    {
-                      "id": "ai",
-                      "type": "block",
-                      "content": {
-                        "mod": "ai"
-                      }
-                    }
-                  ]
-                }
-              ]
             }
           ]
         },

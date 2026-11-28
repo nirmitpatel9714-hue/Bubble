@@ -36,7 +36,7 @@ fn main() {
         .current_dir(&src)
         // Only the static library is linked. Ghostty builds the xcframework whenever it finds
         // xcodebuild, and with only the Command Line Tools /usr/bin/xcodebuild exists but fails.
-        .args(["build", "-Demit-lib-vt", "-Demit-xcframework=false", "-Doptimize=ReleaseFast"])
+        .args(["build", "-Demit-lib-vt", "-Demit-xcframework=false", "-Doptimize=ReleaseFast", "-Dversion-string=1.3.2-dev"])
         .arg(format!("-Dtarget={}", zig_target(&std::env::var("TARGET").unwrap())))
         .arg("--prefix")
         .arg(out.join("zig-out"))

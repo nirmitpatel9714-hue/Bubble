@@ -13,10 +13,11 @@ const APPEARANCES = [
   ["light", "Light"],
   ["dark", "Dark"],
 ];
-// The panels the layout offers (its "panel-body" stack), as the tab bar's buttons.
+// The panels the layout offers (its "panel-body" stack), as the panel menu's items.
 const PANELS = [
   { id: "files", icon: "files", title: "Files", about: "The folder you're in as a tree. Open a file to read it, highlighted." },
   { id: "changes", icon: "git-compare", title: "Changes", about: "What your agents changed: every file with its diff, and a commit box." },
+  { id: "agents", icon: "agents", title: "Agents", about: "Your agents and their status: who is working, who needs you, and what each one is doing." },
   { id: "git", icon: "git-branch", title: "Git", about: "Stage, commit, switch branches, read history and push or pull." },
   { id: "diagnostics", icon: "circle-check", title: "Problems", about: "Run the project checker and list every error and warning, ready to open." },
   { id: "preview", icon: "monitor", title: "Preview", about: "Markdown, images, source files and local dev-server URLs beside your code." },
@@ -110,7 +111,7 @@ export default class Welcome extends View {
     cx.notify();
   }
 
-  // The panels picked: the tab bar shows a button for each.
+  // The panels picked: the panel menu lists each of them.
   panels() {
     return shared("workspace.panels") ?? PANELS.map((p) => p.id);
   }
@@ -380,7 +381,7 @@ export default class Welcome extends View {
     if (shared("workspace.panels") === undefined || shared("workspace.panels") === null) setShared("workspace.panels", []);
     return v_flex()
       .gap(14)
-      .child(this.title(t, "Choose your panels", "Bubble comes with a couple of panels. Turn one on and it appears beside your terminals. Drag this window aside to see it. Later, the buttons in the tab bar open and close them."))
+      .child(this.title(t, "Choose your panels", "Bubble comes with a couple of panels. Turn one on and it takes over the sidebar, tabs and all. Drag this window aside to see it. Later, Panels at the bottom of the sidebar opens and closes them."))
       .children(PANELS.map((p) => this.panelCard(t, p)))
       .child(
         h_flex()

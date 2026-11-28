@@ -37,6 +37,12 @@ fancy-regex = "0.19"
 regex = "1"
 notify = "7"
 sha2 = "0.10"
+# Outbound webhooks (`bubble webhook`): Svix signs them (Standard Webhooks),
+# retries them and keeps the delivery log. native-tls keeps the OS's own TLS
+# (SChannel, Security, OpenSSL) and leaves the rustls + ring the window already
+# has alone: svix's rustls default would add aws-lc's C build.
+svix = { version = "2.11", default-features = false, features = ["http1", "native-tls"] }
+tokio = { version = "1", features = ["rt", "net", "time"] }
 
 [[test]]
 name = "shot_pixels"

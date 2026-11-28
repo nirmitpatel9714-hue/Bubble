@@ -39,7 +39,7 @@ The pack is installed by the shipped defaults in this repository:
 | Bubble settings | `defaults/mods/bubble-settings` |
 | Terminal link routing | `defaults/mods/open-link` |
 | Explorer additions | `defaults/mods/files` |
-| Panel buttons | `defaults/mods/tabs` |
+| Panel menu | `defaults/mods/panel-menu`, opened from `defaults/mods/workspace-chrome` (sidebar footer) and `defaults/mods/tabs` (bar layouts) |
 | Launcher rows | `defaults/mods/new-menu` |
 | Welcome panel picker | `defaults/frame/welcome` |
 | Layout blocks and link order | `defaults/layouts/main.json` |
@@ -71,7 +71,7 @@ Status words:
 | Block mode (command output as collapsible blocks) | Gap | OSC 133 blocks need renderer support; Herdr draws its own scrollback. |
 | Scrollback search UI | Ported by Herdr | `terminal.search`. |
 | Terminal font, size, weight, cursor, scrollback settings | Ported by Herdr | `app.settings` and `settings.json`. |
-| Leader-key chords | Adapted | Herdr's `keys.json` sections and global bindings; no prefix/leader state machine. |
+| Leader-key chords | Adapted | Herdr's `keys.json` sections and global bindings; no prefix/leader state machine. Settings → Keys records a key per action, including `app.sequence` combos. |
 
 ## Workspaces, tabs and layout
 
@@ -80,11 +80,11 @@ Status words:
 | Named workspaces | Ported by Herdr | Spaces; `space.new`, `space.rename`. |
 | Workspace-scoped cwd and environment | Adapted | Each space has a folder and machine; per-space env vars are not a Herdr feature. |
 | Workspace switching keeps sessions alive | Ported by Herdr | Terminals live in herdr-core. |
-| Stacked tabs | Ported by Herdr | The tab bar. |
-| Tiled/scrolling columns (niri style) | Gap | Herdr splits panes inside a tab; it has no horizontally scrolling tiled-tab layout. |
+| Stacked tabs | Ported | The space's tabs as a list in the sidebar (`tabs` with `props().list`); Settings → Tabs → Top bar moves them to a bar across the top instead, with the window buttons in it. |
+| Tiled/scrolling columns (niri style) | Ported | `tiled_tabs: true` (Settings → Tabs) draws every open tab of the space as a scrolling column; click one to show it. |
 | Drag a tab onto another to split | Gap | Herdr supports pane splits but not tab-to-split drag. |
 | Tab drag to reorder | Ported by Herdr | Drag in the tab bar. |
-| Per-space side-panel memory | Ported | `defaults/mods/tabs` stores the open panel per space. |
+| Per-space side-panel memory | Ported | `defaults/mods/tabs` stores the open panel per space; an open panel covers the sidebar, and Home in the panel menu brings the tabs back. |
 | Restored window and tab state | Ported by Herdr | herdr-core restores spaces/tabs where possible. |
 | Sidebar toggle | Ported by Herdr | `layout.toggle:sidebar`, `ctrl-shift-b`. |
 | Status bar | Ported by Herdr | `workspace-status`. |

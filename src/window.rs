@@ -35,6 +35,28 @@ const HANDLE: f32 = 6.0;
 // The three native buttons plus their trailing breathing room (also used by the tabs mod).
 const TRAFFIC_LIGHT_WIDTH: f32 = 64.0;
 
+/// A keystroke in keys.json's spelling (`ctrl-shift-t`), in GPUI's modifier order.
+fn binding_keystroke(k: &Keystroke) -> String {
+    let mut out = String::new();
+    if k.modifiers.function {
+        out.push_str("fn-");
+    }
+    if k.modifiers.control {
+        out.push_str("ctrl-");
+    }
+    if k.modifiers.alt {
+        out.push_str("alt-");
+    }
+    if k.modifiers.platform {
+        out.push_str("cmd-");
+    }
+    if k.modifiers.shift {
+        out.push_str("shift-");
+    }
+    out.push_str(&k.key);
+    out
+}
+
 fn traffic_light_divider_inset(n: &Node, axis: Axis, index: usize, macos: bool, zoom: f32) -> f32 {
     if !macos || axis != Axis::Row || n.titlebar != Some(crate::layout::Titlebar::Layout) {
         return 0.0;
@@ -427,6 +449,11 @@ pub struct AppWindow {
     copies: HashMap<String, Copy>,
     overlays: Vec<Overlay>,
     toast_scroll: ScrollHandle,
+    /// The tiled tabs row: scrolls the active column into view when it changes.
+    tiled_scroll: ScrollHandle,
+    tiled_active: Option<String>,
+    /// The command waiting for a key press (`app.bind_key`), while it waits.
+    _key_capture: Option<Subscription>,
     folders: BTreeMap<String, Found>,
     link_handlers: Rc<RefCell<crate::links::Handlers>>,
     failed_link_enrollments: HashSet<String>,
@@ -555,6 +582,9 @@ impl AppWindow {
             copies: HashMap::new(),
             overlays: Vec::new(),
             toast_scroll: ScrollHandle::new(),
+            tiled_scroll: ScrollHandle::new(),
+            tiled_active: None,
+            _key_capture: None,
             folders: mods::scan(&BTreeMap::new()),
             link_handlers: Rc::default(),
             failed_link_enrollments: HashSet::new(),
@@ -621,6 +651,16 @@ impl AppWindow {
             place_write: None,
         };
         w._focus_lost = Some(cx.on_focus_lost(window, |this, window, cx| this.restore_focus(window, cx)));
+        // app.bind_key: the next key press is the binding, before any key binding
+        // or terminal sees it. Escape cancels.
+        let recording = cx.weak_entity();
+        w._key_capture = Some(cx.intercept_keystrokes(move |event, window, cx| {
+            if crate::keys::recording().is_none() {
+                return;
+            }
+            cx.stop_propagation();
+            let _ = recording.update(cx, |this, cx| this.capture_key(&event.keystroke, window, cx));
+        }));
         w._place = Some(cx.observe_window_bounds(window, |this, window, cx| {
             if let Some(t) = crate::place::changed(window, cx) {
                 this.place_write = Some(t);
@@ -936,6 +976,7 @@ impl AppWindow {
     /// is broken mid-edit, the change applies for now without touching it.
     fn write_person(&mut self, change: impl FnOnce(&mut settings::Person), window: &mut Window, cx: &mut Context<Self>) {
         let broken = settings::load_person().is_err();
+        let tiled = settings::get().tiled_tabs;
         change(&mut self.person);
         if !broken {
             if let Err(e) = settings::write_person(&self.person) {
@@ -944,6 +985,17 @@ impl AppWindow {
             self.watched.settings = mtime(&settings::path());
         }
         self.apply_look(window, cx);
+        self.tiled_changed(tiled, window, cx);
+    }
+
+    /// Tiled tabs draw every tab, so the model and the hidden tabs' sizes
+    /// change with the setting.
+    fn tiled_changed(&mut self, was: bool, window: &mut Window, cx: &mut Context<Self>) {
+        if settings::get().tiled_tabs != was {
+            self.tiled_active = None;
+            self.hidden_fit = pane_size::HiddenFit::default();
+            self.sync(window, cx);
+        }
     }
 
     /// Runs with the shown layout's look (its root node) at the person's zoom.
@@ -970,6 +1022,7 @@ impl AppWindow {
     fn reload_config(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let s_time = mtime(&settings::path());
         if s_time.is_none() || s_time != self.watched.settings {
+            let tiled = settings::get().tiled_tabs;
             let loaded = settings::load_person();
             crate::telemetry::set_setting(settings::telemetry_setting(&loaded));
             match loaded {
@@ -981,6 +1034,7 @@ impl AppWindow {
             }
             self.watched.settings = mtime(&settings::path());
             self.apply_look(window, cx);
+            self.tiled_changed(tiled, window, cx);
         }
         let k_time = mtime(&crate::keys::path());
         if k_time.is_none() || k_time != self.watched.keys {
@@ -1304,22 +1358,22 @@ impl AppWindow {
                 }
             }
         }
-        if self.shows_tab()
-            && let Some(c) = self.model.active_tab()
-        {
-            let header = self.pane_frame().and_then(|f| f.header.as_ref()).and_then(|h| match &h.content {
-                HeaderContent::Mod { name, props } => Some((name.clone(), props.clone())),
-                HeaderContent::Builtin(_) => None,
-            });
-            for n in c.shown().visible_blocks() {
-                if let Some((name, props)) = &header
-                    && n.is_pane()
-                {
-                    mods.push(pane_header_mod(n, name, props));
-                }
-                visit(n, &mut terms, &mut mods);
-                if let Some(a) = self.swapped.get(&n.id) {
-                    terms.push((format!("{}{SWAP}", n.id), a.clone()));
+        if self.shows_tab() {
+            for c in self.rendered_tabs() {
+                let header = self.pane_frame_for(c).and_then(|f| f.header.as_ref()).and_then(|h| match &h.content {
+                    HeaderContent::Mod { name, props } => Some((name.clone(), props.clone())),
+                    HeaderContent::Builtin(_) => None,
+                });
+                for n in c.shown().visible_blocks() {
+                    if let Some((name, props)) = &header
+                        && n.is_pane()
+                    {
+                        mods.push(pane_header_mod(n, name, props));
+                    }
+                    visit(n, &mut terms, &mut mods);
+                    if let Some(a) = self.swapped.get(&n.id) {
+                        terms.push((format!("{}{SWAP}", n.id), a.clone()));
+                    }
                 }
             }
         }
@@ -1547,6 +1601,18 @@ impl AppWindow {
         self.enroll_link_handlers();
         self.refresh_link_handlers();
         self.model.order_spaces();
+        // Tiled tabs: follow the shown tab with the row's scroll position.
+        if settings::get().tiled_tabs {
+            let active = self.model.active_tab().map(|t| t.id.clone());
+            if active != self.tiled_active {
+                self.tiled_active = active;
+                if let Some(p) = self.model.active_space()
+                    && let Some(i) = p.tabs.iter().filter(|t| t.settled.is_none()).position(|t| Some(&t.id) == self.tiled_active.as_ref())
+                {
+                    self.tiled_scroll.scroll_to_item(i);
+                }
+            }
+        }
         let (model, live) = (&self.model, &self.live);
         self.swapped.retain(|p, a| model.address_of(p).is_some() && live.contains_key(a));
         let (mut terms, mods_visible) = self.visible();
@@ -3078,6 +3144,38 @@ impl AppWindow {
         self.open_overlay(mods::new_overlay_id(), spec, window, cx);
     }
 
+    /// The key `app.bind_key` waited for: write it to keys.json and apply it.
+    fn capture_key(&mut self, keystroke: &Keystroke, window: &mut Window, cx: &mut Context<Self>) {
+        let Some((command, args, section)) = crate::keys::recording() else { return };
+        if keystroke.key == "escape" {
+            crate::keys::set_recording(None);
+            self.refresh_mods(cx);
+            self.layout_notice("Key binding cancelled", "Nothing changed.", window, cx);
+            return;
+        }
+        // Pressing a modifier alone is not a binding: wait for the key it modifies.
+        if matches!(keystroke.key.as_str(), "shift" | "control" | "alt" | "platform" | "function" | "capslock" | "fn") {
+            return;
+        }
+        let key = binding_keystroke(keystroke);
+        crate::keys::set_recording(None);
+        match crate::keys::bind(&command, &args, &section, &key) {
+            Ok(()) => {
+                match crate::keys::load() {
+                    Ok(bindings) => crate::keys::install(bindings, cx),
+                    Err(e) => self.report("keys", &e),
+                }
+                self.watched.keys = mtime(&crate::keys::path());
+                self.refresh_mods(cx);
+                self.layout_notice("Key bound", &format!("{key} runs {command}."), window, cx);
+            }
+            Err(e) => {
+                self.refresh_mods(cx);
+                self.command_error("app.bind_key", &e, window, cx);
+            }
+        }
+    }
+
     /// Runs a command and says what it made or why not. Scripts and agents
     /// (`person: false`) never get a dialog: a missing argument is an error.
     fn run_as(&mut self, name: &str, mut args: Value, person: bool, window: &mut Window, cx: &mut Context<Self>) -> Value {
@@ -3739,6 +3837,58 @@ impl AppWindow {
                 }
                 return;
             }
+            "app.sequence" => {
+                let steps = a.get("commands").and_then(Value::as_array).cloned().unwrap_or_default();
+                let mut error = None;
+                for step in steps {
+                    let (name, args) = match step {
+                        Value::String(action) => (action, json!({})),
+                        Value::Object(mut fields) => {
+                            let name = fields.remove("command").and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default();
+                            let args = fields.remove("args").unwrap_or_else(|| json!({}));
+                            (name, args)
+                        }
+                        _ => {
+                            error = Some("app.sequence: each step must be a command name or {command, args}".to_owned());
+                            break;
+                        }
+                    };
+                    let result = self.run_as(&name, args, person, window, cx);
+                    if let Some(e) = result.get("error").and_then(Value::as_str) {
+                        error = Some(e.to_owned());
+                        break;
+                    }
+                }
+                if let Some(e) = error {
+                    self.fail(e);
+                }
+                return;
+            }
+            "app.bind_key" => {
+                let Some(command) = Self::owned(a, "command") else { return self.fail("app.bind_key needs command") };
+                let args = a.get("args").cloned().unwrap_or_else(|| json!({}));
+                let section = Self::owned(a, "section").unwrap_or_else(|| "global".into());
+                crate::keys::set_recording(Some((command.clone(), args, section)));
+                self.refresh_mods(cx);
+                self.layout_notice("Press a key", &format!("For {command}. Escape cancels."), window, cx);
+                return;
+            }
+            "app.unbind_key" => {
+                let Some(command) = Self::owned(a, "command") else { return self.fail("app.unbind_key needs command") };
+                let args = a.get("args").cloned().unwrap_or_else(|| json!({}));
+                let section = Self::owned(a, "section").unwrap_or_else(|| "global".into());
+                if let Err(e) = crate::keys::unbind(&command, &args, &section) {
+                    return self.fail(e);
+                }
+                match crate::keys::load() {
+                    Ok(bindings) => crate::keys::install(bindings, cx),
+                    Err(e) => self.report("keys", &e),
+                }
+                self.watched.keys = mtime(&crate::keys::path());
+                self.refresh_mods(cx);
+                self.layout_notice("Key removed", &format!("{command} has no key now."), window, cx);
+                return;
+            }
             "app.check_updates" => crate::update::check_now(),
             "app.update_core" => {
                 if crate::update::core().ready.is_none() && crate::update::core().error.is_none() {
@@ -3867,7 +4017,7 @@ impl AppWindow {
     fn mod_block_shown(&self, id: &str) -> bool {
         self.copies.contains_key(id)
             && (self.chrome.visible_blocks().iter().any(|n| n.id == id && matches!(n.content(), Some(Content::Mod { .. })))
-                || self.model.active_tab().is_some_and(|t| t.shown().visible_blocks().iter().any(|n| n.id == id)))
+                || self.rendered_tabs().iter().any(|t| t.shown().visible_blocks().iter().any(|n| n.id == id)))
     }
 
     /// Its mod.json says `"focusable": true` (`go` asks only of visible blocks).
@@ -4565,12 +4715,34 @@ impl AppWindow {
     /// The shown tab block's pane frame, if its panes are framed now: when
     /// the tab is split, or always with `lone`.
     fn pane_frame(&self) -> Option<&PaneFrame> {
+        self.pane_frame_for(self.model.active_tab()?)
+    }
+
+    /// The same, for a tab shown in a tiled column.
+    fn pane_frame_for(&self, tab: &Tab) -> Option<&PaneFrame> {
         let frame = self.chrome.visible_blocks().into_iter().find_map(|n| match n.content() {
             Some(Content::Context { pane, .. }) => pane.as_ref(),
             _ => None,
         })?;
-        let ctx = self.model.active_tab()?;
-        (frame.lone || ctx.root.panes().len() > 1).then_some(frame)
+        (frame.lone || tab.root.panes().len() > 1).then_some(frame)
+    }
+
+    /// Tabs the context block draws: all unsettled tabs of the shown space
+    /// when tiled, else just the selected one.
+    fn rendered_tabs(&self) -> Vec<&Tab> {
+        if settings::get().tiled_tabs
+            && let Some(p) = self.model.active_space()
+        {
+            let tabs: Vec<&Tab> = p.tabs.iter().filter(|c| c.settled.is_none()).collect();
+            if !tabs.is_empty() {
+                return tabs;
+            }
+        }
+        self.model.active_tab().into_iter().collect()
+    }
+
+    fn tiled(&self) -> bool {
+        settings::get().tiled_tabs && self.rendered_tabs().len() > 1
     }
 
     /// A pane in its frame: the look, and the header mod above or below it
@@ -4667,6 +4839,73 @@ impl AppWindow {
         el.children(self.render_floats(n, cx)).children(self.pane_grip(&n.id, row, cx)).into_any_element()
     }
 
+    /// All open tabs as scrolling columns (niri style): the active one is
+    /// bordered in the accent color; clicking a column shows it.
+    fn render_tiled(&self, context: &Node, tabs: &[&Tab], focused: &HashSet<String>, cx: &mut Context<Self>) -> AnyElement {
+        let zoom = settings::zoom();
+        let (_, pad_x) = pane_size::padding(context);
+        let available = self.bounds.borrow().get(&context.id)
+            .map(|b| b.size.width.as_f32() - 2.0 * pad_x * zoom)
+            .unwrap_or(0.0);
+        // Two or more tabs: half the area each, with a readable minimum.
+        let (width, gap) = pane_size::tiled_widths(available, zoom, tabs.len());
+        let active = self.model.active_tab().map(|t| t.id.clone());
+        let space = self.model.active_space();
+        let mut row = div()
+            .id("tiled-tabs")
+            .size_full()
+            .flex()
+            .flex_row()
+            .gap(px(gap))
+            .overflow_x_scroll()
+            .track_scroll(&self.tiled_scroll);
+        for tab in tabs {
+            let on = active.as_deref() == Some(tab.id.as_str());
+            let id = tab.id.clone();
+            let mut column = div()
+                .id(SharedString::from(format!("tiled-{id}")))
+                .flex_none()
+                .h_full()
+                .w(px(width))
+                .flex()
+                .flex_col()
+                .overflow_hidden()
+                .rounded(settings::z(6.0))
+                .border_1()
+                .border_color(if on { c("accent") } else { c("border") })
+                .bg(c("background"))
+                .on_any_mouse_down(cx.listener(move |this, _, window, cx| {
+                    if this.model.active_tab().map(|t| t.id.as_str()) != Some(id.as_str()) {
+                        this.model.select_tab(&id);
+                        this.sync(window, cx);
+                    }
+                }));
+            column = column.child(
+                div()
+                    .flex_none()
+                    .h(settings::z(24.0))
+                    .w_full()
+                    .px(settings::z(8.0))
+                    .flex()
+                    .items_center()
+                    .bg(if on { c("raised") } else { c("surface") })
+                    .child(
+                        div()
+                            .min_w_0()
+                            .truncate()
+                            .text_size(settings::z(12.0))
+                            .text_color(if on { c("foreground") } else { c("muted") })
+                            .child(space.map_or_else(|| tab.name.clone(), |p| Model::tab_name(p, tab))),
+                    ),
+            );
+            column = column.child(
+                div().flex_1().min_h_0().flex().child(self.render_node(tab.shown(), focused, self.pane_frame_for(tab), cx)),
+            );
+            row = row.child(column);
+        }
+        row.into_any_element()
+    }
+
     fn render_block(&self, n: &Node, content: &Content, focused: &HashSet<String>, cx: &mut Context<Self>) -> AnyElement {
         match content {
             Content::Terminal { .. } => match self.pane_term(&n.id) {
@@ -4707,21 +4946,28 @@ impl AppWindow {
                     .child("no agents yet. start claude, codex or pi in a terminal")
                     .into_any_element(),
             },
-            Content::Context { .. } => match self.model.active_tab() {
-                Some(c) => self.render_node(c.shown(), focused, self.pane_frame(), cx),
-                None if self.documents.get("").is_some_and(|s| s.layout() == "loading") => div().size_full().into_any_element(),
-                None => {
-                    let key = crate::keys::listing().into_iter().find(|(_, _, a)| a == "space.new").map(|(_, k, _)| format!(" ({k})"));
-                    div()
-                        .size_full()
-                        .flex()
-                        .items_center()
-                        .justify_center()
-                        .text_color(c("dim"))
-                        .child(format!("No space open. Make one{}.", key.unwrap_or_default()))
-                        .into_any_element()
+            Content::Context { .. } => {
+                let tabs = self.rendered_tabs();
+                if tabs.len() > 1 && settings::get().tiled_tabs {
+                    self.render_tiled(n, &tabs, focused, cx)
+                } else {
+                    match tabs.first() {
+                        Some(c) => self.render_node(c.shown(), focused, self.pane_frame_for(c), cx),
+                        None if self.documents.get("").is_some_and(|s| s.layout() == "loading") => div().size_full().into_any_element(),
+                        None => {
+                            let key = crate::keys::listing().into_iter().find(|(_, _, a)| a == "space.new").map(|(_, k, _)| format!(" ({k})"));
+                            div()
+                                .size_full()
+                                .flex()
+                                .items_center()
+                                .justify_center()
+                                .text_color(c("dim"))
+                                .child(format!("No space open. Make one{}.", key.unwrap_or_default()))
+                                .into_any_element()
+                        }
+                    }
                 }
-            },
+            }
         }
     }
 
@@ -6358,13 +6604,15 @@ mod tests {
     fn traffic_light_dividers_start_below_the_toolbar(cx: &mut TestAppContext) {
         use std::{cell::Cell, rc::Rc};
         let mut layout: crate::layout::Node = serde_json::from_str(include_str!("../defaults/layouts/main.json")).unwrap();
+        // The top bar is optional and ships hidden: show it for these toolbar cases.
+        layout.children_mut().unwrap()[1].children_mut().unwrap()[0].hidden = false;
         let context = cx.add_empty_window();
         for (macos, titlebar, width, zoom, expected) in [
-            (true, crate::layout::Titlebar::Layout, 44.0, 1.0, 42.0),
-            (true, crate::layout::Titlebar::Layout, 90.0, 0.75, 42.0),
+            (true, crate::layout::Titlebar::Layout, 44.0, 1.0, 46.0),
+            (true, crate::layout::Titlebar::Layout, 90.0, 0.75, 46.0),
             (true, crate::layout::Titlebar::Layout, 60.0, 1.5, 0.0),
-            (true, crate::layout::Titlebar::Layout, 60.0, 1.0, 42.0),
-            (true, crate::layout::Titlebar::Layout, 76.0, 1.0, 42.0),
+            (true, crate::layout::Titlebar::Layout, 60.0, 1.0, 46.0),
+            (true, crate::layout::Titlebar::Layout, 76.0, 1.0, 46.0),
             (true, crate::layout::Titlebar::Layout, 268.0, 1.0, 0.0),
             (false, crate::layout::Titlebar::Layout, 44.0, 1.0, 0.0),
             (true, crate::layout::Titlebar::System, 44.0, 1.0, 0.0),
@@ -6385,6 +6633,9 @@ mod tests {
             assert_eq!(bounds.get().origin.y, px(expected));
             assert_eq!(bounds.get().size.height, px(100.0 - expected));
         }
+        // Hidden, it leaves no toolbar to keep clear of.
+        layout.children_mut().unwrap()[1].children_mut().unwrap()[0].hidden = true;
+        assert_eq!(super::traffic_light_divider_inset(&layout, crate::layout::Axis::Row, 0, true, 1.0), 0.0);
         layout.traffic_lights = None;
         assert_eq!(super::traffic_light_divider_inset(&layout, crate::layout::Axis::Row, 0, true, 1.0), 0.0);
     }
@@ -8136,6 +8387,11 @@ export default class Probe extends View { render() { return div().child("probe")
     fn shipped_layouts_parse_and_show_what_they_promise() {
         let main = super::default_layout("main");
         assert!(main.find("main").is_some() && main.find("sidebar").is_some());
+        // One sidebar: the panel takes it over from the spaces and tab list.
+        let sidebar = main.find("sidebar").unwrap();
+        assert!(sidebar.find("panel").is_some() && sidebar.find("sidebar-lists").is_some());
+        assert!(main.find("panel").unwrap().hidden, "the panel starts closed");
+        assert!(main.find("top-bar").is_some_and(|n| n.hidden), "the main layout's top bar starts off");
         assert!(main.walk().iter().any(|n| matches!(n.content(), Some(super::Content::Context { .. }))));
         let terminals = super::default_layout("terminals");
         assert!(terminals.find("tabs").is_some());

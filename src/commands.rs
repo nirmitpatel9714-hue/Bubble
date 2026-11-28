@@ -2,7 +2,7 @@
 //! `bubble do` all run these; key checks, `bubble commands` and the docs come
 //! from this list. Mods' own commands are `<mod>.<command>`.
 
-use serde_json::{Value, json};
+use serde_json::{Map, Value, json};
 
 pub struct Arg {
     pub name: &'static str,
@@ -94,7 +94,10 @@ pub const COMMANDS: &[Command] = &[
     cmd("app.whats_new", &[], "Show what this release brought (it opens once by itself after an update)."),
     cmd("app.feedback", &[opt("message"), opt("from")], "Draft feedback for the person to review and send (from: person or agent)."),
     cmd("app.palette", &[], "Toggle the command palette: every command by name, with its key; calling again closes it."),
-    cmd("app.settings", &[opt("section")], "Open the settings (section: look, alerts, updates)."),
+    cmd("app.settings", &[opt("section")], "Open the settings (section: look, keyboard, keys, tabs, machines, alerts, updates, privacy)."),
+    cmd("app.sequence", &[req("commands")], "Run commands in order: each is a command name (or `name:value`), or `{command, args}` for named arguments."),
+    cmd("app.bind_key", &[req("command"), opt("args"), opt("section")], "Record the next key and bind it to a command in keys.json. args are the command's named arguments; section defaults to global. Escape cancels."),
+    cmd("app.unbind_key", &[req("command"), opt("args"), opt("section")], "Remove a command's bindings from keys.json (section defaults to global)."),
     cmd("app.check_updates", &[], "Look for a newer Bubble and Bubble Core now."),
     cmd("app.update_core", &[], "Update Bubble Core to its latest release of this generation; terminals keep running."),
     cmd("app.reset", &[], "The escape hatch: set the shown layout and keys aside, back to the default screen."),
@@ -143,10 +146,102 @@ pub fn validate_args(c: &Command, args: &Value) -> Result<(), String> {
                     return Err(format!("{}: argument {key} must be a string (or null to omit it)", c.name));
                 }
             }
+            match c.name {
+                "app.sequence" => validate_sequence(args.get("commands"))?,
+                "app.bind_key" => validate_bind_key(args)?,
+                "app.unbind_key" => validate_unbind_key(args)?,
+                _ => {}
+            }
             Ok(())
         }
         _ => Err(format!("{}: arguments must be an object; valid arguments: {valid}", c.name)),
     }
+}
+
+/// A sequence step: a command (with optional `name:value` shorthand) or a
+/// `{command, args}` object. The shape is checked here; dispatch runs them.
+fn validate_sequence(commands: Option<&Value>) -> Result<(), String> {
+    let Some(commands) = commands else { return Ok(()) };
+    let Some(steps) = commands.as_array() else {
+        return Err("app.sequence: commands must be an array of command names or {command, args} objects".into());
+    };
+    for (i, step) in steps.iter().enumerate() {
+        match step {
+            Value::String(action) => {
+                let name = action.split_once(':').map_or(action.as_str(), |(n, _)| n);
+                if !known_command(name) {
+                    return Err(format!("app.sequence: commands[{i}]: unknown command {name:?}"));
+                }
+                if name == "app.sequence" {
+                    return Err("app.sequence: commands[{i}]: app.sequence cannot contain another app.sequence".into());
+                }
+            }
+            Value::Object(step) => {
+                if let Some(key) = step.keys().find(|k| !matches!(k.as_str(), "command" | "args")) {
+                    return Err(format!("app.sequence: commands[{i}]: unknown field {key:?}; use command and args"));
+                }
+                let name = step.get("command").and_then(Value::as_str)
+                    .ok_or_else(|| format!("app.sequence: commands[{i}]: command must be a string"))?;
+                if !known_command(name) {
+                    return Err(format!("app.sequence: commands[{i}]: unknown command {name:?}"));
+                }
+                if name == "app.sequence" {
+                    return Err("app.sequence: commands[{i}]: app.sequence cannot contain another app.sequence".into());
+                }
+                let args = step.get("args").cloned().unwrap_or_else(|| json!({}));
+                if !args.is_object() {
+                    return Err(format!("app.sequence: commands[{i}]: args must be an object"));
+                }
+                if let Some(c) = find(name) {
+                    validate_args(c, &args)?;
+                }
+            }
+            _ => return Err(format!("app.sequence: commands[{i}] must be a string or a {{command, args}} object")),
+        }
+    }
+    Ok(())
+}
+
+fn validate_bind_key(args: &Map<String, Value>) -> Result<(), String> {
+    let Some(command) = args.get("command") else { return Ok(()) };
+    let Some(name) = command.as_str() else { return Err("app.bind_key: command must be a string".into()) };
+    if !known_command(name) {
+        return Err(format!("app.bind_key: unknown command {name:?}"));
+    }
+    if let Some(a) = args.get("args")
+        && let Some(c) = find(name)
+    {
+        validate_args(c, a)?;
+    }
+    if let Some(section) = args.get("section") {
+        let section = section.as_str().ok_or("app.bind_key: section must be a string")?;
+        crate::keys::check_section(section)?;
+    }
+    Ok(())
+}
+
+fn validate_unbind_key(args: &Map<String, Value>) -> Result<(), String> {
+    if let Some(command) = args.get("command") {
+        let name = command.as_str().ok_or("app.unbind_key: command must be a string")?;
+        if !known_command(name) {
+            return Err(format!("app.unbind_key: unknown command {name:?}"));
+        }
+        if let Some(a) = args.get("args")
+            && let Some(c) = find(name)
+        {
+            validate_args(c, a)?;
+        }
+    }
+    if let Some(section) = args.get("section") {
+        let section = section.as_str().ok_or("app.unbind_key: section must be a string")?;
+        crate::keys::check_section(section)?;
+    }
+    Ok(())
+}
+
+/// An app command, or a mod's `<mod>.<command>`.
+fn known_command(name: &str) -> bool {
+    find(name).is_some() || name.split_once('.').is_some_and(|(m, c)| !m.is_empty() && !c.is_empty())
 }
 
 /// The first required argument that's missing (an empty string counts as missing).
@@ -193,7 +288,15 @@ mod tests {
             assert!(validate_args(c, &Value::Null).is_ok());
             assert!(validate_args(c, &json!({})).is_ok());
             assert!(validate_args(c, &json!(["target"])).is_err());
-            let args: serde_json::Map<String, Value> = c.args.iter().map(|a| (a.name.into(), json!("target"))).collect();
+            let args: serde_json::Map<String, Value> = c.args.iter().map(|a| {
+                let value = match a.name {
+                    "commands" => json!(["tab.next"]),
+                    "command" => json!("tab.next"),
+                    "args" => json!({}),
+                    _ => json!("target"),
+                };
+                (a.name.into(), value)
+            }).collect();
             assert!(validate_args(c, &Value::Object(args)).is_ok());
         }
         let close = find("space.close").unwrap();
@@ -215,6 +318,27 @@ mod tests {
                 assert!(validate_args(c, &json!({arg: value})).is_ok());
             }
         }
+    }
+
+    #[test]
+    fn sequence_steps_are_commands_or_command_args_objects() {
+        let sequence = find("app.sequence").unwrap();
+        assert!(validate_args(sequence, &json!({ "commands": ["tab.next", "pane.split:right"] })).is_ok());
+        assert!(validate_args(sequence, &json!({ "commands": [{ "command": "tab.select", "args": { "index": 2 } }] })).is_ok());
+        assert!(validate_args(sequence, &json!({ "commands": "tab.next" })).is_err());
+        assert!(validate_args(sequence, &json!({ "commands": ["no.such"] })).is_err());
+        assert!(validate_args(sequence, &json!({ "commands": [{ "command": "tab.select", "args": { "index": 2 }, "x": 1 }] })).is_err());
+        assert!(validate_args(sequence, &json!({ "commands": ["app.sequence"] })).is_err());
+    }
+
+    #[test]
+    fn bind_key_checks_the_command_and_its_arguments() {
+        let bind = find("app.bind_key").unwrap();
+        assert!(validate_args(bind, &json!({ "command": "tab.next" })).is_ok());
+        assert!(validate_args(bind, &json!({ "command": "pane.split", "args": { "direction": "right" } })).is_ok());
+        assert!(validate_args(bind, &json!({ "command": "pane.split", "args": { "typo": "right" } })).is_err());
+        assert!(validate_args(bind, &json!({ "command": "no.such" })).is_err());
+        assert!(validate_args(bind, &json!({ "command": "tab.next", "section": "nope" })).is_err());
     }
 
     #[test]

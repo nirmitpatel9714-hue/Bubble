@@ -1,4 +1,16 @@
 #[test]
+fn tiled_columns_split_the_row_with_a_readable_minimum() {
+    let (width, gap) = super::pane_size::tiled_widths(1000.0, 1.0, 2);
+    assert_eq!((width, gap), (497.0, 6.0));
+    // Narrow: the minimum, so the row scrolls instead of squeezing text.
+    assert_eq!(super::pane_size::tiled_widths(500.0, 1.0, 2).0, 320.0);
+    // Zoom scales the minimum and the gap.
+    assert_eq!(super::pane_size::tiled_widths(500.0, 2.0, 2), (640.0, 12.0));
+    // One column fills what there is.
+    assert_eq!(super::pane_size::tiled_widths(500.0, 1.0, 1).0, 500.0);
+}
+
+#[test]
 fn a_pane_hidden_before_first_paint_still_attaches() {
     in_own_process("unpainted_hidden_pane");
 }

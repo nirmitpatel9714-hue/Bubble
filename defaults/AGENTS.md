@@ -175,13 +175,16 @@ the highlighted line shows where it will land.
 Each file is one whole window. `layout.switch` (`ctrl-shift-l`) cycles
 through them, `layout.switch {name}` picks one; `shared("layout")` is the
 shown one's name. Bubble ships `main` ("Bubble": spaces by machine and the
-agents list on the left, `workspace-chrome`; tabs as pills with a + menu
-that starts a terminal or any installed agent, `new-menu`; panes as cards
-with a header; Files and Changes panels on the right, `files` and
-`changes`, opened from the tab bar and remembered per space (which ones:
-shared `"workspace.panels"`, set by the welcome); a status bar,
-`workspace-status`), and as examples `terminals` ("Terminals": tabs in
-the title bar, panes as cards, a space picker) and `win98`
+shown space's tabs as a list on the left, `workspace-chrome` and `tabs`;
+tabs in a list with a + menu that starts a terminal or any installed agent,
+`new-menu`; panes as cards with a header; a panel covers that same sidebar,
+spaces and tab list included, while it is open: Agents, Files, Changes, Git,
+Problems, Preview and AI, `agents` and `files` and the rest, one at a time,
+opened from Panels at the bottom of the sidebar (Home brings the tabs back) and
+remembered per space (which ones: shared `"workspace.panels"`, set by the welcome);
+a status bar, `workspace-status`; a top bar, `top-bar`, off until Settings →
+Tabs → Top bar shows it), and as examples `terminals`
+("Terminals": tabs in the title bar, panes as cards, a space picker) and `win98`
 ("Bubble 98": a whole desktop in one mod, `win98`). Add a layout by
 writing a new file. The Files panel supports Windows folder paths with spaces,
 parentheses and apostrophes, and preserves Unicode file and folder names
@@ -236,6 +239,9 @@ A layout is a tree of nodes. Four types:
 Properties any node can have:
 - `id` (unique; commands use it), `size`: `{ "px": 240 }` or `{ "weight": 2 }`
   (shares of what fixed siblings leave), `min` / `max` (px), `hidden`.
+  `layout()` leaves `hidden` out of a shown node, so test it truthily
+  (`node.hidden ? ... : ...`, `Boolean(node.hidden)`), never `=== false`:
+  a node that was shown with `layout.show` has no `hidden` key at all.
 - Paint: `background` (a color; `{ "gradient": ["#2a6cbd", "#0b2a57"], "angle": 165 }`;
   or `{ "image": "backgrounds/sky.jpg", "fit": "cover" | "contain" }`, a path in
   the home folder), `border` (`{ "width": 1, "color": "border" }`), `radius`,
@@ -260,7 +266,10 @@ Properties any node can have:
   draws its own (a bar mod in a `window_drag` block). macOS keeps its window
   buttons over the layout at `"traffic_lights": [x, y]` (px); leave them
   room. Where the system draws no buttons (`window().buttons`, Linux and
-  Windows), the bar draws them with `window.minimize`, `window.maximize`, `window.close`.
+  Windows), a mod draws them with `window.minimize`, `window.maximize`, `window.close`
+  (the shipped main layout at the end of the sidebar's top row, in its top bar
+  when that is on, and in its status bar while the sidebar is a rail; Terminals'
+  bar draws them in its top bar).
   Windows' shipped tab bar and system strip use vector window icons, with a
   restore icon when maximized, rather than font glyphs.
 - Root only: `"window_blur": true` blurs what's behind the window where the
@@ -442,14 +451,19 @@ The default window:
       "divider": { "width": 1, "color": "border" },
       "children": [
         { "id": "spaces", "type": "block", "content": { "mod": "spaces" } },
-        { "id": "agents", "type": "block", "content": { "mod": "agents" } } ] },
+        { "id": "tab-list", "type": "block", "content": { "mod": "tabs", "props": { "list": true } } } ] },
     { "id": "work", "type": "column",
       "children": [
-        { "id": "tabs", "type": "block", "size": { "px": 30 }, "content": { "mod": "tabs" } },
+        { "id": "top-bar", "type": "block", "size": { "px": 46 }, "hidden": true, "window_drag": true, "content": { "mod": "tabs" } },
         { "id": "main", "type": "block", "content": { "tab": "active",
           "pane": { "gap": 6, "radius": 6, "border": { "width": 1, "color": "border" },
                     "focus": { "width": 1, "color": "accent" } } } } ] } ] }
 ```
+
+`top-bar` is the other home for the shown space's tabs: the pills in a bar
+over the work area, with the window buttons in it, instead of the sidebar's
+`tab-list`. It ships hidden; Settings → Tabs → Top bar shows it (shared
+`"workspace.top_bar"`) and hides `tab-list` in the same move.
 
 Sidebar on the right: swap the two children of `root`. No sidebar: set
 `"hidden": true` on `sidebar` (the user can toggle it: `ctrl-shift-b`).
@@ -540,6 +554,13 @@ shortcuts must then be added by hand.
   indexes: `space.new:{work}` names a space `{work}`, and `space.new:{}` names it `{}`.
   Invalid binding objects or rejected arguments show an error toast when pressed;
   the key does not go to the terminal program.
+- Settings → Keys lists the actions and records a key for one: click Record,
+  press the key, Escape cancels. It writes keys.json with `app.bind_key`
+  (same as `bubble do app.bind_key --command tab.new --section terminal`),
+  and `app.unbind_key` clears one. A key does one thing: binding it removes it
+  from every other action. `app.sequence {commands}` runs steps in order
+  (`["tab.next", {"command": "layout.show", "args": {"id": "panel"}}]`), for
+  one key that should do several things; the Keys page's panel actions use it.
 - Plain ctrl+letters go to the program unless bound. Programs rely on
   ctrl+c, ctrl+d, ctrl+l, ctrl+r, ctrl+w, ctrl+a, ctrl+e, ctrl+u, ctrl+k,
   ctrl+z and ctrl+[ (Escape); ctrl+alt is AltGr on Windows; option+digits
@@ -679,7 +700,11 @@ The main ones:
   `layout.reset {name?}` (reset a shipped layout and its clicks),
   `layout.clone {name, as?}` (duplicate, then switch; default `<name>-copy`).
 - App: `mod.clone {name, as?}` (duplicate; default `<name>-copy`), `mod.open {name}` (again: closes it), `overlay.close {id?}`, `app.help` (again: closes it), `app.palette` (again: closes it), `app.settings {section?}`
-  (sections: `look`, `machines`, `alerts`, `updates`, `privacy`; Machines lists, updates, renames and removes ssh machines; settings edit the same files you do).
+  (sections: `look`, `keys`, `tabs`, `keyboard` on macOS, `machines`, `alerts`, `updates`, `privacy`; Machines lists, updates, renames and removes ssh machines; settings edit the same files you do).
+  `app.sequence {commands}` runs steps in order, each a command name or `{command, args}`;
+  `app.bind_key {command, args?, section?}` waits for the next key and binds it in
+  keys.json (`section` defaults to `global`), and `app.unbind_key {command, args?, section?}`
+  removes it. Escape cancels a bind.
   `app.check_updates` (checks Bubble Core only when it is configured; only a successful check reports Up to date), `app.update_core` (a newer Bubble Core of this generation, terminals kept;
   never one a package manager owns), `app.welcome`, `app.whats_new`, `app.feedback {message?, from?}` (from `"person"` or `"agent"`; opens a review window, where the person can paste up to 3 screenshots; never sends until the person clicks Send), `app.reset`,
   `app.theme {name}`, `app.zoom_in`, `app.zoom_out`, `app.zoom_reset`,
@@ -826,6 +851,11 @@ What's about the user, never a look:
   pane's right edge (default `true`). It shows only when the pane has
   scrollback — never on the alternate screen (editors, pagers) — and
   drags to move through it.
+- `tiled_tabs`: `true` shows every open tab of the shown space side by side
+  as scrolling columns, like niri (default `false`: one tab at a time). The
+  shown tab has an accent border; click a column to show it. Two or more
+  columns share the width evenly, each at least 320 px, and the row scrolls
+  sideways. Settings → Tabs turns it on.
 - `telemetry`: `false` stops anonymous usage data and deletes what wasn't
   kept (on when absent; Settings → Privacy shows each report word for
   word, and `telemetry()` in mods). Reports are local-only in Bubble and
@@ -916,7 +946,8 @@ has 124 programs (agents, editors, runtimes, tools, databases, infra);
   (tinted with the text color). Saving an asset under `mods/` updates every
   mod showing it, including images that were missing or invalid on first load.
 - The defaults are mods too, read them as examples: `spaces`, `agents`,
-  `tabs` (the tab bar), `menu`, `prompt`, `confirm`, `help`, `toast`,
+  `tabs` (the tab bar and the sidebar's tab list), `menu`, `prompt`,
+  `confirm`, `help`, `toast`,
   Terminals' `picker`, `peek`, and `pane` (an
   example pane header, not used by the default layouts), and `worktree`
   (git worktrees as spaces: the space menu's and the + menu's New worktree,

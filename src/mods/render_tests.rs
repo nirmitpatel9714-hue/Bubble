@@ -189,6 +189,9 @@ fn module(values: BTreeMap<String, Value>, calls: Rc<RefCell<Calls>>) -> HostMod
             &json!({"available":true,"body":{"message":a.string(0)?,"email":a.string(1)?}}),
         ))
     });
+    // No key is being recorded in a render test.
+    module = module.function("recordingKey", |_| Ok(HostValue::Null));
+    module = module.function("cancelRecordingKey", |_| Ok(HostValue::Null));
     let shared = calls.clone();
     module = module.function("shared", move |a| {
         Ok(shared.borrow().shared.get(a.string(0)?).map(to_host).unwrap_or(HostValue::Null))
@@ -566,6 +569,38 @@ fn windows_tab_buttons_use_matching_vector_icons(cx: &mut TestAppContext) {
                 assert!(tree.contains("mods/pane/close.svg"), "{tree}");
             }
         }
+    }
+}
+
+/// `props().list` draws the shown space's tabs in a sidebar block; otherwise
+/// the mod is a bar, and `props().tabs: false` leaves its pills out (a layout
+/// that lists the tabs elsewhere keeps just the panel menu, buttons and drag).
+#[gpui::test]
+fn tabs_draw_in_the_sidebar_or_the_top_bar(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let with = |props: Value| fixture(true, props, updates("current", "current"));
+    // `props().list`: the shown space's tabs in a sidebar block, with the + menu.
+    let list = describe_with_values(cx, &staged, "mods/tabs", with(json!({"list":true})), None).unwrap();
+    assert!(list.contains("tab-tab1"), "{list}");
+    assert!(list.contains("tab-new"), "{list}");
+    assert!(!list.contains("panel-"), "no panel buttons in the sidebar list: {list}");
+    // `props().tabs: false`: the top bar keeps one panel menu, no pills.
+    let bar = describe_with_values(cx, &staged, "mods/tabs", with(json!({"tabs":false})), None).unwrap();
+    assert!(bar.contains("panel-menu"), "{bar}");
+    assert!(!bar.contains("panel-files"), "one menu, not a button per panel: {bar}");
+    assert!(!bar.contains("tab-new"), "the pills' + button is not in a list bar: {bar}");
+    assert!(!bar.contains("tab-tab1"), "{bar}");
+}
+
+/// The panel menu lists Home and the panels, marking the one that is open.
+#[gpui::test]
+fn the_panel_menu_lists_home_and_the_panels(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let tree = describe(cx, &staged, "mods/panel-menu", true, props(), updates("current", "current"), None).unwrap();
+    for id in ["pm-home", "pm-files", "pm-changes", "pm-agents"] {
+        assert!(tree.contains(id), "{id} missing: {tree}");
     }
 }
 
@@ -1230,6 +1265,17 @@ fn picker_scrolls_the_selection_into_view(cx: &mut TestAppContext) {
 }
 
 #[gpui::test]
+/// The sidebar footer opens the panel menu, above Settings.
+fn the_sidebar_footer_opens_the_panel_menu_above_settings(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let values = fixture(true, json!({ "footer": true }), updates("current", "current"));
+    let tree = describe_with_values(cx, &staged, "mods/workspace-chrome", values, None).unwrap();
+    let at = |label: &str| tree.find(label).unwrap_or_else(|| panic!("{label} missing: {tree}"));
+    assert!(at("panel-picker") < at("settings"), "the panel menu comes first: {tree}");
+}
+
+#[gpui::test]
 fn status_bar_shows_the_real_palette_key(cx: &mut TestAppContext) {
     cx.update(gpui_shell::init);
     let staged = Staged::new();
@@ -1244,6 +1290,107 @@ fn status_bar_shows_the_real_palette_key(cx: &mut TestAppContext) {
     let tree = describe_with_values(cx, &staged, "mods/workspace-status", unbound, None).unwrap();
     assert!(tree.contains("commands"), "unbound hint still offers commands: {tree}");
     assert!(!tree.contains("Shift P"), "unbound hint must not invent a key: {tree}");
+}
+
+/// The window's buttons sit at the end of the sidebar's top row, where a title
+/// bar's do; the top bar draws them when it is on, and a rail has no room.
+#[gpui::test]
+fn the_sidebar_top_row_holds_the_window_buttons(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let wide = || fixture(false, props(), updates("current", "current"));
+    let tree = describe_with_values(cx, &staged, "mods/workspace-chrome", wide(), None).unwrap();
+    for icon in ["win-min.svg", "win-max.svg", "win-close.svg"] {
+        assert!(tree.contains(icon), "missing {icon}: {tree}");
+    }
+    // The top bar holds them: the sidebar must not add a second set.
+    let mut bar = wide();
+    bar.get_mut("layout").unwrap()["children"][1]["children"][0]["hidden"] = json!(false);
+    let tree = describe_with_values(cx, &staged, "mods/workspace-chrome", bar, None).unwrap();
+    assert!(!tree.contains("mods/tabs/win-"), "the top bar holds them: {tree}");
+    // A rail is too narrow for them.
+    let mut rail = wide();
+    rail.get_mut("layout").unwrap()["children"][0]["size"]["px"] = json!(44);
+    let tree = describe_with_values(cx, &staged, "mods/workspace-chrome", rail, None).unwrap();
+    assert!(!tree.contains("mods/tabs/win-"), "no room on a rail: {tree}");
+}
+
+/// The status bar keeps the window buttons reachable while the sidebar is a
+/// rail: it has no title row for them, and neither has a hidden sidebar.
+#[gpui::test]
+fn the_status_bar_keeps_the_window_buttons_while_the_sidebar_is_a_rail(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let tree = describe_with_values(cx, &staged, "mods/workspace-status", fixture(true, props(), updates("current", "current")), None).unwrap();
+    assert!(!tree.contains("mods/tabs/win-"), "the sidebar's top row holds them: {tree}");
+    for (px, hidden) in [(44.0, false), (300.0, true)] {
+        let mut values = fixture(true, props(), updates("current", "current"));
+        let sidebar = &mut values.get_mut("layout").unwrap()["children"][0];
+        sidebar["size"]["px"] = json!(px);
+        sidebar["hidden"] = json!(hidden);
+        let tree = describe_with_values(cx, &staged, "mods/workspace-status", values, None).unwrap();
+        assert!(tree.contains("win-min.svg") && tree.contains("win-close.svg"), "{px}/{hidden}: {tree}");
+    }
+}
+
+/// Turning the top bar off hides it again. A shown node carries no `hidden`
+/// key at all (the layout leaves `false` out), so the sync must not compare it
+/// to `false` strictly: that would show the bar and never take it away.
+#[gpui::test]
+fn turning_the_top_bar_off_hides_it_again(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let calls = Rc::new(RefCell::new(Calls::default()));
+    calls.borrow_mut().shared.insert("workspace.top_bar".into(), json!(false));
+    let mut values = fixture(false, props(), updates("current", "current"));
+    // Shown once: `layout.show` made hidden false, and the layout leaves that out.
+    values.get_mut("layout").unwrap()["children"][1]["children"][0].as_object_mut().unwrap().remove("hidden");
+    let policy = Policy::new().with_host_module(module(values, calls.clone())).unwrap();
+    // No wrapper: workspace-chrome has no init to extend.
+    let root = staged.0.join("mods/workspace-chrome");
+    let window = cx.add_window(|_, _| Empty);
+    let mut session = window
+        .update(cx, |_, window, cx| DescriptionSession::load(ShellRuntime::new_isolated().unwrap(), root, policy, window, cx).unwrap())
+        .unwrap();
+    window
+        .update(cx, |_, window, cx| {
+            session.describe(window, cx).unwrap();
+            window.remove_window();
+        })
+        .unwrap();
+    let calls = calls.borrow();
+    assert!(calls.unexpected.is_empty(), "{:?}", calls.unexpected);
+    let hid = calls.effects.iter().any(|(name, args)| name == "run" && args[0] == json!("layout.hide") && args[1]["id"] == json!("top-bar"));
+    assert!(hid, "the top bar must be hidden again: {:?}", calls.effects);
+}
+
+/// The editor draws one bar over the code: the open files, the file in front
+/// and its tools, instead of a title strip over a tab strip over a path strip.
+#[gpui::test]
+fn the_editor_merges_its_bars_into_one(cx: &mut TestAppContext) {
+    cx.update(gpui_shell::init);
+    let staged = Staged::new();
+    let entry = |id: &str, name: &str, path: &str| {
+        format!("{{id:'{id}', name:'{name}', path:'{path}', value:'x', saved:'x', dirty:false, loading:false, note:'', conflict:false}}")
+    };
+    let setup = format!(
+        "this.entries = [{}, {}]; this.active = 'f1';",
+        entry("f1", "a.py", "/work/one/a.py"),
+        entry("f2", "b.md", "/work/two/b.md")
+    );
+    let tree = describe(cx, &staged, "mods/editor", false, props(), updates("current", "current"), Some(&setup)).unwrap();
+    assert!(tree.contains("ed-tab-f1") && tree.contains("ed-tab-f2"), "{tree}");
+    assert!(tree.contains("/work/one/a.py"), "the file in front shows its path: {tree}");
+    for id in ["ed-save", "ed-wrap", "ed-find", "ed-save-all", "ed-open", "ed-new-file"] {
+        assert!(tree.contains(id), "{id} missing: {tree}");
+    }
+    assert_eq!(tree.matches(".border_b").count(), 1, "one bar, not three: {tree}");
+
+    // With nothing open it is still one strip: the welcome screen has its own title.
+    let tree = describe(cx, &staged, "mods/editor", false, props(), updates("current", "current"), None).unwrap();
+    assert_eq!(tree.matches(".border_b").count(), 1, "one bar on the welcome screen too: {tree}");
+    assert!(!tree.contains("Bubble feature pack"), "no footer strip: {tree}");
+    assert!(tree.contains("ed-new-file") && tree.contains("ed-open"), "{tree}");
 }
 
 #[gpui::test]
